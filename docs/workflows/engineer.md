@@ -7,7 +7,7 @@ on the seeded bug
 research → implement → draft pull request → independent
 [adversarial review](https://github.com/ai-outfitter/community-profiles/blob/main/workflows/adversarial-review/workflow.yaml)
 → merge as the human. Run it in **your fork** — see the
-[README](../../README.md#fork-run-reset) for fork and reset instructions.
+[README](../../README.md#reset-and-go-again) for fork and reset instructions.
 
 Every step lands on the forge, so the record outlives the session: the bug
 becomes an issue, the fix becomes a pull request that references it, the
@@ -123,7 +123,7 @@ gh pr merge 2 --squash
 You just ran the loop this playground exists to teach: scoped issue →
 implementation on a branch → draft PR gated on CI → cold-context adversarial
 review → rework → human merge. Now
-[reset your fork](../../README.md#fork-run-reset) and run it again with a
+[reset your fork](../../README.md#reset-and-go-again) and run it again with a
 different harness, a different prompt, or with yourself playing one of the
 lanes.
 

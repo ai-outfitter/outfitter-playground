@@ -1,67 +1,81 @@
 # Playground
 
-A self-contained sandbox for practicing agentic engineering workflows with
-[Outfitter](https://github.com/ai-outfitter/outfitter) and the
-[community-profiles](https://github.com/ai-outfitter/community-profiles)
-catalog. Fork it, run a workflow against a known bug, reset, run a different
-one.
+One pass through this repository teaches you how to use
+[Outfitter](https://github.com/ai-outfitter/outfitter): you end with a fork
+whose committed [`.agents/`](.agents/settings.yml) directory gave you a full
+agent roster from one pinned
+[community catalog](https://github.com/ai-outfitter/community-profiles) — no
+per-laptop setup — and you will have watched that roster run a real software
+development lifecycle against a seeded bug: a scoped issue, an implementation
+on a semantic branch, a CI-gated draft pull request, a cold-context
+adversarial review, and a pull request left ready for you — the human — to
+merge. Then you reset the fork and run it again, with a different harness,
+prompt, or division of labor.
 
-The repository ships three things:
+1. **Fork** — <https://github.com/ai-outfitter/playground/fork>
+2. **Check out your fork** (needs [Node.js](https://nodejs.org) 20+ and
+   [`gh`](https://cli.github.com/)):
 
-- **An exhibit app** — `split`, a zero-dependency Node CLI that splits a bill
-  among people, with a deliberately unfixed bug: uneven amounts lose cents
-  (`node bin/split.js 100 3` totals `$99.99`). Its tests pass; they just
-  don't cover the case. The bug report with acceptance criteria is seeded at
-  [docs/issues/0001-split-loses-cents.md](docs/issues/0001-split-loses-cents.md).
-- **A preconfigured [`.agents/`](.agents/settings.yml)** — pinned to the
-  community-profiles catalog, so `outfitter sync` gives you the `engineer`,
-  `code-review`, and `git-forge-delegator` agents with no setup.
-- **A workflow walkthrough** —
-  [docs/workflows/engineer.md](docs/workflows/engineer.md) runs the loop this
-  repo exists to teach: scoped issue → implementation on a branch → draft PR
-  gated on CI → cold-context adversarial review → human merge.
+   ```sh
+   gh repo fork ai-outfitter/playground --clone && cd playground
+   node bin/split.js 100 3   # totals $99.99 — there's the seeded bug
+   npm test                  # green: the suite misses the case
+   ```
 
-> [!NOTE]
-> The bug stays unfixed **upstream on purpose** — it is the exhibit. Fix it
-> in your fork as often as you like; pull requests fixing it here will be
-> declined with thanks.
+3. **Start Outfitter** — sync the pinned catalog, then launch the `engineer`
+   agent:
 
-## Prerequisites
+   ```sh
+   npm install -g @ai-outfitter/outfitter
+   outfitter sync
+   outfitter run engineer    # add --harness claude or --harness codex to taste
+   ```
 
-- [Node.js](https://nodejs.org) 20+ (the app and its tests need nothing else)
-- [`gh`](https://cli.github.com/) authenticated to your GitHub account
-- [`outfitter`](https://github.com/ai-outfitter/outfitter):
-  `npm install -g @ai-outfitter/outfitter` (or `npx @ai-outfitter/outfitter`)
-- At least one agent harness: [Pi](https://github.com/earendil-works/pi-coding-agent)
-  (bundled with Outfitter), Claude Code, or Codex CLI
+4. **Paste this prompt:**
 
-## Fork, run, reset
+   > Splitting $100 among 3 people loses a cent — `node bin/split.js 100 3`
+   > totals $99.99. File one scoped issue on this repository with acceptance
+   > criteria a reviewer can check mechanically (the report in
+   > docs/issues/0001-split-loses-cents.md is the template), then work that
+   > issue. Do not merge.
 
-**Fork** — work in your own fork so agents can push branches and open pull
-requests freely:
+5. **Watch the SDLC happen.** The engineer's loadout carries the lifecycle:
+   it files the issue, fixes `src/split.js` on a `fix/...` branch with a
+   conventional commit, adds the regression test the issue demands, verifies
+   with `npm test`, opens the pull request as a draft, waits for CI to go
+   green, and marks it ready. Ready is the signal that requests review.
+6. **Run the adversarial review** — a fresh session, a distinct reviewer
+   agent, no stake in the change passing:
 
-```sh
-gh repo fork ai-outfitter/playground --clone
-cd playground
-npm test                     # green — the bug is uncovered, not failing
-node bin/split.js 100 3      # $99.99: there's the exhibit
-outfitter sync               # fetch the pinned community catalog
-```
+   ```sh
+   outfitter run code-review
+   ```
 
-**Run** — issues do not travel with forks, so seed the bug report first:
+   > Review the open pull request against its linked issue's acceptance
+   > criteria.
 
-```sh
-gh issue create \
-  --title "split loses cents on uneven amounts" \
-  --body-file docs/issues/0001-split-loses-cents.md
-```
+   Expect a formal PR review: one inline comment per finding,
+   `REQUEST_CHANGES` if anything blocks, a `COMMENT` verdict when clean —
+   never `APPROVE`, because approval is yours. If it found blockers, send
+   the findings back through `outfitter run engineer` and review again.
+7. **Merge the ready PR.** Verify the acceptance criteria yourself, then
+   merge:
 
-then follow [the engineer workflow](docs/workflows/engineer.md), or improvise:
-implement by hand and have an agent review, delegate the issue and review by
-hand, or swap harnesses (`outfitter run engineer --harness claude`).
+   ```sh
+   node bin/split.js 100 3   # total must read $100.00
+   npm test
+   gh pr merge --squash
+   ```
 
-**Reset** — throw away the run and restore your fork to the upstream state,
-ready for the next experiment:
+That loop — issue → implementation → adversarial review → human merge — is
+the whole lesson. [docs/workflows/engineer.md](docs/workflows/engineer.md)
+walks the same loop with more control at each step, including delegating the
+issue-writing to `git-forge-delegator` and swapping yourself into either
+lane.
+
+## Reset and go again
+
+Throw away the run and restore your fork to the upstream state:
 
 ```sh
 git checkout main
@@ -73,23 +87,22 @@ gh pr list --state open --json number --jq '.[].number' \
 ```
 
 Closed issues and merged PRs stay in your fork's history — that is fine; the
-next run starts from a fresh issue. (No `upstream` remote? `gh repo fork
---clone` adds it; otherwise
+next run starts from a fresh issue. (No `upstream` remote?
 `git remote add upstream https://github.com/ai-outfitter/playground.git`.)
 
-## The exhibit app
+## The exhibit
 
-```text
-usage: split <amount> <people>
+`split` is a zero-dependency Node CLI that splits a bill among people. Its
+bug is deliberate: shares are floored, so uneven amounts lose cents while
+the six-test suite stays green — fixing it requires both a code change and a
+regression test, which gives the reviewer something real to check. The bug
+report with acceptance criteria is seeded at
+[docs/issues/0001-split-loses-cents.md](docs/issues/0001-split-loses-cents.md).
 
-$ node bin/split.js 89.97 3
-person 1: $29.99
-person 2: $29.99
-person 3: $29.99
-total:    $89.97
-```
-
-`npm test` runs the suite with `node --test`. No dependencies, no build step.
+> [!NOTE]
+> The bug stays unfixed **upstream on purpose** — it is the exhibit. Fix it
+> in your fork as often as you like; pull requests fixing it here will be
+> declined with thanks.
 
 ## Layout
 
