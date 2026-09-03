@@ -16,9 +16,8 @@ person 3: $33.33
 total:    $99.99
 ```
 
-The bug is the `Math.floor` share in [`src/split.js`](../../src/split.js):
-the remainder cents after integer division are dropped instead of being
-distributed.
+The bug is the `Math.floor` share in `src/split.js`: the remainder cents
+after integer division are dropped instead of being distributed.
 
 ## Acceptance criteria
 
