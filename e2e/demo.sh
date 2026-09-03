@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
-# Demo cockpit: one command that preps everything and puts YOU in Outfitter,
-# ready to demo the whole engineer flow live — issue filed by the agent, fix
-# on a branch, draft PR, CI, cold-context adversarial review, merge-ready PR.
+# Demo cockpit: mounts THIS repo checkout into the container and puts you in
+# an interactive Outfitter session, ready to demo the engineer flow live.
+# No cloning — the agent works your actual working tree, and branches/PRs it
+# makes are really yours. Each run RESETS the checkout first: hard-reset main
+# to upstream (or origin), delete other local branches, drop untracked files
+# — so the seeded bug is back and the demo starts clean. Wired automatically:
 #
-# What it wires before you land in the session:
-#   * GH_TOKEN from `gh auth token`
-#   * your fork of ai-outfitter/outfitter-playground — found by parentage,
-#     created with `gh repo fork` if missing, force-RESET to upstream state,
-#     open PRs closed, issues enabled
+#   * GH_TOKEN from `gh auth token` (gh + git pushes work in the container,
+#     even though your origin remote is SSH)
 #   * your Claude Code / Codex logins mounted from ~/.claude and ~/.codex;
 #     ANTHROPIC_API_KEY / OPENAI_API_KEY forwarded when set
+#   * your git name/email for the commits the agent makes
+#
+# Reset when you want a clean slate: see README "Reset and go again", or run
+# the automatic e2e (e2e/test.sh) which force-resets your fork.
 #
 # usage: e2e/demo.sh [pi|claude|codex]   (default: claude)
-#        e2e/demo.sh check              free headless sanity check, no models
 set -eu
 cd "$(dirname "$0")"
+repo_root=$(git rev-parse --show-toplevel)
 
 harness=${1:-claude}
 runner=$(command -v docker || command -v podman) || { echo "need docker or podman" >&2; exit 1; }
@@ -22,51 +26,26 @@ runner=$(command -v docker || command -v podman) || { echo "need docker or podma
 echo "building image..."
 "$runner" build -q -t playground-e2e . >/dev/null
 
-if [ "$harness" = check ]; then
-  exec "$runner" run --rm playground-e2e check
-fi
-
 GH_TOKEN=$(gh auth token) || { echo "gh is not authenticated; run gh auth login" >&2; exit 1; }
-login=$(gh api user --jq .login)
 
-find_fork() {
-  gh api repos/ai-outfitter/outfitter-playground/forks --paginate \
-    --jq ".[] | select(.owner.login == \"$login\") | .full_name" | head -1
-}
-if [ -z "${E2E_REPO:-}" ]; then
-  E2E_REPO=$(find_fork)
-  if [ -z "$E2E_REPO" ]; then
-    echo "forking ai-outfitter/outfitter-playground..."
-    gh repo fork ai-outfitter/outfitter-playground --clone=false
-    sleep 5
-    E2E_REPO=$(find_fork)
-  fi
-  [ -n "$E2E_REPO" ] || { echo "could not find or create your fork" >&2; exit 1; }
-fi
-
-# Never force-reset anything that is not a playground fork.
-parent=$(gh api "repos/$E2E_REPO" --jq '.parent.full_name // ""')
-[ "$parent" = ai-outfitter/outfitter-playground ] \
-  || { echo "$E2E_REPO is not a fork of ai-outfitter/outfitter-playground; refusing to reset it" >&2; exit 1; }
-
-echo "resetting $E2E_REPO to the upstream state..."
-tmp=$(mktemp -d)
-git clone -q https://github.com/ai-outfitter/outfitter-playground.git "$tmp/up"
-git -C "$tmp/up" push -q --force \
-  "https://x-access-token:${GH_TOKEN}@github.com/$E2E_REPO.git" main:main
-rm -rf "$tmp"
-gh pr list -R "$E2E_REPO" --state open --json number --jq '.[].number' \
-  | xargs -rn1 gh pr close -R "$E2E_REPO" --delete-branch >/dev/null 2>&1 || true
-gh repo edit "$E2E_REPO" --enable-issues >/dev/null 2>&1 || true
-echo "arena ready: https://github.com/$E2E_REPO"
+ref=origin/main
+git -C "$repo_root" remote get-url upstream >/dev/null 2>&1 && ref=upstream/main
+echo "resetting checkout to $ref (uncommitted changes and extra branches are discarded)..."
+git -C "$repo_root" fetch -q "${ref%%/*}"
+git -C "$repo_root" checkout -qf main
+git -C "$repo_root" reset -q --hard "$ref"
+git -C "$repo_root" clean -qfd
+git -C "$repo_root" for-each-ref --format='%(refname:short)' refs/heads \
+  | grep -v '^main$' | xargs -r git -C "$repo_root" branch -qD
 
 args=(run --rm --entrypoint demo-entry
-  -e GH_TOKEN="$GH_TOKEN" -e E2E_REPO="$E2E_REPO"
-  -e GIT_AUTHOR_NAME="$(git config user.name || echo "$login")"
-  -e GIT_AUTHOR_EMAIL="$(git config user.email || echo "$login@users.noreply.github.com")")
+  -e GH_TOKEN="$GH_TOKEN"
+  -e GIT_AUTHOR_NAME="$(git config user.name || true)"
+  -e GIT_AUTHOR_EMAIL="$(git config user.email || true)"
+  -v "$repo_root:/workspace/playground")
 [ -t 0 ] && args+=(-it)   # interactive when run from a terminal
-# Rootless podman remaps uids, making mounted credential files unreadable to
-# the container user; keep-id preserves the caller's uid instead.
+# Rootless podman remaps uids, making mounted files unreadable to the
+# container user; keep-id preserves the caller's uid instead.
 "$runner" version 2>/dev/null | grep -qi podman && args+=(--userns=keep-id)
 [ -n "${ANTHROPIC_API_KEY:-}" ] && args+=(-e ANTHROPIC_API_KEY)
 [ -n "${OPENAI_API_KEY:-}" ]    && args+=(-e OPENAI_API_KEY)
@@ -76,4 +55,5 @@ args=(run --rm --entrypoint demo-entry
 [ -f "$HOME/.codex/auth.json" ] \
   && args+=(-v "$HOME/.codex/auth.json:/creds/codex.json:ro")
 
+echo "starting container with $repo_root mounted — catalog sync takes a few seconds, then the engineer session opens..."
 exec "$runner" "${args[@]}" playground-e2e "$harness"

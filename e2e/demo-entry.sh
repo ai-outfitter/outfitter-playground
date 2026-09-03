@@ -1,31 +1,48 @@
 #!/usr/bin/env bash
-# Container-side bootstrap for the demo: copy in your credentials, clone your
-# fork, sync the catalog, print the demo script, then hand you an interactive
-# Outfitter session running the engineer. When you exit that session you land
-# in a shell in the clone, ready for the review and merge steps.
+# Container-side bootstrap for the demo: copy in your credentials, use the
+# mounted repo (or clone the fork named in E2E_REPO when nothing is
+# mounted), sync the catalog, print the demo script, then hand you an
+# interactive Outfitter session running the engineer. When you exit that
+# session you land in a shell in the repo, ready for review and merge.
 set -eu
 harness=${1:-claude}
-: "${E2E_REPO:?set by e2e/test.sh}" "${GH_TOKEN:?set by e2e/test.sh}"
 
 for cred in claude:.claude/.credentials.json codex:.codex/auth.json; do
   src=/creds/${cred%%:*}.json dst=$HOME/${cred#*:}
   [ -e "$src" ] || continue
-  [ -r "$src" ] || { echo "FATAL: $src mounted but unreadable (rootless podman needs --userns=keep-id; e2e/test.sh passes it)" >&2; exit 1; }
+  [ -r "$src" ] || { echo "FATAL: $src mounted but unreadable (rootless podman needs --userns=keep-id; the wrapper scripts pass it)" >&2; exit 1; }
   mkdir -p "$(dirname "$dst")" && cp "$src" "$dst"
 done
 
 [ -n "${GIT_AUTHOR_NAME:-}" ]  && git config --global user.name  "$GIT_AUTHOR_NAME"
 [ -n "${GIT_AUTHOR_EMAIL:-}" ] && git config --global user.email "$GIT_AUTHOR_EMAIL"
 
-echo "cloning $E2E_REPO..."
-git clone -q "https://x-access-token:${GH_TOKEN}@github.com/${E2E_REPO}.git" /workspace/playground
-cd /workspace/playground
+if [ -d /workspace/playground/.git ]; then
+  cd /workspace/playground
+  where="your mounted checkout"
+else
+  : "${E2E_REPO:?no repo mounted and E2E_REPO unset}" "${GH_TOKEN:?}"
+  echo "cloning $E2E_REPO..."
+  git clone -q "https://x-access-token:${GH_TOKEN}@github.com/${E2E_REPO}.git" /workspace/playground
+  cd /workspace/playground
+  where="a fresh clone of $E2E_REPO"
+fi
+
+# The container has no SSH keys; route git pushes over token HTTPS whatever
+# scheme the origin remote uses. Global config lives in the container's HOME,
+# so the mounted repo's own config is untouched.
+if [ -n "${GH_TOKEN:-}" ]; then
+  git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "git@github.com:"
+  git config --global --add url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+fi
+
+echo "syncing the community-profiles catalog..."
 outfitter sync
 
 cat <<EOF
 
 ┌─────────────────────────────────────────────────────────────────────┐
-  playground demo — fresh clone of $E2E_REPO (reset to upstream)
+  playground demo — $where
 
   The bug: node bin/split.js 100 3   totals \$99.99
 
@@ -61,11 +78,12 @@ if [ -n "${E2E_NO_LAUNCH:-}" ]; then
   exit 0
 fi
 
+echo "launching the engineer session ($harness) — paste the prompt above when it opens..."
 outfitter run --harness "$harness" || true
 
 cat <<EOF
 
-Engineer session ended. You are in the clone — next steps:
+Engineer session ended. You are in the repo — next steps:
   outfitter run code-review --harness $harness
   gh pr view --web ; npm test ; gh pr merge --squash
 EOF
