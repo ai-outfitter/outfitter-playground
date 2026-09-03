@@ -46,6 +46,11 @@ seed "$HOME/.codex/auth.json" .codex/auth.json
 for f in auth.json settings.json models.json models-store.json; do
   seed "$HOME/.pi/agent/$f" ".pi/agent/$f"
 done
+# Fast mode for the claude legs (Opus-only; an unsupported default model
+# auto-switches to Opus). Scoped to the demo HOME — your real ~/.claude
+# settings are untouched. Costs more per token; delete the key to opt out.
+node -e 'const fs=require("fs"),path=require("path"),p=process.argv[1];let s={};try{s=JSON.parse(fs.readFileSync(p,"utf8"))}catch{}s.fastMode=true;fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,JSON.stringify(s,null,2)+"\n")' \
+  "$demo_home/.claude/settings.json"
 if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global user.name  "$(git config user.name  || echo playground-demo)"
   HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
