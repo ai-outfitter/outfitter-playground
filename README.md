@@ -12,12 +12,12 @@ adversarial review, and a pull request left ready for you — the human — to
 merge. Then you reset the fork and run it again, with a different harness,
 prompt, or division of labor.
 
-1. **Fork** — <https://github.com/ai-outfitter/playground/fork>
+1. **Fork** — <https://github.com/ai-outfitter/outfitter-playground/fork>
 2. **Check out your fork** (needs [Node.js](https://nodejs.org) 20+ and
    [`gh`](https://cli.github.com/)):
 
    ```sh
-   gh repo fork ai-outfitter/playground --clone && cd playground
+   gh repo fork ai-outfitter/outfitter-playground --clone && cd outfitter-playground
    node bin/split.js 100 3   # totals $99.99 — there's the seeded bug
    npm test                  # green: the suite misses the case
    ```
@@ -88,7 +88,7 @@ gh pr list --state open --json number --jq '.[].number' \
 
 Closed issues and merged PRs stay in your fork's history — that is fine; the
 next run starts from a fresh issue. (No `upstream` remote?
-`git remote add upstream https://github.com/ai-outfitter/playground.git`.)
+`git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git`.)
 
 ## The exhibit
 

@@ -25,7 +25,7 @@ conventions, toy stakes.
 the repository's exhibit: fix it only when working an open issue in the
 repository you are operating on (normally a fork). Do not fix it as a
 drive-by while doing other work, and do not open a pull request against
-`ai-outfitter/playground` to fix it upstream.
+`ai-outfitter/outfitter-playground` to fix it upstream.
 
 ## Boundaries
 
