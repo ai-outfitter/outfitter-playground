@@ -123,20 +123,16 @@ test/split.test.js       the suite that passes anyway
 AGENTS.md                repository instructions agents follow (CLAUDE.md symlinks to it)
 ```
 
-## Demo it in a container
+## Demo it
 
-[e2e/](e2e/README.md) wires everything you already have — `gh auth token`,
-your fork (created and force-reset for you), your Claude Code/Codex logins —
-into a container, two ways: `e2e/demo.sh` drops you into an interactive
-Outfitter session with the demo script printed, ready to run the flow live;
-`e2e/test.sh` runs the whole flow automatically while you watch.
-`e2e/test.sh check` is a free sanity pass (no model calls) asserting the
-repo demos cleanly: zero Outfitter warnings, all agents resolved from
-community-profiles.
+[e2e/demo.sh](e2e/README.md) launches the engineer session with everything
+wired from what you already have — `gh auth token`, your Claude Code/Codex
+logins — under a persistent, isolated HOME in `/tmp`, resetting the repo
+checkout first so every demo starts from the seeded bug. Pick a harness per
+run; `check` is a free sanity pass and `reset` wipes the demo HOME.
 
 ```sh
-e2e/demo.sh    # you drive it
-e2e/test.sh    # it drives itself
+e2e/demo.sh            # claude — or: pi, codex, check, reset
 ```
 
 ## License

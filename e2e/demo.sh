@@ -1,59 +1,139 @@
 #!/usr/bin/env bash
-# Demo cockpit: mounts THIS repo checkout into the container and puts you in
-# an interactive Outfitter session, ready to demo the engineer flow live.
-# No cloning — the agent works your actual working tree, and branches/PRs it
-# makes are really yours. Each run RESETS the checkout first: hard-reset main
-# to upstream (or origin), delete other local branches, drop untracked files
-# — so the seeded bug is back and the demo starts clean. Wired automatically:
+# Demo/test the engineer flow on your host — no container. Runs Outfitter
+# under a persistent, isolated HOME in /tmp so harness state (logins,
+# onboarding, the synced catalog) survives between runs without touching
+# your real ~. The repo checkout is reset each run so the seeded bug is
+# back and old demo branches are gone.
 #
-#   * GH_TOKEN from `gh auth token` (gh + git pushes work in the container,
-#     even though your origin remote is SSH)
-#   * your Claude Code / Codex logins mounted from ~/.claude and ~/.codex;
-#     ANTHROPIC_API_KEY / OPENAI_API_KEY forwarded when set
-#   * your git name/email for the commits the agent makes
+# usage: e2e/demo.sh [pi|claude|codex]  launch the engineer session (default: claude)
+#        e2e/demo.sh check              free sanity check: no model calls
+#        e2e/demo.sh reset              wipe the demo HOME for a from-scratch start
 #
-# Reset when you want a clean slate: see README "Reset and go again", or run
-# the automatic e2e (e2e/test.sh) which force-resets your fork.
+# env: PLAYGROUND_HOME  demo HOME (default /tmp/outfitter-playground-home)
+#      ANTHROPIC_API_KEY / OPENAI_API_KEY are passed through when set.
 #
-# usage: e2e/demo.sh [pi|claude|codex]   (default: claude)
+# Credentials: your Claude Code / Codex logins are COPIED into the demo HOME
+# on first run (originals untouched); gh works via GH_TOKEN from
+# `gh auth token`.
 set -eu
-cd "$(dirname "$0")"
-repo_root=$(git rev-parse --show-toplevel)
+script_dir=$(cd "$(dirname "$0")" && pwd)
+repo_root=$(git -C "$script_dir" rev-parse --show-toplevel)
+demo_home=${PLAYGROUND_HOME:-/tmp/outfitter-playground-home}
 
-harness=${1:-claude}
-runner=$(command -v docker || command -v podman) || { echo "need docker or podman" >&2; exit 1; }
+cmd=${1:-claude}
+case "$cmd" in
+  reset) rm -rf "$demo_home"; echo "wiped $demo_home"; exit 0 ;;
+  pi|claude|codex|check) ;;
+  *) echo "usage: e2e/demo.sh [pi|claude|codex|check|reset]" >&2; exit 2 ;;
+esac
 
-echo "building image..."
-"$runner" build -q -t playground-e2e . >/dev/null
+# --- demo HOME: create once, reuse every run -------------------------------
+mkdir -p "$demo_home"
+if [ -f "$HOME/.claude/.credentials.json" ] && [ ! -f "$demo_home/.claude/.credentials.json" ]; then
+  mkdir -p "$demo_home/.claude"
+  cp "$HOME/.claude/.credentials.json" "$demo_home/.claude/.credentials.json"
+fi
+if [ -f "$HOME/.codex/auth.json" ] && [ ! -f "$demo_home/.codex/auth.json" ]; then
+  mkdir -p "$demo_home/.codex"
+  cp "$HOME/.codex/auth.json" "$demo_home/.codex/auth.json"
+fi
+if [ ! -f "$demo_home/.gitconfig" ]; then
+  HOME="$demo_home" git config --global user.name  "$(git config user.name  || echo playground-demo)"
+  HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
+fi
 
 GH_TOKEN=$(gh auth token) || { echo "gh is not authenticated; run gh auth login" >&2; exit 1; }
 
+run_demo() { # run a command in the demo environment
+  env HOME="$demo_home" GH_TOKEN="$GH_TOKEN" \
+    ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
+    ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} \
+    "$@"
+}
+
+cd "$repo_root"
+
+# --- free sanity check -----------------------------------------------------
+if [ "$cmd" = check ]; then
+  total=$(node bin/split.js 100 3 | awk '/^total/ {print $2}')
+  [ "$total" = '$99.99' ] && echo "PASS  exhibit bug present (total $total)" \
+    || { echo "FAIL  exhibit bug missing (total $total)"; exit 1; }
+  npm test >/dev/null 2>&1 && echo "PASS  baseline suite green" \
+    || { echo "FAIL  baseline suite red"; exit 1; }
+  out=$(run_demo outfitter sync 2>&1) || { echo "FAIL  outfitter sync"; echo "$out" | tail -3; exit 1; }
+  echo "$out" | grep -qE '⚠|✗' && { echo "FAIL  sync warnings:"; echo "$out" | grep -E '⚠|✗' | head -3; exit 1; }
+  echo "PASS  outfitter sync clean"
+  out=$(run_demo outfitter validate --strict 2>&1) \
+    || { echo "FAIL  outfitter validate --strict"; echo "$out" | tail -5; exit 1; }
+  echo "$out" | grep -qE '⚠|✗' && { echo "FAIL  validate warnings:"; echo "$out" | grep -E '⚠|✗' | head -3; exit 1; }
+  echo "PASS  outfitter validate --strict clean"
+  out=$(run_demo outfitter list 2>&1)
+  for agent in engineer code-review git-forge-delegator; do
+    echo "$out" | grep -qE "^\s+$agent\s+\[github:ai-outfitter/community-profiles#" \
+      || { echo "FAIL  $agent not resolved from community-profiles"; exit 1; }
+  done
+  echo "PASS  engineer/code-review/git-forge-delegator resolve from community-profiles"
+  exit 0
+fi
+
+# --- reset the checkout so every demo starts clean -------------------------
 ref=origin/main
-git -C "$repo_root" remote get-url upstream >/dev/null 2>&1 && ref=upstream/main
+git remote get-url upstream >/dev/null 2>&1 && ref=upstream/main
 echo "resetting checkout to $ref (uncommitted changes and extra branches are discarded)..."
-git -C "$repo_root" fetch -q "${ref%%/*}"
-git -C "$repo_root" checkout -qf main
-git -C "$repo_root" reset -q --hard "$ref"
-git -C "$repo_root" clean -qfd
-git -C "$repo_root" for-each-ref --format='%(refname:short)' refs/heads \
-  | grep -v '^main$' | xargs -r git -C "$repo_root" branch -qD
+git fetch -q "${ref%%/*}"
+git checkout -qf main
+git reset -q --hard "$ref"
+git clean -qfd
+git for-each-ref --format='%(refname:short)' refs/heads \
+  | grep -v '^main$' | xargs -r git branch -qD
 
-args=(run --rm --entrypoint demo-entry
-  -e GH_TOKEN="$GH_TOKEN"
-  -e GIT_AUTHOR_NAME="$(git config user.name || true)"
-  -e GIT_AUTHOR_EMAIL="$(git config user.email || true)"
-  -v "$repo_root:/workspace/playground")
-[ -t 0 ] && args+=(-it)   # interactive when run from a terminal
-# Rootless podman remaps uids, making mounted files unreadable to the
-# container user; keep-id preserves the caller's uid instead.
-"$runner" version 2>/dev/null | grep -qi podman && args+=(--userns=keep-id)
-[ -n "${ANTHROPIC_API_KEY:-}" ] && args+=(-e ANTHROPIC_API_KEY)
-[ -n "${OPENAI_API_KEY:-}" ]    && args+=(-e OPENAI_API_KEY)
-[ -n "${E2E_NO_LAUNCH:-}" ]     && args+=(-e E2E_NO_LAUNCH)
-[ -f "$HOME/.claude/.credentials.json" ] \
-  && args+=(-v "$HOME/.claude/.credentials.json:/creds/claude.json:ro")
-[ -f "$HOME/.codex/auth.json" ] \
-  && args+=(-v "$HOME/.codex/auth.json:/creds/codex.json:ro")
+echo "syncing the community-profiles catalog..."
+run_demo outfitter sync
 
-echo "starting container with $repo_root mounted — catalog sync takes a few seconds, then the engineer session opens..."
-exec "$runner" "${args[@]}" playground-e2e "$harness"
+cat <<EOF
+
+┌─────────────────────────────────────────────────────────────────────┐
+  playground demo — $repo_root  (HOME: $demo_home)
+
+  The bug: node bin/split.js 100 3   totals \$99.99
+
+  1. You are about to land in the ENGINEER agent ($cmd harness).
+     Paste this prompt:
+
+     Splitting \$100 among 3 people loses a cent — 'node bin/split.js
+     100 3' totals \$99.99. File one scoped issue on this repository
+     with acceptance criteria a reviewer can check mechanically (the
+     report in docs/issues/0001-split-loses-cents.md is the template),
+     then work that issue. Do not merge.
+
+  2. Watch it: issue filed, fix/ branch, regression test, draft PR,
+     CI green, PR marked ready.
+
+  3. Exit the engineer session, then run the cold-context review:
+
+     outfitter run code-review --harness $cmd
+
+     Paste: Review the open pull request against its linked issue's
+     acceptance criteria.
+
+  4. Verify and merge yourself:
+
+     node bin/split.js 100 3    # \$100.00
+     npm test && gh pr merge --squash
+└─────────────────────────────────────────────────────────────────────┘
+
+EOF
+
+echo "launching the engineer session ($cmd) — paste the prompt above when it opens..."
+run_demo outfitter run --harness "$cmd" || true
+
+cat <<EOF
+
+Engineer session ended. This shell stays in the demo environment — next:
+  outfitter run code-review --harness $cmd
+  gh pr view --web ; npm test ; gh pr merge --squash
+(exit to leave; e2e/demo.sh to go again with a fresh slate)
+EOF
+exec env HOME="$demo_home" GH_TOKEN="$GH_TOKEN" \
+  ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
+  ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} bash
