@@ -1,0 +1,17 @@
+{
+  "name": "@ai-outfitter/playground",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A sandbox repository for practicing agentic engineering workflows with Outfitter community profiles",
+  "type": "module",
+  "bin": {
+    "split": "bin/split.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

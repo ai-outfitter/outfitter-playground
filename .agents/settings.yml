@@ -1,0 +1,13 @@
+# Outfitter settings for the playground.
+#
+# Deliberate divergence from the org catalog rule (org repos normally declare
+# ai-outfitter/.agents as their only source): this repository is built to be
+# forked and run outside the organization, so it pins the public community
+# catalog directly. The pin keeps every fork reproducible — bump the ref on
+# purpose, never remove it. Bump to v1.7.0 when community-profiles#65
+# (repo-contributor / software-factory) releases.
+default_agent: engineer
+default_harness: pi
+sources:
+  - github: ai-outfitter/community-profiles
+    ref: v1.6.0
