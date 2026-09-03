@@ -27,27 +27,25 @@ case "$cmd" in
   *) echo "usage: e2e/demo.sh [pi|claude|codex|check|reset]" >&2; exit 2 ;;
 esac
 
-# --- demo HOME: create once, reuse every run -------------------------------
+# --- demo HOME: refresh credentials from the host on EVERY run -------------
+# Host logins are the source of truth: OAuth tokens rotate, and a stale or
+# emptied copy in the demo HOME (pi clears auth.json when a refresh fails)
+# would otherwise stick around forever.
 mkdir -p "$demo_home"
-if [ -f "$HOME/.claude/.credentials.json" ] && [ ! -f "$demo_home/.claude/.credentials.json" ]; then
-  mkdir -p "$demo_home/.claude"
-  cp "$HOME/.claude/.credentials.json" "$demo_home/.claude/.credentials.json"
-fi
+seed() { # seed <host-file> <demo-relative-path>
+  [ -f "$1" ] || return 0
+  mkdir -p "$demo_home/$(dirname "$2")"
+  cp -f "$1" "$demo_home/$2"
+}
+seed "$HOME/.claude/.credentials.json" .claude/.credentials.json
 # Claude Code keeps its account/onboarding state in ~/.claude.json — without
 # it a fresh HOME asks to authenticate even with credentials present.
-if [ -f "$HOME/.claude.json" ] && [ ! -f "$demo_home/.claude.json" ]; then
-  cp "$HOME/.claude.json" "$demo_home/.claude.json"
-fi
-if [ -f "$HOME/.codex/auth.json" ] && [ ! -f "$demo_home/.codex/auth.json" ]; then
-  mkdir -p "$demo_home/.codex"
-  cp "$HOME/.codex/auth.json" "$demo_home/.codex/auth.json"
-fi
-if [ -f "$HOME/.pi/agent/auth.json" ] && [ ! -f "$demo_home/.pi/agent/auth.json" ]; then
-  mkdir -p "$demo_home/.pi/agent"
-  for f in auth.json settings.json models.json models-store.json; do
-    [ -f "$HOME/.pi/agent/$f" ] && cp "$HOME/.pi/agent/$f" "$demo_home/.pi/agent/$f"
-  done
-fi
+[ -f "$HOME/.claude.json" ] && [ ! -f "$demo_home/.claude.json" ] \
+  && cp "$HOME/.claude.json" "$demo_home/.claude.json"
+seed "$HOME/.codex/auth.json" .codex/auth.json
+for f in auth.json settings.json models.json models-store.json; do
+  seed "$HOME/.pi/agent/$f" ".pi/agent/$f"
+done
 if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global user.name  "$(git config user.name  || echo playground-demo)"
   HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
@@ -135,13 +133,27 @@ cat <<EOF
 
 EOF
 
+# Outfitter's pi projection replaces pi's agent dir, which drops the user's
+# defaultProvider/defaultModel — pi then falls back to an arbitrary model.
+# Re-assert the demo HOME's pi defaults explicitly.
+pi_args=()
+if [ "$cmd" = pi ] && [ -f "$demo_home/.pi/agent/settings.json" ]; then
+  defaults=$(node -e 's=require(process.argv[1]);if(s.defaultProvider)console.log(s.defaultProvider+" "+(s.defaultModel||""))' "$demo_home/.pi/agent/settings.json" 2>/dev/null || true)
+  if [ -n "$defaults" ]; then
+    # shellcheck disable=SC2086
+    set -- $defaults
+    pi_args=(--provider "$1"); [ -n "${2:-}" ] && pi_args+=(--model "$2")
+    echo "pi model: ${1}${2:+/$2} (from your pi settings)"
+  fi
+fi
+
 echo "launching the engineer session ($cmd) — paste the prompt above when it opens..."
-run_demo outfitter run --harness "$cmd" || true
+run_demo outfitter run --harness "$cmd" ${pi_args[@]:+-- "${pi_args[@]}"} || true
 
 cat <<EOF
 
 Engineer session ended. This shell stays in the demo environment — next:
-  outfitter run code-review --harness $cmd
+  outfitter run code-review --harness $cmd${pi_args:+ -- ${pi_args[@]}}
   gh pr view --web ; npm test ; gh pr merge --squash
 (exit to leave; e2e/demo.sh to go again with a fresh slate)
 EOF
