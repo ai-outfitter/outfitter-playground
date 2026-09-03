@@ -33,6 +33,11 @@ if [ -f "$HOME/.claude/.credentials.json" ] && [ ! -f "$demo_home/.claude/.crede
   mkdir -p "$demo_home/.claude"
   cp "$HOME/.claude/.credentials.json" "$demo_home/.claude/.credentials.json"
 fi
+# Claude Code keeps its account/onboarding state in ~/.claude.json — without
+# it a fresh HOME asks to authenticate even with credentials present.
+if [ -f "$HOME/.claude.json" ] && [ ! -f "$demo_home/.claude.json" ]; then
+  cp "$HOME/.claude.json" "$demo_home/.claude.json"
+fi
 if [ -f "$HOME/.codex/auth.json" ] && [ ! -f "$demo_home/.codex/auth.json" ]; then
   mkdir -p "$demo_home/.codex"
   cp "$HOME/.codex/auth.json" "$demo_home/.codex/auth.json"
