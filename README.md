@@ -31,7 +31,8 @@ prompt, or division of labor.
    ```
 
    Pass `--harness claude` or `--harness codex` to run the same composed
-   profile in a different harness.
+   profile in a different harness. First run in a harness? Type `/login` at
+   its prompt to set up a model provider before pasting anything.
 
 4. **Paste this prompt:**
 
