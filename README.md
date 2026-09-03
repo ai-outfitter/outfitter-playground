@@ -122,6 +122,17 @@ test/split.test.js       the suite that passes anyway
 AGENTS.md                repository instructions agents follow (CLAUDE.md symlinks to it)
 ```
 
+## Testing the playground itself
+
+[e2e/](e2e/README.md) runs the whole engineer flow headlessly in a container,
+once per harness, resetting to a clean slate between legs — including a free
+`check` mode that asserts the repo demos cleanly (no Outfitter warnings, all
+agents resolved from community-profiles) without spending a token:
+
+```sh
+docker build -t playground-e2e e2e && docker run --rm playground-e2e check
+```
+
 ## License
 
 [MIT](LICENSE.md)
