@@ -33,11 +33,13 @@ prompt, or division of labor.
 
 4. **Paste this prompt:**
 
-   > Splitting $100 among 3 people loses a cent — `node bin/split.js 100 3`
-   > totals $99.99. File one scoped issue on this repository with acceptance
-   > criteria a reviewer can check mechanically (the report in
-   > docs/issues/0001-split-loses-cents.md is the template), then work that
-   > issue. Do not merge.
+   ```text
+   Splitting $100 among 3 people loses a cent — `node bin/split.js 100 3`
+   totals $99.99. File one scoped issue on this repository with acceptance
+   criteria a reviewer can check mechanically (the report in
+   docs/issues/0001-split-loses-cents.md is the template), then work that
+   issue. Do not merge.
+   ```
 
 5. **Watch the SDLC happen.** The engineer's loadout carries the lifecycle:
    it files the issue, fixes `src/split.js` on a `fix/...` branch with a
@@ -51,8 +53,10 @@ prompt, or division of labor.
    outfitter run code-review
    ```
 
-   > Review the open pull request against its linked issue's acceptance
-   > criteria.
+   ```text
+   Review the open pull request against its linked issue's acceptance
+   criteria.
+   ```
 
    Expect a formal PR review: one inline comment per finding,
    `REQUEST_CHANGES` if anything blocks, a `COMMENT` verdict when clean —

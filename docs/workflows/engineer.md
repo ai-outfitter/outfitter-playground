@@ -41,9 +41,14 @@ issue:
 
 ```sh
 outfitter run git-forge-delegator
-> Splitting $100 among 3 people prints a $99.99 total — run
-> `node bin/split.js 100 3` to reproduce. File one scoped issue on this
-> repository with acceptance criteria a reviewer can check mechanically.
+```
+
+and paste:
+
+```text
+Splitting $100 among 3 people prints a $99.99 total — run
+`node bin/split.js 100 3` to reproduce. File one scoped issue on this
+repository with acceptance criteria a reviewer can check mechanically.
 ```
 
 Read the issue it files. Good acceptance criteria name the command that
@@ -54,7 +59,10 @@ them without judgment calls.
 
 ```sh
 outfitter run engineer
-> Work issue #1 in this repository. Do not merge.
+```
+
+```text
+Work issue #1 in this repository. Do not merge.
 ```
 
 The engineer owns implementation and verification, and its loadout already
@@ -83,7 +91,10 @@ is wrong and make the diff prove otherwise.
 
 ```sh
 outfitter run code-review
-> Review pull request #2 against issue #1's acceptance criteria.
+```
+
+```text
+Review pull request #2 against issue #1's acceptance criteria.
 ```
 
 Expect a formal review, not chat: one inline comment per finding anchored to
@@ -105,8 +116,11 @@ engineer:
 
 ```sh
 outfitter run engineer
-> Address the review findings on pull request #2, push, and answer each
-> finding with what changed or why not.
+```
+
+```text
+Address the review findings on pull request #2, push, and answer each
+finding with what changed or why not.
 ```
 
 then re-run step 3 — a new revision gets a fresh cold-context pass.
