@@ -1,89 +1,53 @@
-# End-to-end tests
+# Demo cockpit
 
-Prove the engineer flow works, per harness, from a clean slate — where
-"works" means what a new user would experience: **zero warnings** from
-`outfitter sync` / `validate --strict` / `list`, agents provably composed
-from the **community-profiles** catalog, and the loop itself — issue →
-implementation → adversarial review → a PR ready to merge — completing
-against the seeded bug. Every leg starts from a fresh clone (local mode) or
-a force-reset scratch fork (forge mode), so runs are repeatable.
-
-## Quick start
-
-One command runs the whole workflow — issue filed, engineer solves it, draft
-PR, CI, cold-context review, merge-ready PR — against **your fork** of the
-playground (created for you if missing, force-reset to upstream first),
-using the credentials you already have: `gh auth token` for the forge, your
-Claude Code / Codex logins mounted from `~/.claude` / `~/.codex`:
+One command puts you in a container, inside an interactive Outfitter session,
+ready to demo the whole engineer flow live — the agent files the issue,
+fixes the seeded bug on a branch, opens a draft PR, CI runs, a cold-context
+reviewer delivers a verdict, and you merge:
 
 ```sh
-e2e/test.sh            # default: claude harness
-e2e/test.sh pi         # or codex, or all, or check
+e2e/test.sh            # claude harness (default) — or: pi, codex
 ```
 
-## By hand
+Before you land in the session it wires everything from what you already
+have — no env setup:
+
+- `GH_TOKEN` from `gh auth token`
+- your **fork** of `ai-outfitter/outfitter-playground`, found by parentage
+  (created with `gh repo fork` if missing), **force-reset to the upstream
+  state**, open PRs closed, issues enabled — so every demo starts clean
+- your Claude Code (`~/.claude`) / Codex (`~/.codex`) logins mounted in;
+  `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` forwarded when set
+- your git name/email for the commits the agent makes
+
+On landing you get a printed demo script: the prompt to paste into the
+engineer, what to watch for, then `outfitter run code-review` for the
+adversarial review, then the merge commands. Exiting the engineer session
+drops you into a shell in the clone to run those next steps. Exit the shell
+to end the demo; run `e2e/test.sh` again for a fresh slate.
+
+The image is the published `ghcr.io/ai-outfitter/outfitter` base plus `gh`
+and the claude/codex CLIs (pi ships with Outfitter). Rootless podman is
+handled (`--userns=keep-id`).
+
+## Free sanity check
 
 ```sh
-docker build -t playground-e2e e2e
-
-# Free smoke check — no model calls: tools present, exhibit intact,
-# sync/validate warning-free, catalog attribution correct.
-docker run --rm playground-e2e check
-
-# One harness, local mode (implement + review, no forge writes):
-docker run --rm -e ANTHROPIC_API_KEY playground-e2e claude
-
-# Every harness with a credential present:
-docker run --rm -e ANTHROPIC_API_KEY -e OPENAI_API_KEY playground-e2e all
+e2e/test.sh check
 ```
 
-`podman` works the same. To test local changes instead of upstream, mount
-your checkout: `-v "$PWD:/src:ro"`.
+No model calls: clones the repo, confirms the bug reproduces and the suite
+is green, runs `outfitter sync` and `outfitter validate --strict` asserting
+**zero warnings**, and confirms `engineer`, `code-review`, and
+`git-forge-delegator` resolve from the pinned community-profiles catalog —
+the "does this demo cleanly for a new user" gate.
 
-## Full forge mode
+## Headless mode (CI use)
 
-Runs the real flow — issue filed with `gh`, draft PR, CI, formal review —
-against a **scratch fork you own** (never upstream; the script refuses).
-The scratch fork is force-reset to the upstream state before each leg:
-
-```sh
-docker run --rm \
-  -e ANTHROPIC_API_KEY \
-  -e GH_TOKEN \
-  -e E2E_REPO=<you>/playground \
-  playground-e2e claude --forge
-```
-
-The leg asserts: issue filed → open PR referencing it → CI green → PR
-marked ready → at least one formal review submitted → summary line
-declaring the PR ready for a human merge.
-
-## What each leg asserts
-
-| Check | Local | Forge |
-| --- | --- | --- |
-| Exhibit bug present, baseline suite green | ✓ | ✓ |
-| `sync` / `validate --strict` with zero warnings | ✓ | ✓ |
-| `engineer`, `code-review`, `git-forge-delegator` attributed to `github:ai-outfitter/community-profiles#<ref>` | ✓ | ✓ |
-| Semantic `fix/` branch, conventional commit, nothing left uncommitted | ✓ | via PR |
-| `test/split.test.js` gained a regression test | ✓ | via review |
-| `npm test` green and `split 100 3` totals `$100.00` after the fix | ✓ | via CI |
-| Cold-context review delivers a verdict | `VERDICT:` line | formal PR review |
-| Issue → draft PR → CI → ready → reviewed | — | ✓ |
-
-## Harness notes
-
-- **pi** — bundled with Outfitter. Picks `--provider anthropic --model
-  *sonnet*` when `ANTHROPIC_API_KEY` is set, else openai; override with
-  `E2E_PI_ARGS`.
-- **claude** — headless `-p` with `--dangerously-skip-permissions`, which the
-  script only allows inside a container.
-- **codex** — `codex exec` with sandbox bypass (container-only, same guard).
-  Runs without `--strict` because Codex cannot project the composed agent
-  identity yet; expect Outfitter to warn about the dropped identity. The leg
-  still exercises the flow, but this is a known demo gap, not a playground
-  bug.
-
-`E2E_TIMEOUT` (default 900s) bounds each agent run. Logs land in
-`/tmp/e2e-*.log` inside the container; add `-v /tmp/e2e-logs:/tmp` to keep
-them.
+`run.sh` (the image's default entrypoint) can also drive the flow
+non-interactively for automation: `local` legs implement + review in-repo
+with no forge writes, and `--forge` legs run the full issue → PR → CI →
+formal-review loop against a fork named in `E2E_REPO`, force-resetting it
+first (it refuses upstream and anything that is not a playground fork).
+Agent output streams through and is scanned for warnings. See the header of
+[run.sh](run.sh) for flags; the demo cockpit above is the primary interface.

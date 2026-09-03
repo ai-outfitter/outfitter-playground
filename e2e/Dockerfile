@@ -18,6 +18,7 @@ RUN apt-get update \
   && npm cache clean --force
 
 COPY --chmod=0755 run.sh /usr/local/bin/playground-e2e
+COPY --chmod=0755 demo-entry.sh /usr/local/bin/demo-entry
 
 USER 1000:1000
 WORKDIR /workspace

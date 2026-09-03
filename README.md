@@ -17,7 +17,8 @@ prompt, or division of labor.
    [`gh`](https://cli.github.com/)):
 
    ```sh
-   gh repo fork ai-outfitter/outfitter-playground --clone && cd playground
+   gh repo fork ai-outfitter/outfitter-playground --clone && cd outfitter-playground
+   gh repo edit --enable-issues   # forks start with issues turned off
    node bin/split.js 100 3   # totals $99.99 — there's the seeded bug
    npm test                  # green: the suite misses the case
    ```
@@ -122,15 +123,17 @@ test/split.test.js       the suite that passes anyway
 AGENTS.md                repository instructions agents follow (CLAUDE.md symlinks to it)
 ```
 
-## Testing the playground itself
+## Demo it in a container
 
-[e2e/](e2e/README.md) runs the whole engineer flow headlessly in a container,
-once per harness, resetting to a clean slate between legs — including a free
-`check` mode that asserts the repo demos cleanly (no Outfitter warnings, all
-agents resolved from community-profiles) without spending a token:
+[e2e/test.sh](e2e/README.md) is the one-command demo cockpit: it resets your
+fork to a clean slate, wires your `gh` token and harness logins, starts a
+container, and drops you into an interactive Outfitter session with the demo
+script printed — ready to run the whole flow live. `e2e/test.sh check` is a
+free sanity pass (no model calls) that asserts the repo demos cleanly: zero
+Outfitter warnings, all agents resolved from community-profiles.
 
 ```sh
-docker build -t playground-e2e e2e && docker run --rm playground-e2e check
+e2e/test.sh
 ```
 
 ## License

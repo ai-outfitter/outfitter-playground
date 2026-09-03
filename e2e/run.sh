@@ -74,8 +74,12 @@ git config --global user.email >/dev/null 2>&1 || git config --global user.email
 
 # Harness logins mounted by e2e/test.sh land read-only in /creds; copy them
 # into this container's HOME where the CLIs expect them.
-[ -f /creds/claude.json ] && { mkdir -p "$HOME/.claude"; cp /creds/claude.json "$HOME/.claude/.credentials.json"; }
-[ -f /creds/codex.json ]  && { mkdir -p "$HOME/.codex";  cp /creds/codex.json  "$HOME/.codex/auth.json"; }
+for cred in claude:.claude/.credentials.json codex:.codex/auth.json; do
+  src=/creds/${cred%%:*}.json dst=$HOME/${cred#*:}
+  [ -e "$src" ] || continue
+  [ -r "$src" ] || { echo "FATAL: $src mounted but unreadable (rootless podman? e2e/test.sh passes --userns=keep-id)" >&2; exit 1; }
+  mkdir -p "$(dirname "$dst")" && cp "$src" "$dst"
+done
 
 # --- static leg: everything a new user sees before any model call ----------
 static_checks() {
@@ -109,8 +113,19 @@ static_checks() {
 }
 
 # --- one agent run, headless, per harness ----------------------------------
+# Output streams to the terminal (so you can watch the agent work) AND is
+# captured to the logfile for the warning scan.
 launch() { # $1 harness, $2 agent, $3 prompt, $4 logfile
   local harness=$1 agent=$2 prompt=$3 log=$4
+  printf -- '--- %s agent working (%s harness), output live: ---\n' "$2" "$1"
+  _launch "$@" 2>&1 | tee "$log"
+  local rc=${PIPESTATUS[0]}
+  printf -- '--- end of %s output (exit %s) ---\n' "$2" "$rc"
+  return "$rc"
+}
+
+_launch() {
+  local harness=$1 agent=$2 prompt=$3
   case "$harness" in
     pi)
       local pi_args=${E2E_PI_ARGS:-}
@@ -128,7 +143,7 @@ launch() { # $1 harness, $2 agent, $3 prompt, $4 logfile
       # No --strict: codex cannot project the composed identity yet and strict
       # would abort. The identity-drop warning is expected and reported below.
       timeout "$E2E_TIMEOUT" outfitter run "$agent" --harness codex -- exec --dangerously-bypass-approvals-and-sandbox "$prompt" ;;
-  esac > "$log" 2>&1
+  esac
 }
 
 cred_for() {
@@ -201,6 +216,8 @@ forge_leg() {
     || { bad "forge/$harness: reset" "force-push to $E2E_REPO failed"; return 1; }
   gh pr list -R "$E2E_REPO" --state open --json number --jq '.[].number' 2>/dev/null \
     | xargs -rn1 gh pr close -R "$E2E_REPO" --delete-branch >/dev/null 2>&1
+  # Forks start with issues disabled; the flow needs them.
+  gh repo edit "$E2E_REPO" --enable-issues >/dev/null 2>&1
   ok "forge/$harness: scratch fork reset"
 
   repo=$(mktemp -d)/playground
@@ -211,7 +228,7 @@ forge_leg() {
   issue=$(cd "$repo" && gh issue create -R "$E2E_REPO" \
     --title "split loses cents on uneven amounts" --body-file "$ISSUE_DOC" \
     | grep -oE '[0-9]+$') || { bad "forge/$harness: issue" "gh issue create failed"; return 1; }
-  ok "forge/$harness: issue #$issue filed"
+  ok "forge/$harness: issue #$issue filed — https://github.com/$E2E_REPO/issues/$issue"
 
   ( cd "$repo" && launch "$harness" engineer "Work issue #$issue in this repository ($E2E_REPO). Follow AGENTS.md. Open the pull request as a draft, get CI green, then mark it ready. Do not merge." "$log" )
   local rc=$?
@@ -221,6 +238,7 @@ forge_leg() {
   local pr
   pr=$(gh pr list -R "$E2E_REPO" --state open --json number --jq '.[0].number' 2>/dev/null)
   [ -n "$pr" ] && [ "$pr" != null ] || { bad "forge/$harness: PR" "no open pull request after engineer run"; return 1; }
+  echo "watch it: https://github.com/$E2E_REPO/pull/$pr"
   gh pr view "$pr" -R "$E2E_REPO" --json body,title --jq '.body + .title' | grep -q "#$issue" \
     || bad "forge/$harness: PR" "PR #$pr does not reference issue #$issue"
   local tries=0
