@@ -22,17 +22,16 @@ prompt, or division of labor.
    npm test                  # green: the suite misses the case
    ```
 
-3. **Start Outfitter** — sync the pinned catalog, then launch:
+3. **Start Outfitter** — sync the pinned catalog, then launch. Pass
+   `--harness claude` or `--harness codex` to run the same composed profile
+   in a different harness, and on your first run in a harness type `/login`
+   at its prompt to set up a model provider before pasting anything:
 
    ```sh
    npm install -g @ai-outfitter/outfitter
    outfitter sync
    outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
    ```
-
-   Pass `--harness claude` or `--harness codex` to run the same composed
-   profile in a different harness. First run in a harness? Type `/login` at
-   its prompt to set up a model provider before pasting anything.
 
 4. **Paste this prompt:**
 
