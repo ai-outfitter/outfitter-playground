@@ -42,6 +42,12 @@ if [ -f "$HOME/.codex/auth.json" ] && [ ! -f "$demo_home/.codex/auth.json" ]; th
   mkdir -p "$demo_home/.codex"
   cp "$HOME/.codex/auth.json" "$demo_home/.codex/auth.json"
 fi
+if [ -f "$HOME/.pi/agent/auth.json" ] && [ ! -f "$demo_home/.pi/agent/auth.json" ]; then
+  mkdir -p "$demo_home/.pi/agent"
+  for f in auth.json settings.json models.json models-store.json; do
+    [ -f "$HOME/.pi/agent/$f" ] && cp "$HOME/.pi/agent/$f" "$demo_home/.pi/agent/$f"
+  done
+fi
 if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global user.name  "$(git config user.name  || echo playground-demo)"
   HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
