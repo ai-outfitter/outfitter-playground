@@ -1,5 +1,5 @@
 {
-  "name": "@ai-outfitter/playground",
+  "name": "@ai-outfitter/outfitter-playground",
   "version": "0.1.0",
   "private": true,
   "description": "A sandbox repository for practicing agentic engineering workflows with Outfitter community profiles",

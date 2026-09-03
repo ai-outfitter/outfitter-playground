@@ -10,6 +10,19 @@ a force-reset scratch fork (forge mode), so runs are repeatable.
 
 ## Quick start
 
+One command runs the whole workflow — issue filed, engineer solves it, draft
+PR, CI, cold-context review, merge-ready PR — against **your fork** of the
+playground (created for you if missing, force-reset to upstream first),
+using the credentials you already have: `gh auth token` for the forge, your
+Claude Code / Codex logins mounted from `~/.claude` / `~/.codex`:
+
+```sh
+e2e/test.sh            # default: claude harness
+e2e/test.sh pi         # or codex, or all, or check
+```
+
+## By hand
+
 ```sh
 docker build -t playground-e2e e2e
 

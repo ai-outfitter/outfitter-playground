@@ -28,7 +28,7 @@
 #      E2E_PI_ARGS    pi provider/model override, e.g. "--provider openai --model *gpt*"
 set -u
 
-E2E_SRC=${E2E_SRC:-https://github.com/ai-outfitter/playground.git}
+E2E_SRC=${E2E_SRC:-https://github.com/ai-outfitter/outfitter-playground.git}
 [ -d /src/.git ] && E2E_SRC=/src
 E2E_TIMEOUT=${E2E_TIMEOUT:-900}
 ISSUE_DOC=docs/issues/0001-split-loses-cents.md
@@ -71,6 +71,11 @@ fresh_clone() { # stdout: the new workdir. The fresh clone IS the reset.
 
 git config --global user.name  >/dev/null 2>&1 || git config --global user.name  playground-e2e
 git config --global user.email >/dev/null 2>&1 || git config --global user.email e2e@playground.invalid
+
+# Harness logins mounted by e2e/test.sh land read-only in /creds; copy them
+# into this container's HOME where the CLIs expect them.
+[ -f /creds/claude.json ] && { mkdir -p "$HOME/.claude"; cp /creds/claude.json "$HOME/.claude/.credentials.json"; }
+[ -f /creds/codex.json ]  && { mkdir -p "$HOME/.codex";  cp /creds/codex.json  "$HOME/.codex/auth.json"; }
 
 # --- static leg: everything a new user sees before any model call ----------
 static_checks() {
@@ -128,8 +133,8 @@ launch() { # $1 harness, $2 agent, $3 prompt, $4 logfile
 
 cred_for() {
   case "$1" in
-    claude) [ -n "${ANTHROPIC_API_KEY:-}" ] ;;
-    codex)  [ -n "${OPENAI_API_KEY:-}" ] ;;
+    claude) [ -n "${ANTHROPIC_API_KEY:-}" ] || [ -f "$HOME/.claude/.credentials.json" ] ;;
+    codex)  [ -n "${OPENAI_API_KEY:-}" ] || [ -f "$HOME/.codex/auth.json" ] ;;
     pi)     [ -n "${ANTHROPIC_API_KEY:-}${OPENAI_API_KEY:-}${E2E_PI_ARGS:-}" ] ;;
   esac
 }
@@ -181,8 +186,13 @@ forge_leg() {
     || { skip "forge/$harness" "set E2E_REPO and GH_TOKEN"; return 0; }
   cred_for "$harness" || { skip "forge/$harness" "no credential in env"; return 0; }
   case "$E2E_REPO" in
-    ai-outfitter/playground) bad "forge/$harness" "refusing to run against upstream; use a scratch fork"; return 1 ;;
+    ai-outfitter/outfitter-playground) bad "forge/$harness" "refusing to run against upstream; use a scratch fork"; return 1 ;;
   esac
+  # The leg force-pushes; never do that to anything but a playground fork.
+  local parent
+  parent=$(gh api "repos/$E2E_REPO" --jq '.parent.full_name // ""' 2>/dev/null)
+  [ "$parent" = ai-outfitter/outfitter-playground ] \
+    || { bad "forge/$harness" "$E2E_REPO is not a fork of ai-outfitter/outfitter-playground; refusing to force-reset it"; return 1; }
 
   # Reset the scratch fork to the upstream state — the README reset, automated.
   local up; up=$(mktemp -d)
@@ -213,8 +223,12 @@ forge_leg() {
   [ -n "$pr" ] && [ "$pr" != null ] || { bad "forge/$harness: PR" "no open pull request after engineer run"; return 1; }
   gh pr view "$pr" -R "$E2E_REPO" --json body,title --jq '.body + .title' | grep -q "#$issue" \
     || bad "forge/$harness: PR" "PR #$pr does not reference issue #$issue"
-  gh pr checks "$pr" -R "$E2E_REPO" --watch >/dev/null 2>&1 \
-    || { bad "forge/$harness: CI" "checks failed on PR #$pr"; return 1; }
+  local tries=0
+  until gh pr checks "$pr" -R "$E2E_REPO" --watch >/dev/null 2>&1; do
+    tries=$((tries + 1))
+    [ "$tries" -ge 6 ] && { bad "forge/$harness: CI" "checks red or never appeared on PR #$pr"; return 1; }
+    sleep 10
+  done
   [ "$(gh pr view "$pr" -R "$E2E_REPO" --json isDraft --jq .isDraft)" = false ] \
     || { bad "forge/$harness: PR" "PR #$pr still draft after green CI"; return 1; }
   ok "forge/$harness: PR #$pr open, references #$issue, CI green, marked ready"
