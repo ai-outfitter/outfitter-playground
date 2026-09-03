@@ -125,15 +125,18 @@ AGENTS.md                repository instructions agents follow (CLAUDE.md symlin
 
 ## Demo it in a container
 
-[e2e/test.sh](e2e/README.md) is the one-command demo cockpit: it resets your
-fork to a clean slate, wires your `gh` token and harness logins, starts a
-container, and drops you into an interactive Outfitter session with the demo
-script printed — ready to run the whole flow live. `e2e/test.sh check` is a
-free sanity pass (no model calls) that asserts the repo demos cleanly: zero
-Outfitter warnings, all agents resolved from community-profiles.
+[e2e/](e2e/README.md) wires everything you already have — `gh auth token`,
+your fork (created and force-reset for you), your Claude Code/Codex logins —
+into a container, two ways: `e2e/demo.sh` drops you into an interactive
+Outfitter session with the demo script printed, ready to run the flow live;
+`e2e/test.sh` runs the whole flow automatically while you watch.
+`e2e/test.sh check` is a free sanity pass (no model calls) asserting the
+repo demos cleanly: zero Outfitter warnings, all agents resolved from
+community-profiles.
 
 ```sh
-e2e/test.sh
+e2e/demo.sh    # you drive it
+e2e/test.sh    # it drives itself
 ```
 
 ## License

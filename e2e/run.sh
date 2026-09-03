@@ -146,6 +146,16 @@ _launch() {
   esac
 }
 
+# A bare `docker run` cannot see your host logins; only a host-side mount
+# can. Tell the user exactly how to supply one.
+cred_hint() {
+  case "$1" in
+    claude) echo "no credential — use e2e/test.sh (mounts ~/.claude login), or add -e ANTHROPIC_API_KEY or -v \$HOME/.claude/.credentials.json:/creds/claude.json:ro" ;;
+    codex)  echo "no credential — use e2e/test.sh (mounts ~/.codex login), or add -e OPENAI_API_KEY or -v \$HOME/.codex/auth.json:/creds/codex.json:ro" ;;
+    pi)     echo "no credential — use e2e/test.sh, or add -e ANTHROPIC_API_KEY / -e OPENAI_API_KEY (or set E2E_PI_ARGS)" ;;
+  esac
+}
+
 cred_for() {
   case "$1" in
     claude) [ -n "${ANTHROPIC_API_KEY:-}" ] || [ -f "$HOME/.claude/.credentials.json" ] ;;
@@ -158,7 +168,7 @@ cred_for() {
 local_leg() {
   local harness=$1 log=/tmp/e2e-$harness.log repo
   note "local leg: $harness"
-  cred_for "$harness" || { skip "$harness" "no credential in env"; return 0; }
+  cred_for "$harness" || { skip "$harness" "$(cred_hint "$harness")"; return 0; }
   repo=$(fresh_clone) || { bad "$harness: clone" "cannot clone $E2E_SRC"; return 1; }
   ( cd "$repo" && outfitter sync >/dev/null 2>&1 )
 
@@ -199,7 +209,7 @@ forge_leg() {
   note "forge leg: $harness (repo: ${E2E_REPO:-unset})"
   [ -n "${E2E_REPO:-}" ] && [ -n "${GH_TOKEN:-${GITHUB_TOKEN:-}}" ] \
     || { skip "forge/$harness" "set E2E_REPO and GH_TOKEN"; return 0; }
-  cred_for "$harness" || { skip "forge/$harness" "no credential in env"; return 0; }
+  cred_for "$harness" || { skip "forge/$harness" "$(cred_hint "$harness")"; return 0; }
   case "$E2E_REPO" in
     ai-outfitter/outfitter-playground) bad "forge/$harness" "refusing to run against upstream; use a scratch fork"; return 1 ;;
   esac
