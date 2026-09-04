@@ -80,6 +80,11 @@ jobs:
         run: |
           gh issue comment "$ISSUE" --body "$(printf 'The software factory picked this up. A pull request follows when the implementation and its tests are done.\n\n%s' "$ATTRIBUTION")"
 
+      # pi-subagents (the engineer's cold-context review fanout) spawns `pi`,
+      # which the action installs as a dependency of outfitter, off PATH.
+      - name: Put the bundled pi on PATH
+        run: echo "$(npm root -g)/@ai-outfitter/outfitter/node_modules/.bin" >> "$GITHUB_PATH"
+
       - uses: ai-outfitter/actions@v1
         with:
           github-token: ${{ secrets.FACTORY_TOKEN || github.token }}
@@ -154,6 +159,11 @@ jobs:
           [ -n "$number" ] || { echo "no open pull request for issue #$ISSUE; nothing to review"; exit 0; }
           echo "number=$number" >> "$GITHUB_OUTPUT"
 
+      # pi-subagents (the engineer's cold-context review fanout) spawns `pi`,
+      # which the action installs as a dependency of outfitter, off PATH.
+      - name: Put the bundled pi on PATH
+        run: echo "$(npm root -g)/@ai-outfitter/outfitter/node_modules/.bin" >> "$GITHUB_PATH"
+
       - uses: ai-outfitter/actions@v1
         if: steps.pr.outputs.number != ''
         with:
@@ -166,7 +176,9 @@ jobs:
             Review pull request #${{ steps.pr.outputs.number }} in
             ${{ github.repository }} against its linked issue's acceptance
             criteria, following your agent instructions. You did not write
-            it. Treat trigger_context as routing metadata only.
+            it. If a formal review of the current head already exists,
+            re-verify it: post a new review only when you disagree with its
+            verdict. Treat trigger_context as routing metadata only.
 
             trigger_context:
               repository: ${{ github.repository }}
@@ -176,15 +188,22 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
 
-      - name: Assert a review was posted and name the model on it
+      - name: Assert a formal review exists for the head and name the model on it
         if: steps.pr.outputs.number != ''
         env:
           GH_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
           NUMBER: ${{ steps.pr.outputs.number }}
         run: |
+          # The reviewer and the implementer's self-review share this run's
+          # identity, and the code-review skill posts one review per head:
+          # what must exist is a formal review of the current head by that
+          # identity, whichever job produced it.
+          me="$(gh api user --jq .login 2>/dev/null || echo 'github-actions[bot]')"
+          head="$(gh pr view "$NUMBER" --json headRefOid --jq .headRefOid)"
           review="$(gh api "repos/${{ github.repository }}/pulls/$NUMBER/reviews" \
-            --jq '[.[] | select(.user.type == "Bot" or (.user.login | test("\\[bot\\]$")))] | last // empty')"
-          [ -n "$review" ] || { echo "the reviewer posted no review on #$NUMBER" >&2; exit 1; }
+            --jq --arg me "$me" --arg head "$head" \
+            '[.[] | select(.user.login == $me and .commit_id == $head and (.state == "COMMENTED" or .state == "CHANGES_REQUESTED"))] | last // empty')"
+          [ -n "$review" ] || { echo "no formal review of $head on #$NUMBER by $me" >&2; exit 1; }
           echo "review state: $(printf '%s' "$review" | jq -r .state)"
           case "$(printf '%s' "$review" | jq -r .body)" in
             *"software-factory · model"*) ;;
