@@ -173,11 +173,13 @@ cat <<EOF
      amount. Do not merge.
 
   2. Watch the SDLC come from the loadout, not the prompt: the
-     engineer's scoped-issues skill reproduces the report and files the
-     scoped issue itself, then fix/ branch, regression test, draft PR,
-     CI green, PR marked ready.
+     engineer's scoped-issues skill reproduces the report and files
+     the scoped issue itself; then fix/ branch, regression test, draft
+     PR, CI green, PR marked ready — and per its code-review skill it
+     STARTS the cold-context adversarial review itself and acts on
+     the verdict.
 
-  3. Exit the engineer session, then run the cold-context review:
+  3. Want a review pass by hand (or a re-review)? Run:
 
      outfitter run code-review --harness $cmd
 
