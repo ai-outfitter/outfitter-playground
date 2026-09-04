@@ -1,24 +1,31 @@
 # Playground
 
 One pass through this repository teaches you how to use
-[Outfitter](https://github.com/ai-outfitter/outfitter): you end with a fork
-whose committed [`.agents/`](.agents/settings.yml) directory gave you a full
-agent roster from one pinned
+[Outfitter](https://github.com/ai-outfitter/outfitter): you end with your
+own copy of this repo whose committed [`.agents/`](.agents/settings.yml)
+directory gave you a full agent roster from one pinned
 [community catalog](https://github.com/ai-outfitter/community-profiles) — no
 per-laptop setup — and you will have watched that roster run a real software
 development lifecycle against a seeded bug: a scoped issue, an implementation
 on a semantic branch, a CI-gated draft pull request, a cold-context
 adversarial review, and a pull request left ready for you — the human — to
-merge. Then you reset the fork and run it again, with a different harness,
+merge. Then you reset your copy and run it again, with a different harness,
 prompt, or division of labor.
 
-1. **Fork** — <https://github.com/ai-outfitter/outfitter-playground/fork>
-2. **Check out your fork** (needs [Node.js](https://nodejs.org) 20+ and
-   [`gh`](https://cli.github.com/)):
+1. **Generate your playground** — a copy from this template, not a fork:
+   forks need one-time UI clicks before Actions run and issues work;
+   generated repos have both from the first commit (needs
+   [Node.js](https://nodejs.org) 20+ and [`gh`](https://cli.github.com/)):
 
    ```sh
-   gh repo fork ai-outfitter/outfitter-playground --clone && cd outfitter-playground
-   gh repo edit --enable-issues   # forks start with issues turned off
+   gh repo create playground --template ai-outfitter/outfitter-playground --public --clone
+   cd playground
+   git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
+   ```
+
+2. **Meet the bug:**
+
+   ```sh
    node bin/split.js 100 3   # totals $99.99 — there's the seeded bug
    npm test                  # green: the suite misses the case
    ```
@@ -84,7 +91,7 @@ lane.
 
 ## Reset and go again
 
-Throw away the run and restore your fork to the upstream state:
+Throw away the run and restore your copy to the upstream state:
 
 ```sh
 git checkout main
@@ -95,8 +102,8 @@ gh pr list --state open --json number --jq '.[].number' \
   | xargs -rn1 gh pr close --delete-branch                # open PRs + branches
 ```
 
-Closed issues and merged PRs stay in your fork's history — that is fine; the
-next run starts from a fresh issue. (No `upstream` remote?
+Closed issues and merged PRs stay in your copy's history — that is fine;
+the next run starts from a fresh issue. (No `upstream` remote?
 `git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git`.)
 
 ## The exhibit
@@ -110,8 +117,8 @@ report with acceptance criteria is seeded at
 
 > [!NOTE]
 > The bug stays unfixed **upstream on purpose** — it is the exhibit. Fix it
-> in your fork as often as you like; pull requests fixing it here will be
-> declined with thanks.
+> in your generated copy as often as you like; pull requests fixing it here
+> will be declined with thanks.
 
 ## Layout
 
@@ -130,10 +137,11 @@ AGENTS.md                repository instructions agents follow (CLAUDE.md symlin
 [e2e/demo.sh](e2e/README.md) launches the engineer session with everything
 wired from what you already have — `gh auth token`, your Claude Code/Codex
 logins — under a persistent, isolated HOME in `/tmp`. It runs in this
-checkout, which must be a clone of **your fork** (origin = fork; the script
-refuses an org-repo origin), and resets it to the upstream state each run so
-issues and PRs land on the fork and the seeded bug is back. Pick a harness
-per run; `check` is a free sanity pass and `reset` wipes the demo HOME.
+checkout, whose origin must be **your generated playground** (the script
+refuses an org-repo origin and verifies template lineage), and resets it to
+the upstream state each run so issues and PRs land on your copy and the
+seeded bug is back. Pick a harness per run; `check` is a free sanity pass
+and `reset` wipes the demo HOME.
 
 ```sh
 e2e/demo.sh            # claude — or: pi, codex, check, reset

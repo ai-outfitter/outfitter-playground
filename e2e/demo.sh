@@ -2,10 +2,10 @@
 # Demo/test the engineer flow on your host — no container. Runs Outfitter
 # under a persistent, isolated HOME in /tmp so harness state (logins,
 # onboarding, the synced catalog) survives between runs without touching
-# your real ~. It runs in this checkout, which must be a clone of YOUR FORK
-# (origin = fork, upstream = org repo) so issues and pull requests land on
-# the fork, never upstream. The checkout is reset to the upstream state
-# each run so the seeded bug is back.
+# your real ~. It runs in this checkout, whose origin must be YOUR OWN
+# playground generated from the ai-outfitter/outfitter-playground template,
+# so issues and pull requests land there, never upstream. The checkout is
+# reset to the upstream state each run so the seeded bug is back.
 #
 # usage: e2e/demo.sh [pi|claude|codex]  launch the engineer session (default: claude)
 #        e2e/demo.sh check              free sanity check: no model calls
@@ -111,25 +111,32 @@ if [ "$cmd" = check ]; then
   exit 0
 fi
 
-# --- demo arena: this checkout, which must be a FORK clone -----------------
-# Issues and PRs land wherever origin points. Refuse to demo out of a clone
-# of the org repo itself — point origin at your fork first.
+# --- demo arena: this checkout, generated from the template ----------------
+# Issues and PRs land wherever origin points. The arena is a repo GENERATED
+# from ai-outfitter/outfitter-playground ("Use this template"), not a fork:
+# generated repos run Actions immediately and have issues enabled, where
+# forks need one-time UI clicks for both. Refuse the org repo itself.
 case "$(git remote get-url origin)" in
   *ai-outfitter/outfitter-playground*)
-    echo "origin is the upstream org repo. Point it at your fork so issues and PRs land there:" >&2
-    echo "  git remote set-url origin git@github.com:<you>/outfitter-playground.git" >&2
-    echo "  git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git" >&2
+    echo "origin is the upstream org repo. Generate your own playground and point origin at it:" >&2
+    echo "  gh repo create <you>/playground --template ai-outfitter/outfitter-playground --public" >&2
+    echo "  git remote set-url origin git@github.com:<you>/playground.git" >&2
     exit 1 ;;
 esac
-# Derive the fork from origin — with two github remotes, gh's own resolution
-# prefers upstream, which is exactly the wrong target here.
-fork=$(git remote get-url origin | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')
+# Derive the arena from origin — with two github remotes, gh's own
+# resolution prefers upstream, which is exactly the wrong target here.
+arena=$(git remote get-url origin | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')
+lineage=$(gh api "repos/$arena" --jq '.template_repository.full_name // ""' 2>/dev/null)
+if [ "$lineage" != ai-outfitter/outfitter-playground ]; then
+  echo "$arena was not generated from ai-outfitter/outfitter-playground; refusing to reset it." >&2
+  echo "  gh repo create <you>/playground --template ai-outfitter/outfitter-playground --public" >&2
+  exit 1
+fi
 git remote get-url upstream >/dev/null 2>&1 \
   || git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
 # Bare gh commands in the demo session (the agent's `gh issue create`,
-# `gh pr create`) must target the fork, not upstream.
-gh repo set-default "$fork" >/dev/null 2>&1 || true
-gh repo edit "$fork" --enable-issues >/dev/null 2>&1 || true
+# `gh pr create`) must target the arena, not upstream.
+gh repo set-default "$arena" >/dev/null 2>&1 || true
 
 echo "resetting checkout to the upstream state (uncommitted changes and extra branches are discarded)..."
 git fetch -q upstream
@@ -144,8 +151,8 @@ git worktree prune
 git for-each-ref --format='%(refname:short)' refs/heads \
   | grep -v '^main$' | xargs -r git branch -qD
 git push -q --force origin main
-gh pr list -R "$fork" --state open --json number --jq '.[].number' \
-  | xargs -rn1 gh pr close -R "$fork" --delete-branch >/dev/null 2>&1 || true
+gh pr list -R "$arena" --state open --json number --jq '.[].number' \
+  | xargs -rn1 gh pr close -R "$arena" --delete-branch >/dev/null 2>&1 || true
 
 echo "syncing the community-profiles catalog..."
 run_demo outfitter sync
@@ -154,7 +161,7 @@ cat <<EOF
 
 ┌─────────────────────────────────────────────────────────────────────┐
   playground demo — $repo_root
-  fork: $fork   (HOME: $demo_home)
+  arena: $arena   (HOME: $demo_home)
 
   The bug: node bin/split.js 100 3   totals \$99.99
 
