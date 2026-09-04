@@ -64,13 +64,18 @@ if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
   # git speaks to github over https through gh, so no token ever hits disk
   HOME="$demo_home" git config --global credential."https://github.com".helper '!gh auth git-credential'
+  # the demo HOME has no signing keys; the host's signing config must not leak in
+  HOME="$demo_home" git config --global commit.gpgsign false
 fi
 
 GH_TOKEN=$(gh auth token) || { echo "gh is not authenticated; run gh auth login" >&2; exit 1; }
 
 run_demo() { # run a command in the demo environment
-  # github-mcp-server (the agents' forge MCP) reads GITHUB_PERSONAL_ACCESS_TOKEN
-  env HOME="$demo_home" GH_TOKEN="$GH_TOKEN" GITHUB_PERSONAL_ACCESS_TOKEN="$GH_TOKEN" \
+  # github-mcp-server (the agents' forge MCP) reads GITHUB_PERSONAL_ACCESS_TOKEN.
+  # XDG_CONFIG_HOME pins git (and friends) to the demo HOME's config, so a host
+  # signing setup never leaks into unsigned demo commits.
+  env HOME="$demo_home" XDG_CONFIG_HOME="$demo_home/.config" \
+    GH_TOKEN="$GH_TOKEN" GITHUB_PERSONAL_ACCESS_TOKEN="$GH_TOKEN" \
     ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
     ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} \
     "$@"
@@ -154,6 +159,9 @@ git for-each-ref --format='%(refname:short)' refs/heads \
 git push -q --force origin main
 gh pr list -R "$arena" --state open --json number --jq '.[].number' \
   | xargs -rn1 gh pr close -R "$arena" --delete-branch >/dev/null 2>&1 || true
+# a leftover open issue would suppress the issue-filing step the demo showcases
+gh issue list -R "$arena" --state open --json number --jq '.[].number' \
+  | xargs -rn1 gh issue close -R "$arena" >/dev/null 2>&1 || true
 
 echo "syncing the community-profiles catalog..."
 run_demo outfitter sync
