@@ -35,3 +35,21 @@ e2e/demo.sh reset      # wipe the demo HOME for a from-scratch start
 ```
 
 `PLAYGROUND_HOME=<dir>` overrides the demo HOME location.
+
+## Demo the software factory
+
+`e2e/factory.sh` runs the same loop with nothing on your host but `gh`: the
+agent runs in your playground's own Actions from the `software-factory`
+branch. It makes that branch the arena's default (issue events only reach
+the default branch), sets the `OPENAI_API_KEY` secret from your environment
+when the arena has none, enables pull-request creation for the workflow
+token or falls back to a `FACTORY_TOKEN` secret when the organization locks
+it, resets the arena to the upstream state, files the seeded bug with the
+`software-factory` label, and watches the run.
+
+```sh
+e2e/factory.sh            # reset, file + label the bug, watch the run, print the PR and review
+e2e/factory.sh check      # free: bug present, suite green, workflow present, catalog validates
+e2e/factory.sh status     # the open factory PR, its checks, and its reviews
+e2e/factory.sh review     # dispatch a re-review of the open factory PR
+```

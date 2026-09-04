@@ -113,4 +113,5 @@ gh pr merge <n> --squash
 | Attribution | every comment, pull request, and review ends with the model and agent |
 
 Reset the way the [README](../../README.md#reset-and-go-again) describes,
-then label a fresh issue.
+then label a fresh issue. [`e2e/factory.sh`](../../e2e/README.md) does steps
+1 to 3 and the reset in one command.
