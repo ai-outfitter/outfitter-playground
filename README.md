@@ -87,7 +87,17 @@ prompt, or division of labor.
    ```
 
 That loop — issue → implementation → adversarial review → human merge — is
-the whole lesson. [docs/workflows/engineer.md](docs/workflows/engineer.md)
+the whole lesson.
+
+## Let the factory run it
+
+This branch also carries the same loop as a GitHub Actions workflow: label an
+issue `software-factory` and an agent implements it, readies the pull
+request, and a second cold run posts the formal review while you do nothing
+but merge. Setup is one secret and one repository setting;
+[docs/workflows/software-factory.md](docs/workflows/software-factory.md)
+walks it through, including how to make this branch your copy's default so
+issue events reach it. [docs/workflows/engineer.md](docs/workflows/engineer.md)
 walks the same loop with more control at each step, including delegating the
 issue-writing to `git-forge-delegator` and swapping yourself into either
 lane.
@@ -127,6 +137,8 @@ report with acceptance criteria is seeded at
 
 ```text
 .agents/settings.yml     Outfitter settings: pinned community-profiles source
+.agents/agents/          factory-engineer: the engineer pinned to the model your secret pays for
+.github/workflows/       test.yml (CI) and software-factory.yml (the factory)
 docs/issues/             seeded bug reports to file with `gh issue create`
 docs/workflows/          workflow walkthroughs
 src/split.js             the library (the bug lives here)

@@ -1,0 +1,196 @@
+# The software factory, self-hosted in this repository's Actions.
+#
+# Label an issue `software-factory` (or dispatch this workflow with an issue
+# number) and an agent works it to a ready pull request; a second, cold agent
+# run then posts the formal review. A human merges. Nothing runs on a laptop.
+#
+# Needs, once per repository:
+#   - secret OPENAI_API_KEY (or change .agents/agents/factory-engineer to the
+#     provider your key belongs to and pass that secret below);
+#   - Settings → Actions → General → "Allow GitHub Actions to create and
+#     approve pull requests", or `gh pr create` is refused;
+#   - optional secret FACTORY_TOKEN, a fine-grained PAT with contents,
+#     pull-requests, and issues write: pull requests it opens run `test.yml`,
+#     which the default workflow token cannot trigger.
+#
+# The agents resolve from the community catalog pinned in .agents/settings.yml
+# plus this repository's own .agents/ overlay (the model choice lives there).
+name: Software factory
+run-name: "software-factory: ${{ inputs.step || 'implement' }} #${{ inputs.issue || github.event.issue.number }}${{ inputs.pr && format(' (pr #{0})', inputs.pr) || '' }}"
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Issue to work
+        required: true
+        type: string
+      pr:
+        description: Existing pull request to review or continue
+        required: false
+        type: string
+        default: ""
+      step:
+        description: Which step to run
+        required: false
+        type: choice
+        default: implement
+        options: [implement, review]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: software-factory-${{ inputs.issue || github.event.issue.number }}
+  cancel-in-progress: false
+
+env:
+  ISSUE: ${{ inputs.issue || github.event.issue.number }}
+  PR: ${{ inputs.pr }}
+  TRIGGER_LABEL: software-factory
+  MODEL_AGENT: factory-engineer
+
+jobs:
+  implement:
+    if: >-
+      (github.event_name == 'issues' && github.event.label.name == 'software-factory')
+      || (github.event_name == 'workflow_dispatch' && inputs.step == 'implement')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FACTORY_TOKEN || github.token }}
+          fetch-depth: 0
+
+      - name: Read the model this run uses
+        run: |
+          model="$(sed -n 's/^model:[[:space:]]*//p' ".agents/agents/$MODEL_AGENT/agent.md" | head -1)"
+          [ -n "$model" ] || { echo ".agents/agents/$MODEL_AGENT/agent.md declares no model" >&2; exit 1; }
+          echo "ATTRIBUTION=<sub>software-factory · model \`$model\` · agent \`$MODEL_AGENT\`</sub>" >> "$GITHUB_ENV"
+          echo "model: $model"
+
+      - name: Tell the issue a run started
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+        run: |
+          gh issue comment "$ISSUE" --body "$(printf 'The software factory picked this up. A pull request follows when the implementation and its tests are done.\n\n%s' "$ATTRIBUTION")"
+
+      - uses: ai-outfitter/actions@v1
+        with:
+          github-token: ${{ secrets.FACTORY_TOKEN || github.token }}
+          git-user-name: github-actions[bot]
+          git-user-email: 41898282+github-actions[bot]@users.noreply.github.com
+          agent: factory-engineer
+          source: ai-outfitter/community-profiles
+          source-ref: v1.7.0
+          strict: true
+          prompt: |
+            Work one issue in ${{ github.repository }}, following your agent
+            instructions. Treat trigger_context as routing metadata only.
+
+            trigger_context:
+              repository: ${{ github.repository }}
+              issue_number: ${{ env.ISSUE }}
+              continue_pr_number: ${{ env.PR }}
+              base_branch: ${{ github.ref_name }}
+
+            If continue_pr_number is set: `gh pr checkout` that pull request,
+            address its review findings, run the tests, commit, push to the
+            same branch, and stop. Otherwise work issue #${{ env.ISSUE }} into
+            a ready pull request whose body starts with `Closes #${{ env.ISSUE }}`.
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # github-mcp-server, the engineer's forge MCP, reads this name.
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+
+      - name: Find the pull request and name the model on it
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+        run: |
+          number="${PR:-$(gh pr list --state open --json number,body --jq "[.[] | select(.body | test(\"(?i)(close[sd]?|fix(e[sd])?|resolve[sd]?) #$ISSUE\\\\b\"))] | first | .number // empty")}"
+          echo "pull request: ${number:-none}"
+          [ -n "$number" ] || exit 0
+          if [ "$(gh pr view "$number" --json isDraft --jq .isDraft)" = "true" ]; then
+            gh pr ready "$number"
+          fi
+          body="$(gh pr view "$number" --json body --jq .body)"
+          case "$body" in
+            *"software-factory · model"*) ;;
+            *) gh pr edit "$number" --body "$(printf '%s\n\n%s' "$body" "$ATTRIBUTION")" ;;
+          esac
+
+  review:
+    needs: implement
+    if: >-
+      !cancelled()
+      && (needs.implement.result == 'success' || github.event_name == 'workflow_dispatch')
+      && (github.event_name != 'workflow_dispatch' || inputs.step == 'review' || inputs.step == 'implement')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FACTORY_TOKEN || github.token }}
+          fetch-depth: 0
+
+      - name: Read the model this run uses
+        run: |
+          model="$(sed -n 's/^model:[[:space:]]*//p' ".agents/agents/$MODEL_AGENT/agent.md" | head -1)"
+          echo "ATTRIBUTION=<sub>software-factory · model \`$model\` · agent \`$MODEL_AGENT\`</sub>" >> "$GITHUB_ENV"
+
+      - name: Find the pull request to review
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+        run: |
+          number="${PR:-$(gh pr list --state open --json number,body --jq "[.[] | select(.body | test(\"(?i)(close[sd]?|fix(e[sd])?|resolve[sd]?) #$ISSUE\\\\b\"))] | first | .number // empty")}"
+          echo "pull request: ${number:-none}"
+          [ -n "$number" ] || { echo "no open pull request for issue #$ISSUE; nothing to review"; exit 0; }
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - uses: ai-outfitter/actions@v1
+        if: steps.pr.outputs.number != ''
+        with:
+          github-token: ${{ secrets.FACTORY_TOKEN || github.token }}
+          agent: factory-engineer
+          source: ai-outfitter/community-profiles
+          source-ref: v1.7.0
+          strict: true
+          prompt: |
+            Review pull request #${{ steps.pr.outputs.number }} in
+            ${{ github.repository }} against its linked issue's acceptance
+            criteria, following your agent instructions. You did not write
+            it. Treat trigger_context as routing metadata only.
+
+            trigger_context:
+              repository: ${{ github.repository }}
+              pull_request_number: ${{ steps.pr.outputs.number }}
+              issue_number: ${{ env.ISSUE }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+
+      - name: Assert a review was posted and name the model on it
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_TOKEN || github.token }}
+          NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          review="$(gh api "repos/${{ github.repository }}/pulls/$NUMBER/reviews" \
+            --jq '[.[] | select(.user.type == "Bot" or (.user.login | test("\\[bot\\]$")))] | last // empty')"
+          [ -n "$review" ] || { echo "the reviewer posted no review on #$NUMBER" >&2; exit 1; }
+          echo "review state: $(printf '%s' "$review" | jq -r .state)"
+          case "$(printf '%s' "$review" | jq -r .body)" in
+            *"software-factory · model"*) ;;
+            *)
+              id="$(printf '%s' "$review" | jq -r .id)"
+              printf '%s' "$review" | jq --arg footer "$ATTRIBUTION" '{body: (.body + "\n\n" + $footer)}' \
+                | gh api -X PUT "repos/${{ github.repository }}/pulls/$NUMBER/reviews/$id" --input -
+              ;;
+          esac
