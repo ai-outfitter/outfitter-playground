@@ -4,9 +4,9 @@
 # ai-outfitter/.agents as their only source): this repository is built to be
 # forked and run outside the organization, so it pins the public community
 # catalog directly. The pin keeps every fork reproducible — bump the ref on
-# purpose, never remove it. Bump to v1.7.0 when community-profiles#65
+# purpose, never remove it. Bump to v1.7.0 when community-profiles#65 and #67 (engineer scoped-issues)
 # (repo-contributor / software-factory) releases.
-default_agent: playground-engineer
+default_agent: engineer
 default_harness: pi
 sources:
   - github: ai-outfitter/community-profiles

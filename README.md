@@ -43,13 +43,14 @@ prompt, or division of labor.
    ```
 
 5. **Watch the SDLC happen.** The engineer's loadout carries the lifecycle:
-   its [`issue-first` skill](.agents/skills/issue-first/SKILL.md) reproduces
-   the report and files the scoped issue itself (acceptance criteria a
-   reviewer can check mechanically), then it fixes `src/split.js` on a
-   `fix/...` branch with a conventional commit, adds the regression test the
-   issue demands, verifies with `npm test`, opens the pull request as a
-   draft, waits for CI to go green, and marks it ready. Ready is the signal
-   that requests review.
+   its
+   [`scoped-issues` skill](https://github.com/ai-outfitter/community-profiles/blob/main/skills/scoped-issues/SKILL.md)
+   reproduces the report and files the scoped issue itself (acceptance
+   criteria a reviewer can check mechanically), then it fixes `src/split.js`
+   on a `fix/...` branch with a conventional commit, adds the regression
+   test the issue demands, verifies with `npm test`, opens the pull request
+   as a draft, waits for CI to go green, and marks it ready. Ready is the
+   signal that requests review.
 6. **Run the adversarial review** — a fresh session, a distinct reviewer
    agent, no stake in the change passing:
 

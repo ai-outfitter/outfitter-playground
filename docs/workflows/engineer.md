@@ -65,11 +65,9 @@ outfitter run
 Work issue #1 in this repository. Do not merge.
 ```
 
-The default agent is `playground-engineer` — the catalog's engineer extended
-by the project layer with the
-[`issue-first` skill](../../.agents/skills/issue-first/SKILL.md), so handed a
-raw bug report instead of an issue number it files the scoped issue itself
-(the README's guided run does exactly that, making step 1 optional).
+The catalog engineer carries the `scoped-issues` skill, so handed a raw bug
+report instead of an issue number it files the scoped issue itself (the
+README's guided run does exactly that, making step 1 optional).
 
 The engineer owns implementation and verification, and its loadout already
 carries the draft-pull-request lifecycle: it fixes `src/split.js`, adds the
