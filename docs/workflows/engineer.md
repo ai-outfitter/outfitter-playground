@@ -58,12 +58,18 @@ them without judgment calls.
 ## 2. Implement (engineer)
 
 ```sh
-outfitter run engineer
+outfitter run
 ```
 
 ```text
 Work issue #1 in this repository. Do not merge.
 ```
+
+The default agent is `playground-engineer` — the catalog's engineer extended
+by the project layer with the
+[`issue-first` skill](../../.agents/skills/issue-first/SKILL.md), so handed a
+raw bug report instead of an issue number it files the scoped issue itself
+(the README's guided run does exactly that, making step 1 optional).
 
 The engineer owns implementation and verification, and its loadout already
 carries the draft-pull-request lifecycle: it fixes `src/split.js`, adds the
@@ -77,9 +83,9 @@ Prefer a different harness? The same composed profile runs through any of
 them:
 
 ```sh
-outfitter run engineer --harness pi
-outfitter run engineer --harness claude
-outfitter run engineer --harness codex
+outfitter run --harness pi
+outfitter run --harness claude
+outfitter run --harness codex
 ```
 
 ## 3. Adversarial review (code-review)
@@ -115,7 +121,7 @@ If the review requested changes, send the findings back through the
 engineer:
 
 ```sh
-outfitter run engineer
+outfitter run
 ```
 
 ```text

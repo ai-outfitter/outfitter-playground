@@ -93,6 +93,11 @@ if [ "$cmd" = check ]; then
       || { echo "FAIL  $agent not resolved from community-profiles"; exit 1; }
   done
   echo "PASS  engineer/code-review/git-forge-delegator resolve from community-profiles"
+  for ws in playground-engineer issue-first; do
+    echo "$out" | grep -qE "^\s+$ws\s+\[workspace\]" \
+      || { echo "FAIL  $ws not resolved from the project layer"; exit 1; }
+  done
+  echo "PASS  playground-engineer + issue-first resolve from the project layer"
   exit 0
 fi
 
@@ -118,15 +123,15 @@ cat <<EOF
   The bug: node bin/split.js 100 3   totals \$99.99
 
   1. You are about to land in the ENGINEER agent ($cmd harness).
-     Paste this prompt:
+     Paste this bug report — nothing more:
 
      Splitting \$100 among 3 people loses a cent — 'node bin/split.js
-     100 3' totals \$99.99. File one scoped issue on this repository
-     with acceptance criteria a reviewer can check mechanically (the
-     report in docs/issues/0001-split-loses-cents.md is the template),
-     then work that issue. Do not merge.
+     100 3' totals \$99.99. The shares should always sum to the
+     amount. Do not merge.
 
-  2. Watch it: issue filed, fix/ branch, regression test, draft PR,
+  2. Watch the SDLC come from the loadout, not the prompt: the
+     engineer's issue-first skill reproduces the report and files the
+     scoped issue itself, then fix/ branch, regression test, draft PR,
      CI green, PR marked ready.
 
   3. Exit the engineer session, then run the cold-context review:

@@ -34,21 +34,22 @@ prompt, or division of labor.
    outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
    ```
 
-4. **Paste this prompt:**
+4. **Paste this bug report** — nothing more; the process comes from the
+   agent's loadout, not the prompt:
 
    ```text
    Splitting $100 among 3 people loses a cent — `node bin/split.js 100 3`
-   totals $99.99. File one scoped issue on this repository with acceptance
-   criteria a reviewer can check mechanically (the report in
-   docs/issues/0001-split-loses-cents.md is the template), then work that
-   issue. Do not merge.
+   totals $99.99. The shares should always sum to the amount. Do not merge.
    ```
 
 5. **Watch the SDLC happen.** The engineer's loadout carries the lifecycle:
-   it files the issue, fixes `src/split.js` on a `fix/...` branch with a
-   conventional commit, adds the regression test the issue demands, verifies
-   with `npm test`, opens the pull request as a draft, waits for CI to go
-   green, and marks it ready. Ready is the signal that requests review.
+   its [`issue-first` skill](.agents/skills/issue-first/SKILL.md) reproduces
+   the report and files the scoped issue itself (acceptance criteria a
+   reviewer can check mechanically), then it fixes `src/split.js` on a
+   `fix/...` branch with a conventional commit, adds the regression test the
+   issue demands, verifies with `npm test`, opens the pull request as a
+   draft, waits for CI to go green, and marks it ready. Ready is the signal
+   that requests review.
 6. **Run the adversarial review** — a fresh session, a distinct reviewer
    agent, no stake in the change passing:
 
@@ -64,7 +65,7 @@ prompt, or division of labor.
    Expect a formal PR review: one inline comment per finding,
    `REQUEST_CHANGES` if anything blocks, a `COMMENT` verdict when clean —
    never `APPROVE`, because approval is yours. If it found blockers, send
-   the findings back through `outfitter run engineer` and review again.
+   the findings back through `outfitter run` and review again.
 7. **Merge the ready PR.** Verify the acceptance criteria yourself, then
    merge:
 
