@@ -9,4 +9,4 @@ default_agent: engineer
 default_harness: pi
 sources:
   - github: ai-outfitter/community-profiles
-    ref: v1.7.0
+    ref: v1.8.0
