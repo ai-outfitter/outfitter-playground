@@ -131,6 +131,11 @@ git fetch -q upstream
 git checkout -qf main
 git reset -q --hard upstream/main
 git clean -qfd
+# Agents follow the worktree convention, so demo branches may live in
+# sibling worktrees; remove those before deleting the branches.
+git worktree list --porcelain | awk '/^worktree /{print $2}' | tail -n +2 \
+  | xargs -rn1 git worktree remove --force
+git worktree prune
 git for-each-ref --format='%(refname:short)' refs/heads \
   | grep -v '^main$' | xargs -r git branch -qD
 git push -q --force origin main
