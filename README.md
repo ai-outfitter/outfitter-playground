@@ -56,10 +56,15 @@ prompt, or division of labor.
    criteria a reviewer can check mechanically), then it fixes `src/split.js`
    on a `fix/...` branch with a conventional commit, adds the regression
    test the issue demands, verifies with `npm test`, opens the pull request
-   as a draft, waits for CI to go green, and marks it ready. Ready is the
-   signal that requests review.
-6. **Run the adversarial review** — a fresh session, a distinct reviewer
-   agent, no stake in the change passing:
+   as a draft, waits for CI to go green, and marks it ready — then, per its
+   `code-review` skill, **starts the adversarial review itself**: it
+   launches an independent cold-context reviewer session and acts on the
+   verdict.
+6. **Read the adversarial review.** The reviewer is a distinct agent with
+   no stake in the change passing. Expect a formal PR review: one inline
+   comment per finding, `REQUEST_CHANGES` if anything blocks, a `COMMENT`
+   verdict when clean — never `APPROVE`, because approval is yours. To run
+   a review pass by hand (or re-review a revision):
 
    ```sh
    outfitter run code-review
@@ -69,11 +74,6 @@ prompt, or division of labor.
    Review the open pull request against its linked issue's acceptance
    criteria.
    ```
-
-   Expect a formal PR review: one inline comment per finding,
-   `REQUEST_CHANGES` if anything blocks, a `COMMENT` verdict when clean —
-   never `APPROVE`, because approval is yours. If it found blockers, send
-   the findings back through `outfitter run` and review again.
 7. **Merge the ready PR.** Verify the acceptance criteria yourself, then
    merge:
 
