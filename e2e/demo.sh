@@ -7,7 +7,8 @@
 # so issues and pull requests land there, never upstream. The checkout is
 # reset to the upstream state each run so the seeded bug is back.
 #
-# usage: e2e/demo.sh [pi|claude|codex]  launch the engineer session (default: claude)
+# usage: e2e/demo.sh [outfitter|claude|codex]  launch the engineer session (default: claude)
+#        (outfitter = Outfitter's own pi-based harness)
 #        e2e/demo.sh check              free sanity check: no model calls
 #        e2e/demo.sh reset              wipe the demo HOME for a from-scratch start
 #
@@ -17,6 +18,9 @@
 # Credentials: your Claude Code / Codex logins are COPIED into the demo HOME
 # on first run (originals untouched); live modes validate `gh` and pass its
 # token through. Check mode does not read or require GitHub authentication.
+# Claude mode also carries the host's Claude login into the demo environment
+# as CLAUDE_CODE_OAUTH_TOKEN: on macOS Claude Code keeps its credentials in
+# the Keychain, not in a file the seed step can copy.
 set -eu
 script_dir=$(cd "$(dirname "$0")" && pwd)
 repo_root=$(git -C "$script_dir" rev-parse --show-toplevel)
@@ -41,9 +45,12 @@ fi
 cmd=${1:-claude}
 case "$cmd" in
   reset) rm -rf "$demo_home"; echo "wiped $demo_home"; exit 0 ;;
-  pi|claude|codex|check) ;;
-  *) echo "usage: e2e/demo.sh [pi|claude|codex|check|reset]" >&2; exit 2 ;;
+  outfitter|claude|codex|check) ;;
+  *) echo "usage: e2e/demo.sh [outfitter|claude|codex|check|reset]" >&2; exit 2 ;;
 esac
+# Outfitter's own harness is pi: `outfitter` is the name a user picks, `pi`
+# is what `outfitter run --harness` takes.
+harness=$cmd; [ "$cmd" = outfitter ] && harness=pi
 
 # --- demo HOME: refresh credentials from the host on EVERY run -------------
 # Host logins are the source of truth: OAuth tokens rotate, and a stale or
@@ -87,6 +94,28 @@ if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global commit.gpgsign false
 fi
 
+# Claude Code reads CLAUDE_CODE_OAUTH_TOKEN ahead of any stored login, so the
+# demo HOME never needs its own /login. Resolve it from, in order: the host
+# environment, the macOS Keychain, the credentials file seeded above.
+demo_claude_token=${CLAUDE_CODE_OAUTH_TOKEN:-}
+claude_oauth_access_token() { # credentials JSON on stdin -> access token
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const t=JSON.parse(s).claudeAiOauth?.accessToken;if(t)console.log(t)}catch{}})'
+}
+if [ "$cmd" = claude ] && [ -z "$demo_claude_token" ]; then
+  if command -v security >/dev/null 2>&1; then
+    demo_claude_token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null | claude_oauth_access_token || true)
+  fi
+  if [ -z "$demo_claude_token" ] && [ -f "$demo_home/.claude/.credentials.json" ]; then
+    demo_claude_token=$(claude_oauth_access_token < "$demo_home/.claude/.credentials.json" || true)
+  fi
+  if [ -z "$demo_claude_token" ]; then
+    echo "No Claude Code login found (CLAUDE_CODE_OAUTH_TOKEN, Keychain, or ~/.claude/.credentials.json)." >&2
+    echo "Run claude and /login on the host, or export CLAUDE_CODE_OAUTH_TOKEN, then retry." >&2
+    exit 1
+  fi
+  echo "PASS  Claude Code login carried into the demo environment"
+fi
+
 demo_github_token=""
 
 run_demo() { # run a command in the demo environment
@@ -115,6 +144,7 @@ run_demo() { # run a command in the demo environment
     "${demo_env[@]}" \
     ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
     ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} \
+    ${demo_claude_token:+CLAUDE_CODE_OAUTH_TOKEN="$demo_claude_token"} \
     "$@"
 }
 
@@ -139,7 +169,7 @@ require_github_auth() {
 # before the demo arena is reset or npm downloads anything. A successful probe also persists any
 # refreshed Pi OAuth state inside the isolated demo HOME.
 preflight_pi_auth() {
-  [ "$cmd" = pi ] || return 0
+  [ "$harness" = pi ] || return 0
   if [ "${#pi_args[@]}" -eq 0 ]; then
     echo "Pi has no default provider/model in $demo_home/.pi/agent/settings.json." >&2
     echo "Run pi normally, select a model, and authenticate before retrying the demo." >&2
@@ -185,7 +215,7 @@ preflight_pi_auth() {
 
 run_engineer_session() {
   echo "launching the engineer session ($cmd) — paste the prompt above when it opens..."
-  if run_demo outfitter run --harness "$cmd" ${pi_args[@]:+-- "${pi_args[@]}"}; then
+  if run_demo outfitter run --harness "$harness" ${pi_args[@]:+-- "${pi_args[@]}"}; then
     return 0
   else
     session_rc=$?
@@ -205,7 +235,7 @@ cd "$repo_root"
 # defaultProvider/defaultModel — pi then falls back to an arbitrary model.
 # Re-assert the demo HOME's pi defaults explicitly.
 pi_args=()
-if [ "$cmd" = pi ] && [ -f "$demo_home/.pi/agent/settings.json" ]; then
+if [ "$harness" = pi ] && [ -f "$demo_home/.pi/agent/settings.json" ]; then
   defaults=$(node -e 's=require(process.argv[1]);if(s.defaultProvider)console.log(s.defaultProvider+" "+(s.defaultModel||""))' "$demo_home/.pi/agent/settings.json" 2>/dev/null || true)
   if [ -n "$defaults" ]; then
     # shellcheck disable=SC2086
@@ -350,7 +380,7 @@ cat <<EOF
 
   3. Want a review pass by hand (or a re-review)? Run:
 
-     outfitter run --harness $cmd
+     outfitter run --harness $harness
 
      Paste: Review the open pull request against its linked issue's
      acceptance criteria.
@@ -373,7 +403,7 @@ run_engineer_session || exit $?
 cat <<EOF
 
 Engineer session ended. This shell stays in the demo environment — next:
-  outfitter run --harness $cmd${pi_args:+ -- ${pi_args[@]}}   # re-review: paste the review prompt
+  outfitter run --harness $harness${pi_args:+ -- ${pi_args[@]}}   # re-review: paste the review prompt
   gh pr view --web ; npm test ; gh pr merge --squash
 (exit to leave; e2e/demo.sh to go again with a fresh slate)
 EOF
@@ -386,4 +416,5 @@ exec env -u GH_TOKEN -u GITHUB_TOKEN -u GITHUB_PERSONAL_ACCESS_TOKEN \
   GH_TOKEN="$demo_github_token" \
   GITHUB_PERSONAL_ACCESS_TOKEN="$demo_github_token" \
   ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
-  ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} bash
+  ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} \
+  ${demo_claude_token:+CLAUDE_CODE_OAUTH_TOKEN="$demo_claude_token"} bash

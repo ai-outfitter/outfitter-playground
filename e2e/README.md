@@ -12,7 +12,7 @@ back and issues and PRs land on your copy, never upstream.
 
 ```sh
 e2e/demo.sh            # engineer session, claude harness
-e2e/demo.sh pi         # same flow under pi
+e2e/demo.sh outfitter  # same flow under Outfitter's own (pi) harness
 e2e/demo.sh codex      # same flow under codex
 ```
 
@@ -28,7 +28,10 @@ request against the linked issue's acceptance criteria.
 
 Live sessions validate GitHub CLI authentication before any arena reset, then
 pass the resulting token to `gh` and the GitHub MCP. `ANTHROPIC_API_KEY` /
-`OPENAI_API_KEY` are passed through when set (pi needs one of them).
+`OPENAI_API_KEY` are passed through when set (pi needs one of them). The
+claude path carries your host Claude Code login in as `CLAUDE_CODE_OAUTH_TOKEN`
+(from the environment, the macOS Keychain, or `~/.claude/.credentials.json`),
+so the demo HOME never needs its own `/login`.
 
 The Pi path makes one extension-free `OUTFITTER_AUTH_OK` model call before it
 resets the arena or installs profile extensions. This both verifies the selected

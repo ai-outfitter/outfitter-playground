@@ -82,7 +82,11 @@ printf '%s\n' \
   'printf "%s" "${HOSTED_MCP_STATUS:-200}"' \
   > "$stub_bin/curl"
 
-chmod +x "$stub_bin/npm" "$stub_bin/git" "$stub_bin/gh" "$stub_bin/curl" "$runtime_root/bin/outfitter"
+# Never read the host Keychain from a test; the claude cases carry a token in.
+printf '%s\n' '#!/usr/bin/env bash' 'exit 1' > "$stub_bin/security"
+
+chmod +x "$stub_bin/npm" "$stub_bin/git" "$stub_bin/gh" "$stub_bin/curl" "$stub_bin/security" "$runtime_root/bin/outfitter"
+export CLAUDE_CODE_OAUTH_TOKEN=test-claude-token
 export REAL_GIT="$real_git" REAL_NPM="$real_npm" FAKE_NPM_PREFIX="$runtime_root"
 export PATH="$stub_bin:$PATH"
 
@@ -177,8 +181,8 @@ run_live_mcp_failure_case() {
 
   if output=$(cd "$repo_root" && HOME="$case_root/host-home" \
     PLAYGROUND_HOME="$case_root/demo-home" HOSTED_MCP_STATUS=401 \
-    bash e2e/demo.sh pi 2>&1); then
-    echo "FAIL  pi mode accepted a token the hosted GitHub MCP rejects" >&2
+    bash e2e/demo.sh outfitter 2>&1); then
+    echo "FAIL  outfitter mode accepted a token the hosted GitHub MCP rejects" >&2
     exit 1
   fi
   case "$output" in
@@ -196,7 +200,7 @@ run_live_mcp_failure_case() {
     cat "$OUTFITTER_CALL_LOG" >&2
     exit 1
   }
-  echo "PASS  pi mode rejects a token the hosted GitHub MCP refuses before reset"
+  echo "PASS  outfitter mode rejects a token the hosted GitHub MCP refuses before reset"
 }
 
 run_live_provider_failure_case() {
@@ -211,8 +215,8 @@ run_live_provider_failure_case() {
   export DESTRUCTIVE_GIT_LOG="$case_root/destructive-git.log"
 
   if output=$(cd "$repo_root" && HOME="$case_root/host-home" \
-    PLAYGROUND_HOME="$case_root/demo-home" bash e2e/demo.sh pi 2>&1); then
-    echo "FAIL  pi mode accepted a failed provider probe" >&2
+    PLAYGROUND_HOME="$case_root/demo-home" bash e2e/demo.sh outfitter 2>&1); then
+    echo "FAIL  outfitter mode accepted a failed provider probe" >&2
     exit 1
   fi
   case "$output" in
@@ -232,7 +236,7 @@ run_live_provider_failure_case() {
 
 run_check_case absent
 run_check_case invalid
-for harness in pi claude codex; do
+for harness in outfitter claude codex; do
   run_live_failure_case absent "$harness"
   run_live_failure_case invalid "$harness"
 done
