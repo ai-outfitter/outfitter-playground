@@ -2,10 +2,10 @@
 # Demo/test the engineer flow on your host — no container. Runs Outfitter
 # under a persistent, isolated HOME in /tmp so harness state (logins,
 # onboarding, the synced catalog) survives between runs without touching
-# your real ~. The session works in a persistent clone of YOUR FORK inside
-# that HOME — issues and pull requests land on the fork, never upstream,
-# and your own checkout is never touched. The fork clone is reset to the
-# upstream state each run so the seeded bug is back.
+# your real ~. It runs in this checkout, which must be a clone of YOUR FORK
+# (origin = fork, upstream = org repo) so issues and pull requests land on
+# the fork, never upstream. The checkout is reset to the upstream state
+# each run so the seeded bug is back.
 #
 # usage: e2e/demo.sh [pi|claude|codex]  launch the engineer session (default: claude)
 #        e2e/demo.sh check              free sanity check: no model calls
@@ -111,53 +111,40 @@ if [ "$cmd" = check ]; then
   exit 0
 fi
 
-# --- demo workspace: a persistent clone of YOUR FORK -----------------------
-# The session must never write to upstream: origin in the workspace is your
-# fork, upstream is the org repo, and the workspace is reset to the upstream
-# state each run.
-login=$(gh api user --jq .login)
-fork=$(gh api repos/ai-outfitter/outfitter-playground/forks --paginate \
-  --jq ".[] | select(.owner.login == \"$login\") | .full_name" | head -1)
-if [ -z "$fork" ]; then
-  echo "forking ai-outfitter/outfitter-playground..."
-  gh repo fork ai-outfitter/outfitter-playground --clone=false >/dev/null
-  sleep 5
-  fork=$(gh api repos/ai-outfitter/outfitter-playground/forks --paginate \
-    --jq ".[] | select(.owner.login == \"$login\") | .full_name" | head -1)
-fi
-[ -n "$fork" ] || { echo "could not find or create your fork" >&2; exit 1; }
+# --- demo arena: this checkout, which must be a FORK clone -----------------
+# Issues and PRs land wherever origin points. Refuse to demo out of a clone
+# of the org repo itself — point origin at your fork first.
+case "$(git remote get-url origin)" in
+  *ai-outfitter/outfitter-playground*)
+    echo "origin is the upstream org repo. Point it at your fork so issues and PRs land there:" >&2
+    echo "  git remote set-url origin git@github.com:<you>/outfitter-playground.git" >&2
+    echo "  git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git" >&2
+    exit 1 ;;
+esac
+fork=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+git remote get-url upstream >/dev/null 2>&1 \
+  || git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
 gh repo edit "$fork" --enable-issues >/dev/null 2>&1 || true
 
-workspace=$demo_home/playground
-if [ ! -d "$workspace/.git" ]; then
-  echo "cloning $fork into the demo HOME..."
-  run_demo git clone -q "https://github.com/$fork.git" "$workspace"
-  run_demo git -C "$workspace" remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
-fi
-echo "resetting $fork clone to the upstream state..."
-run_demo git -C "$workspace" fetch -q upstream
-run_demo git -C "$workspace" checkout -qf main
-run_demo git -C "$workspace" reset -q --hard upstream/main
-run_demo git -C "$workspace" clean -qfd
-run_demo git -C "$workspace" for-each-ref --format='%(refname:short)' refs/heads \
-  | grep -v '^main$' | xargs -r env HOME="$demo_home" git -C "$workspace" branch -qD
-run_demo git -C "$workspace" push -q --force origin main
+echo "resetting checkout to the upstream state (uncommitted changes and extra branches are discarded)..."
+git fetch -q upstream
+git checkout -qf main
+git reset -q --hard upstream/main
+git clean -qfd
+git for-each-ref --format='%(refname:short)' refs/heads \
+  | grep -v '^main$' | xargs -r git branch -qD
+git push -q --force origin main
 gh pr list -R "$fork" --state open --json number --jq '.[].number' \
   | xargs -rn1 gh pr close -R "$fork" --delete-branch >/dev/null 2>&1 || true
 
-# Carry a local catalog override into the workspace (gitignored there too).
-[ -f "$repo_root/.agents/settings.local.yml" ] \
-  && cp "$repo_root/.agents/settings.local.yml" "$workspace/.agents/settings.local.yml"
-
-cd "$workspace"
 echo "syncing the community-profiles catalog..."
 run_demo outfitter sync
 
 cat <<EOF
 
 ┌─────────────────────────────────────────────────────────────────────┐
-  playground demo — $workspace
-  fork: $fork   (HOME: $demo_home; your own checkout is untouched)
+  playground demo — $repo_root
+  fork: $fork   (HOME: $demo_home)
 
   The bug: node bin/split.js 100 3   totals \$99.99
 

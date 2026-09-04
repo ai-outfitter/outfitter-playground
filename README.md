@@ -129,11 +129,11 @@ AGENTS.md                repository instructions agents follow (CLAUDE.md symlin
 
 [e2e/demo.sh](e2e/README.md) launches the engineer session with everything
 wired from what you already have — `gh auth token`, your Claude Code/Codex
-logins — under a persistent, isolated HOME in `/tmp`. The session works in a
-clone of **your fork** inside that HOME (created for you, force-reset to the
-upstream state each run), so issues and PRs land on the fork, never
-upstream, and your own checkout is untouched. Pick a harness per run;
-`check` is a free sanity pass and `reset` wipes the demo HOME.
+logins — under a persistent, isolated HOME in `/tmp`. It runs in this
+checkout, which must be a clone of **your fork** (origin = fork; the script
+refuses an org-repo origin), and resets it to the upstream state each run so
+issues and PRs land on the fork and the seeded bug is back. Pick a harness
+per run; `check` is a free sanity pass and `reset` wipes the demo HOME.
 
 ```sh
 e2e/demo.sh            # claude — or: pi, codex, check, reset
