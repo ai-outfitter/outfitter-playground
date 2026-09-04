@@ -104,11 +104,11 @@ if [ "$cmd" = check ]; then
     echo "PASS  outfitter validate --strict clean"
   fi
   out=$(run_demo outfitter list 2>&1)
-  for agent in engineer code-review git-forge-delegator; do
+  for agent in engineer git-forge-delegator; do
     echo "$out" | grep -qE "^\s+$agent\s+\[(github:ai-outfitter/community-profiles#|/.*community-profiles)" \
       || { echo "FAIL  $agent not resolved from community-profiles"; exit 1; }
   done
-  echo "PASS  engineer/code-review/git-forge-delegator resolve from community-profiles"
+  echo "PASS  engineer/git-forge-delegator resolve from community-profiles"
   exit 0
 fi
 
@@ -177,12 +177,12 @@ cat <<EOF
      engineer's scoped-issues skill reproduces the report and files
      the scoped issue itself; then fix/ branch, regression test, draft
      PR, CI green, PR marked ready — and per its code-review skill it
-     STARTS the cold-context adversarial review itself and acts on
-     the verdict.
+     REVIEWS its own PR: cold-context subagents return JSON findings,
+     it posts one formal review via the github MCP, then fixes blockers.
 
   3. Want a review pass by hand (or a re-review)? Run:
 
-     outfitter run code-review --harness $cmd
+     outfitter run --harness $cmd
 
      Paste: Review the open pull request against its linked issue's
      acceptance criteria.
@@ -220,7 +220,7 @@ run_demo outfitter run --harness "$cmd" ${pi_args[@]:+-- "${pi_args[@]}"} || tru
 cat <<EOF
 
 Engineer session ended. This shell stays in the demo environment — next:
-  outfitter run code-review --harness $cmd${pi_args:+ -- ${pi_args[@]}}
+  outfitter run --harness $cmd${pi_args:+ -- ${pi_args[@]}}   # re-review: paste the review prompt
   gh pr view --web ; npm test ; gh pr merge --squash
 (exit to leave; e2e/demo.sh to go again with a fresh slate)
 EOF

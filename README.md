@@ -58,17 +58,19 @@ prompt, or division of labor.
    on a `fix/...` branch with a conventional commit, adds the regression
    test the issue demands, verifies with `npm test`, opens the pull request
    as a draft, waits for CI to go green, and marks it ready — then, per its
-   `code-review` skill, **starts the adversarial review itself**: it
-   launches an independent cold-context reviewer session and acts on the
-   verdict.
-6. **Read the adversarial review.** The reviewer is a distinct agent with
+   `code-review` skill, **reviews its own PR adversarially**: it spawns
+   cold-context subagents that judge only the diff, the criteria, and the
+   checks, aggregates their JSON findings, posts one formal review through
+   the github MCP, and fixes what blocks.
+6. **Read the adversarial review.** The judgment comes from subagents with
    no stake in the change passing. Expect a formal PR review: one inline
    comment per finding, `REQUEST_CHANGES` if anything blocks, a `COMMENT`
    verdict when clean — never `APPROVE`, because approval is yours. To run
-   a review pass by hand (or re-review a revision):
+   a review pass by hand (or re-review a revision), start the engineer
+   again:
 
    ```sh
-   outfitter run code-review
+   outfitter run
    ```
 
    ```text
