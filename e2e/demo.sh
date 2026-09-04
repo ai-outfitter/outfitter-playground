@@ -90,7 +90,8 @@ fi
 demo_github_token=""
 
 run_demo() { # run a command in the demo environment
-  # github-mcp-server (the agents' forge MCP) reads GITHUB_PERSONAL_ACCESS_TOKEN.
+  # GitHub's hosted MCP (the agents' forge MCP) authenticates with
+  # GITHUB_PERSONAL_ACCESS_TOKEN as a bearer token.
   # XDG_CONFIG_HOME pins git (and friends) to the demo HOME's config, so a host
   # signing setup never leaks into unsigned demo commits.
   # Pi installs profile extensions through npm on first launch. Package auditing
@@ -255,15 +256,21 @@ fi
 require_github_auth
 
 # The engineer can use gh for issue and pull-request lifecycle operations, but
-# its formal adversarial review is delivered through the selected GitHub MCP.
-# Fail before resetting the arena instead of launching a session that cannot
-# complete the advertised workflow.
-if ! PATH="$demo_path" command -v github-mcp-server >/dev/null 2>&1; then
-  echo "github-mcp-server is required for the demo's review step." >&2
-  echo "macOS: brew install github-mcp-server" >&2
-  echo "Other platforms: https://github.com/github/github-mcp-server/releases/latest" >&2
+# its formal adversarial review is delivered through GitHub's hosted MCP
+# (`github-hosted` in the catalog), which authenticates with the same gh
+# token. Open one MCP session with it now and fail before resetting the arena
+# instead of launching a session that cannot complete the advertised workflow.
+hosted_mcp_status=$(curl -sS -o /dev/null -w '%{http_code}' -X POST https://api.githubcopilot.com/mcp/ \
+  -H "Authorization: Bearer $demo_github_token" \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"outfitter-playground-demo","version":"0"}}}' \
+  2>/dev/null || echo 000)
+if [ "$hosted_mcp_status" != 200 ]; then
+  echo "GitHub's hosted MCP (https://api.githubcopilot.com/mcp/) rejected the gh token: HTTP $hosted_mcp_status." >&2
+  echo "The engineer's review step needs it; run gh auth refresh -s repo,workflow and retry." >&2
   exit 1
 fi
+echo "PASS  GitHub hosted MCP accepts the gh token"
 
 # --- demo arena: this checkout, generated from the template ----------------
 # Issues and PRs land wherever origin points. The arena is a repo GENERATED

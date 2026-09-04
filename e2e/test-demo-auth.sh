@@ -74,7 +74,15 @@ printf '%s\n' \
   'esac' \
   > "$runtime_root/bin/outfitter"
 
-chmod +x "$stub_bin/npm" "$stub_bin/git" "$stub_bin/gh" "$runtime_root/bin/outfitter"
+# The hosted GitHub MCP preflight is one curl handshake; answer it with a
+# canned status so no test case touches the network.
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'printf "%s\n" "$*" >> "$CURL_CALL_LOG"' \
+  'printf "%s" "${HOSTED_MCP_STATUS:-200}"' \
+  > "$stub_bin/curl"
+
+chmod +x "$stub_bin/npm" "$stub_bin/git" "$stub_bin/gh" "$stub_bin/curl" "$runtime_root/bin/outfitter"
 export REAL_GIT="$real_git" REAL_NPM="$real_npm" FAKE_NPM_PREFIX="$runtime_root"
 export PATH="$stub_bin:$PATH"
 
@@ -159,30 +167,36 @@ assert_no_destructive_git() {
 }
 
 run_live_mcp_failure_case() {
-  case_root="$test_root/live-pi-missing-mcp"
+  case_root="$test_root/live-pi-hosted-mcp-rejected"
   mkdir -p "$case_root/host-home"
   export GH_MODE=valid
   export GH_CALL_LOG="$case_root/gh.log"
+  export CURL_CALL_LOG="$case_root/curl.log"
   export OUTFITTER_CALL_LOG="$case_root/outfitter.log"
   export DESTRUCTIVE_GIT_LOG="$case_root/destructive-git.log"
 
   if output=$(cd "$repo_root" && HOME="$case_root/host-home" \
-    PATH="$stub_bin:/usr/bin:/bin" PLAYGROUND_HOME="$case_root/demo-home" \
+    PLAYGROUND_HOME="$case_root/demo-home" HOSTED_MCP_STATUS=401 \
     bash e2e/demo.sh pi 2>&1); then
-    echo "FAIL  pi mode accepted a missing GitHub MCP server" >&2
+    echo "FAIL  pi mode accepted a token the hosted GitHub MCP rejects" >&2
     exit 1
   fi
   case "$output" in
-    *"github-mcp-server is required"*) ;;
-    *) echo "FAIL  wrong missing-MCP error" >&2; echo "$output" >&2; exit 1 ;;
+    *"rejected the gh token: HTTP 401"*) ;;
+    *) echo "FAIL  wrong hosted-MCP error" >&2; echo "$output" >&2; exit 1 ;;
   esac
-  assert_no_destructive_git "missing-MCP failure"
+  grep -q -- '-H Authorization: Bearer valid-test-token' "$CURL_CALL_LOG" || {
+    echo "FAIL  hosted-MCP probe did not present the gh token" >&2
+    cat "$CURL_CALL_LOG" >&2
+    exit 1
+  }
+  assert_no_destructive_git "hosted-MCP failure"
   [ ! -s "$OUTFITTER_CALL_LOG" ] || {
-    echo "FAIL  missing-MCP case invoked Outfitter" >&2
+    echo "FAIL  hosted-MCP case invoked Outfitter" >&2
     cat "$OUTFITTER_CALL_LOG" >&2
     exit 1
   }
-  echo "PASS  pi mode rejects a missing GitHub MCP server before reset"
+  echo "PASS  pi mode rejects a token the hosted GitHub MCP refuses before reset"
 }
 
 run_live_provider_failure_case() {
@@ -192,11 +206,10 @@ run_live_provider_failure_case() {
     > "$case_root/host-home/.pi/agent/settings.json"
   export GH_MODE=valid
   export GH_CALL_LOG="$case_root/gh.log"
+  export CURL_CALL_LOG="$case_root/curl.log"
   export OUTFITTER_CALL_LOG="$case_root/outfitter.log"
   export DESTRUCTIVE_GIT_LOG="$case_root/destructive-git.log"
 
-  printf '%s\n' '#!/usr/bin/env bash' 'exit 0' > "$stub_bin/github-mcp-server"
-  chmod +x "$stub_bin/github-mcp-server"
   if output=$(cd "$repo_root" && HOME="$case_root/host-home" \
     PLAYGROUND_HOME="$case_root/demo-home" bash e2e/demo.sh pi 2>&1); then
     echo "FAIL  pi mode accepted a failed provider probe" >&2
