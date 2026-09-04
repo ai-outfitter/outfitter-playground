@@ -2,8 +2,10 @@
 # Demo/test the engineer flow on your host — no container. Runs Outfitter
 # under a persistent, isolated HOME in /tmp so harness state (logins,
 # onboarding, the synced catalog) survives between runs without touching
-# your real ~. The repo checkout is reset each run so the seeded bug is
-# back and old demo branches are gone.
+# your real ~. The session works in a persistent clone of YOUR FORK inside
+# that HOME — issues and pull requests land on the fork, never upstream,
+# and your own checkout is never touched. The fork clone is reset to the
+# upstream state each run so the seeded bug is back.
 #
 # usage: e2e/demo.sh [pi|claude|codex]  launch the engineer session (default: claude)
 #        e2e/demo.sh check              free sanity check: no model calls
@@ -60,6 +62,8 @@ fi
 if [ ! -f "$demo_home/.gitconfig" ]; then
   HOME="$demo_home" git config --global user.name  "$(git config user.name  || echo playground-demo)"
   HOME="$demo_home" git config --global user.email "$(git config user.email || echo demo@playground.invalid)"
+  # git speaks to github over https through gh, so no token ever hits disk
+  HOME="$demo_home" git config --global credential."https://github.com".helper '!gh auth git-credential'
 fi
 
 GH_TOKEN=$(gh auth token) || { echo "gh is not authenticated; run gh auth login" >&2; exit 1; }
@@ -107,24 +111,53 @@ if [ "$cmd" = check ]; then
   exit 0
 fi
 
-# --- reset the checkout so every demo starts clean -------------------------
-ref=origin/main
-git remote get-url upstream >/dev/null 2>&1 && ref=upstream/main
-echo "resetting checkout to $ref (uncommitted changes and extra branches are discarded)..."
-git fetch -q "${ref%%/*}"
-git checkout -qf main
-git reset -q --hard "$ref"
-git clean -qfd
-git for-each-ref --format='%(refname:short)' refs/heads \
-  | grep -v '^main$' | xargs -r git branch -qD
+# --- demo workspace: a persistent clone of YOUR FORK -----------------------
+# The session must never write to upstream: origin in the workspace is your
+# fork, upstream is the org repo, and the workspace is reset to the upstream
+# state each run.
+login=$(gh api user --jq .login)
+fork=$(gh api repos/ai-outfitter/outfitter-playground/forks --paginate \
+  --jq ".[] | select(.owner.login == \"$login\") | .full_name" | head -1)
+if [ -z "$fork" ]; then
+  echo "forking ai-outfitter/outfitter-playground..."
+  gh repo fork ai-outfitter/outfitter-playground --clone=false >/dev/null
+  sleep 5
+  fork=$(gh api repos/ai-outfitter/outfitter-playground/forks --paginate \
+    --jq ".[] | select(.owner.login == \"$login\") | .full_name" | head -1)
+fi
+[ -n "$fork" ] || { echo "could not find or create your fork" >&2; exit 1; }
+gh repo edit "$fork" --enable-issues >/dev/null 2>&1 || true
 
+workspace=$demo_home/playground
+if [ ! -d "$workspace/.git" ]; then
+  echo "cloning $fork into the demo HOME..."
+  run_demo git clone -q "https://github.com/$fork.git" "$workspace"
+  run_demo git -C "$workspace" remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
+fi
+echo "resetting $fork clone to the upstream state..."
+run_demo git -C "$workspace" fetch -q upstream
+run_demo git -C "$workspace" checkout -qf main
+run_demo git -C "$workspace" reset -q --hard upstream/main
+run_demo git -C "$workspace" clean -qfd
+run_demo git -C "$workspace" for-each-ref --format='%(refname:short)' refs/heads \
+  | grep -v '^main$' | xargs -r env HOME="$demo_home" git -C "$workspace" branch -qD
+run_demo git -C "$workspace" push -q --force origin main
+gh pr list -R "$fork" --state open --json number --jq '.[].number' \
+  | xargs -rn1 gh pr close -R "$fork" --delete-branch >/dev/null 2>&1 || true
+
+# Carry a local catalog override into the workspace (gitignored there too).
+[ -f "$repo_root/.agents/settings.local.yml" ] \
+  && cp "$repo_root/.agents/settings.local.yml" "$workspace/.agents/settings.local.yml"
+
+cd "$workspace"
 echo "syncing the community-profiles catalog..."
 run_demo outfitter sync
 
 cat <<EOF
 
 ┌─────────────────────────────────────────────────────────────────────┐
-  playground demo — $repo_root  (HOME: $demo_home)
+  playground demo — $workspace
+  fork: $fork   (HOME: $demo_home; your own checkout is untouched)
 
   The bug: node bin/split.js 100 3   totals \$99.99
 
@@ -167,6 +200,11 @@ if [ "$cmd" = pi ] && [ -f "$demo_home/.pi/agent/settings.json" ]; then
     pi_args=(--provider "$1"); [ -n "${2:-}" ] && pi_args+=(--model "$2")
     echo "pi model: ${1}${2:+/$2} (from your pi settings)"
   fi
+fi
+
+if [ -n "${E2E_NO_LAUNCH:-}" ]; then
+  echo "(E2E_NO_LAUNCH set — bootstrap verified, not launching)"
+  exit 0
 fi
 
 echo "launching the engineer session ($cmd) — paste the prompt above when it opens..."

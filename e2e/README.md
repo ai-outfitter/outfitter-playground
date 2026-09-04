@@ -2,11 +2,12 @@
 
 One script, no container. It runs Outfitter under a **persistent, isolated
 HOME** at `/tmp/outfitter-playground-home` — your harness logins are copied
-in on first run (originals untouched), onboarding state and the synced
-catalog persist between runs, and your real `~` is never touched. Each run
-**resets the repo checkout** (hard-reset `main` to upstream/origin, delete
-other branches, drop untracked files) so the seeded bug is back and the
-demo starts clean.
+in from the host every run (originals untouched), onboarding state and the
+synced catalog persist between runs, and your real `~` is never touched.
+The session works in a **clone of your fork** inside that HOME (created for
+you if missing); each run force-resets that clone to the upstream state, so
+the seeded bug is back, issues and PRs land on the fork — never upstream —
+and your own checkout is never modified.
 
 ```sh
 e2e/demo.sh            # engineer session, claude harness
