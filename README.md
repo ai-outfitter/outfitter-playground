@@ -15,10 +15,9 @@ prompt, or division of labor.
 1. **Generate your playground** — a copy from this template, not a fork:
    forks need one-time UI clicks before Actions run and issues work;
    generated repos have both from the first commit (needs
-   [Node.js](https://nodejs.org) 22.19+, [`gh`](https://cli.github.com/), and
-   [`github-mcp-server`](https://github.com/github/github-mcp-server/releases/latest)
-   on `PATH`; on macOS, install the server with
-   `brew install github-mcp-server`):
+   [Node.js](https://nodejs.org) 22.19+ and [`gh`](https://cli.github.com/);
+   the agents reach GitHub through its hosted MCP server, so nothing else is
+   installed):
 
    ```sh
    gh repo create outfitter-playground --template ai-outfitter/outfitter-playground --public --clone
@@ -41,7 +40,7 @@ prompt, or division of labor.
    ```sh
    npm install -g @ai-outfitter/outfitter
    outfitter sync
-   export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"   # the agents' github MCP reads this
+   export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"   # the agents' hosted GitHub MCP authenticates with this
    outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
    ```
 
