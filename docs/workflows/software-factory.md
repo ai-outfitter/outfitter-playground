@@ -29,7 +29,12 @@ gh secret set OPENAI_API_KEY          # paste your key; the agent runs on openai
 ```
 
 Then in **Settings → Actions → General**, enable *Allow GitHub Actions to
-create and approve pull requests*. Without it `gh pr create` is refused.
+create and approve pull requests*. Without it `gh pr create` is refused and
+the agent leaves its branch pushed and a comment on the issue saying so. In
+an organization that setting can be locked at the organization level
+("Write permissions for workflows are disabled by the organization"); an
+organization owner enables it under the organization's Actions settings, or
+you skip it entirely with `FACTORY_TOKEN` below.
 
 The model lives in one place,
 [`.agents/agents/factory-engineer/agent.md`](../../.agents/agents/factory-engineer/agent.md).
