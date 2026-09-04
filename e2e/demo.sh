@@ -121,9 +121,14 @@ case "$(git remote get-url origin)" in
     echo "  git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git" >&2
     exit 1 ;;
 esac
-fork=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+# Derive the fork from origin — with two github remotes, gh's own resolution
+# prefers upstream, which is exactly the wrong target here.
+fork=$(git remote get-url origin | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')
 git remote get-url upstream >/dev/null 2>&1 \
   || git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
+# Bare gh commands in the demo session (the agent's `gh issue create`,
+# `gh pr create`) must target the fork, not upstream.
+gh repo set-default "$fork" >/dev/null 2>&1 || true
 gh repo edit "$fork" --enable-issues >/dev/null 2>&1 || true
 
 echo "resetting checkout to the upstream state (uncommitted changes and extra branches are discarded)..."
