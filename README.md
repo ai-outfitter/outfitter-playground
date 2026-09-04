@@ -18,8 +18,8 @@ prompt, or division of labor.
    [Node.js](https://nodejs.org) 20+ and [`gh`](https://cli.github.com/)):
 
    ```sh
-   gh repo create playground --template ai-outfitter/outfitter-playground --public --clone
-   cd playground
+   gh repo create outfitter-playground --template ai-outfitter/outfitter-playground --public --clone
+   cd outfitter-playground
    git remote add upstream https://github.com/ai-outfitter/outfitter-playground.git
    ```
 

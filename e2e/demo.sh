@@ -119,8 +119,8 @@ fi
 case "$(git remote get-url origin)" in
   *ai-outfitter/outfitter-playground*)
     echo "origin is the upstream org repo. Generate your own playground and point origin at it:" >&2
-    echo "  gh repo create <you>/playground --template ai-outfitter/outfitter-playground --public" >&2
-    echo "  git remote set-url origin git@github.com:<you>/playground.git" >&2
+    echo "  gh repo create <you>/outfitter-playground --template ai-outfitter/outfitter-playground --public" >&2
+    echo "  git remote set-url origin git@github.com:<you>/outfitter-playground.git" >&2
     exit 1 ;;
 esac
 # Derive the arena from origin — with two github remotes, gh's own
@@ -129,7 +129,7 @@ arena=$(git remote get-url origin | sed -E 's#^(git@github.com:|https://github.c
 lineage=$(gh api "repos/$arena" --jq '.template_repository.full_name // ""' 2>/dev/null)
 if [ "$lineage" != ai-outfitter/outfitter-playground ]; then
   echo "$arena was not generated from ai-outfitter/outfitter-playground; refusing to reset it." >&2
-  echo "  gh repo create <you>/playground --template ai-outfitter/outfitter-playground --public" >&2
+  echo "  gh repo create <you>/outfitter-playground --template ai-outfitter/outfitter-playground --public" >&2
   exit 1
 fi
 git remote get-url upstream >/dev/null 2>&1 \
