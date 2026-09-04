@@ -152,8 +152,9 @@ gh run watch "$run_id" -R "$arena" --exit-status || echo "the run did not succee
 
 echo
 show_status
-cat <<EOF
+cat <<STATUS
 
 Verify and merge yourself:
   gh pr checkout <n> && node bin/split.js 100 3 && npm test && gh pr merge --squash
 Re-review: e2e/factory.sh review    Status: e2e/factory.sh status
+STATUS
