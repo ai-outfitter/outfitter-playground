@@ -16,8 +16,9 @@ conventions, toy stakes.
   Never push to `main`.
 - Open pull requests as drafts, get CI green, then mark ready. A pull request
   references the issue it closes.
-- Do not merge pull requests and do not approve reviews; a human does both.
-- Do not review your own pull request.
+- A human approves and merges. Review your own ready pull request per the
+  code-review skill: cold-context subagents judge, you post one formal
+  `COMMENT` or `REQUEST_CHANGES` review, then fix the blockers.
 
 ## The exhibit bug
 
