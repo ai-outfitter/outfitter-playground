@@ -8,7 +8,8 @@
     "split": "bin/split.js"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:demo": "bash -n e2e/demo.sh e2e/test-demo-auth.sh && bash e2e/test-demo-auth.sh"
   },
   "engines": {
     "node": ">=20"

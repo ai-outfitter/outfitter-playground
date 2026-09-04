@@ -24,6 +24,10 @@ printf '%s\n' \
 
 printf '%s\n' \
   '#!/usr/bin/env bash' \
+  'if [ "${1:-} ${2:-} ${3:-}" = "remote get-url origin" ] && [ -n "${FAKE_ORIGIN_URL:-}" ]; then' \
+  '  printf "%s\n" "$FAKE_ORIGIN_URL"' \
+  '  exit 0' \
+  'fi' \
   'case " $* " in' \
   '  *" fetch "*|*" checkout "*|*" reset "*|*" clean "*|*" push "*|*" worktree remove "*|*" branch -qD "*)' \
   '    printf "%s\n" "$*" >> "$DESTRUCTIVE_GIT_LOG"' \
@@ -194,6 +198,7 @@ run_live_provider_failure_case() {
   export GH_CALL_LOG="$case_root/gh.log"
   export OUTFITTER_CALL_LOG="$case_root/outfitter.log"
   export DESTRUCTIVE_GIT_LOG="$case_root/destructive-git.log"
+  export FAKE_ORIGIN_URL="https://github.com/example/outfitter-playground.git"
 
   printf '%s\n' '#!/usr/bin/env bash' 'exit 0' > "$stub_bin/github-mcp-server"
   chmod +x "$stub_bin/github-mcp-server"
