@@ -42,10 +42,14 @@ if [ "$cmd" = check ]; then
   model=$(sed -n 's/^model:[[:space:]]*//p' .agents/agents/factory-engineer/agent.md | head -1)
   [ -n "$model" ] && echo "PASS  factory-engineer declares model $model" \
     || { echo "FAIL  factory-engineer declares no model"; exit 1; }
-  out=$(outfitter sync 2>&1) || { echo "FAIL  outfitter sync"; echo "$out" | tail -3; exit 1; }
-  out=$(outfitter validate --strict 2>&1) || { echo "FAIL  outfitter validate --strict"; echo "$out" | tail -5; exit 1; }
+  # Validate the way the runner sees it: this checkout's .agents over the
+  # pinned catalog and nothing from your own ~/.agents.
+  check_home=$(mktemp -d)
+  trap 'rm -rf "$check_home"' EXIT
+  out=$(HOME="$check_home" outfitter sync 2>&1) || { echo "FAIL  outfitter sync"; echo "$out" | tail -3; exit 1; }
+  out=$(HOME="$check_home" outfitter validate --strict 2>&1) || { echo "FAIL  outfitter validate --strict"; echo "$out" | tail -5; exit 1; }
   echo "PASS  outfitter validate --strict clean"
-  outfitter list agents 2>&1 | grep -qE '^\s+factory-engineer\s' && echo "PASS  factory-engineer resolves over the community catalog" \
+  HOME="$check_home" outfitter list agents 2>&1 | grep -qE '^\s+factory-engineer\s' && echo "PASS  factory-engineer resolves over the community catalog" \
     || { echo "FAIL  factory-engineer not resolved"; exit 1; }
   exit 0
 fi
