@@ -201,8 +201,8 @@ jobs:
           me="$(gh api user --jq .login 2>/dev/null || echo 'github-actions[bot]')"
           head="$(gh pr view "$NUMBER" --json headRefOid --jq .headRefOid)"
           review="$(gh api "repos/${{ github.repository }}/pulls/$NUMBER/reviews" \
-            --jq --arg me "$me" --arg head "$head" \
-            '[.[] | select(.user.login == $me and .commit_id == $head and (.state == "COMMENTED" or .state == "CHANGES_REQUESTED"))] | last // empty')"
+            | jq --arg me "$me" --arg head "$head" \
+              '[.[] | select(.user.login == $me and .commit_id == $head and (.state == "COMMENTED" or .state == "CHANGES_REQUESTED"))] | last // empty')"
           [ -n "$review" ] || { echo "no formal review of $head on #$NUMBER by $me" >&2; exit 1; }
           echo "review state: $(printf '%s' "$review" | jq -r .state)"
           case "$(printf '%s' "$review" | jq -r .body)" in
