@@ -38,6 +38,7 @@ prompt, or division of labor.
    ```sh
    npm install -g @ai-outfitter/outfitter
    outfitter sync
+   export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"   # the agents' github MCP reads this
    outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
    ```
 

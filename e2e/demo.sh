@@ -69,7 +69,8 @@ fi
 GH_TOKEN=$(gh auth token) || { echo "gh is not authenticated; run gh auth login" >&2; exit 1; }
 
 run_demo() { # run a command in the demo environment
-  env HOME="$demo_home" GH_TOKEN="$GH_TOKEN" \
+  # github-mcp-server (the agents' forge MCP) reads GITHUB_PERSONAL_ACCESS_TOKEN
+  env HOME="$demo_home" GH_TOKEN="$GH_TOKEN" GITHUB_PERSONAL_ACCESS_TOKEN="$GH_TOKEN" \
     ${ANTHROPIC_API_KEY:+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"} \
     ${OPENAI_API_KEY:+OPENAI_API_KEY="$OPENAI_API_KEY"} \
     "$@"
