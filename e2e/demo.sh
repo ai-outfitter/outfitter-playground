@@ -214,7 +214,7 @@ preflight_pi_auth() {
 
 run_engineer_session() {
   echo "launching the engineer session ($cmd) — paste the prompt above when it opens..."
-  if run_demo outfitter run --harness "$harness" ${pi_args[@]:+-- "${pi_args[@]}"}; then
+  if run_demo outfitter run engineer --harness "$harness" ${pi_args[@]:+-- "${pi_args[@]}"}; then
     return 0
   else
     session_rc=$?
@@ -373,7 +373,7 @@ cat <<EOF
 
   3. Want a review pass by hand (or a re-review)? Run:
 
-     outfitter run --harness $harness
+     outfitter run engineer --harness $harness
 
      Paste: Review the open pull request against its linked issue's
      acceptance criteria.
@@ -396,7 +396,7 @@ run_engineer_session || exit $?
 cat <<EOF
 
 Engineer session ended. This shell stays in the demo environment — next:
-  outfitter run --harness $harness${pi_args:+ -- ${pi_args[@]}}   # re-review: paste the review prompt
+  outfitter run engineer --harness $harness${pi_args:+ -- ${pi_args[@]}}   # re-review: paste the review prompt
   gh pr view --web ; npm test ; gh pr merge --squash
 (exit to leave; e2e/demo.sh to go again with a fresh slate)
 EOF

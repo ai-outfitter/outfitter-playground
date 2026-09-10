@@ -57,7 +57,7 @@ them without judgment calls.
 ## 2. Implement (engineer)
 
 ```sh
-outfitter run
+outfitter run engineer
 ```
 
 ```text
@@ -82,9 +82,9 @@ Prefer a different harness? The same composed profile runs through any of
 them:
 
 ```sh
-outfitter run --harness pi
-outfitter run --harness claude
-outfitter run --harness codex
+outfitter run engineer --harness pi
+outfitter run engineer --harness claude
+outfitter run engineer --harness codex
 ```
 
 ## 3. Inspect or repeat the adversarial review

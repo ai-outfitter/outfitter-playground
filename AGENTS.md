@@ -5,8 +5,9 @@ conventions, toy stakes.
 
 ## Build and test
 
-- Node.js 20+, no dependencies, no build step.
-- Verify every change with `npm test` (runs `node --test`).
+- Node.js 22.19+; install the pinned development dependency with `npm ci`.
+- Verify every change with `npm test`. On the PCB-workflow review branch also
+  run `npm run test:pcb-workflow` for strict, deterministic export acceptance.
 - Run the CLI with `node bin/split.js <amount> <people>`.
 
 ## Conventions

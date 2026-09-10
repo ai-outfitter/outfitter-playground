@@ -5,8 +5,12 @@
 # forked and run outside the organization, so it pins the public community
 # catalog directly. The pin keeps every fork reproducible — bump the ref on
 # purpose, never remove it.
-default_agent: engineer
+default_agent: hardware-engineer
 default_harness: pi
+workflows:
+  - pcb-design
 sources:
   - github: ai-outfitter/community-profiles
-    ref: v1.8.0
+    # Temporary review pin. Replace with the release containing PRs #88, #90,
+    # and #96 before this branch is considered for main.
+    ref: feat/pcb-toolchain-setup

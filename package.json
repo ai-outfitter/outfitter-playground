@@ -8,10 +8,15 @@
     "split": "bin/split.js"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:pcb-workflow": "bash e2e/pcb-workflow.sh"
+  },
+  "devDependencies": {
+    "@ai-outfitter/outfitter": "1.16.2",
+    "yaml": "2.9.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19"
   },
   "license": "MIT"
 }

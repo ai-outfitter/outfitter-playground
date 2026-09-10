@@ -1,5 +1,20 @@
 # Playground
 
+> [!IMPORTANT]
+> This review branch is the PCB-workflow playground. It temporarily pins the
+> stacked community-profiles work in PRs
+> [#88](https://github.com/ai-outfitter/community-profiles/pull/88),
+> [#90](https://github.com/ai-outfitter/community-profiles/pull/90), and
+> [#96](https://github.com/ai-outfitter/community-profiles/pull/96), selects
+> `hardware-engineer`, and enables `pcb-design`. Run
+> `npm run test:pcb-workflow` to prove strict consumer resolution and two
+> byte-identical workflow exports.
+>
+> The check does not execute workflow nodes, launch KiCad MCP, validate a real
+> board, create fabrication files, approve an order, or establish physical
+> acceptance. Replace the branch pin with the release containing the stack
+> before this work is eligible for `main`.
+
 One pass through this repository teaches you how to use
 [Outfitter](https://github.com/ai-outfitter/outfitter): you end with your
 own copy of this repo whose committed [`.agents/`](.agents/settings.yml)
@@ -42,7 +57,7 @@ prompt, or division of labor.
    npm install -g @ai-outfitter/outfitter
    outfitter sync
    export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"   # the agents' github MCP reads this
-   outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
+   outfitter run engineer   # the review branch defaults to hardware-engineer
    ```
 
 4. **Paste this bug report** — nothing more; the process comes from the
@@ -73,7 +88,7 @@ prompt, or division of labor.
    again:
 
    ```sh
-   outfitter run
+   outfitter run engineer
    ```
 
    ```text
