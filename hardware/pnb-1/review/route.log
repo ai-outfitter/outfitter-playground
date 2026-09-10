@@ -1,0 +1,11 @@
+DSN patched: pre-routes fixed
+router pass 1: 2 unrouted
+using attempt 1 (2 reported unrouted)
+SES: 494 track segments, 34 vias
+imported 528 new items
+hand routes re-added: 0
+power track length by width (mm): {0.5: 126.4, 0.4: 35.7, 0.3: 24.7, 0.25: 74.7} (102 step-downs)
+stitching vias: 50
+island vias: 0
+orphan vias removed: 3
+DRC: 0 errors, 0 unconnected

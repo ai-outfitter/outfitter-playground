@@ -9,7 +9,10 @@
   },
   "scripts": {
     "test": "node --test",
-    "test:pcb-workflow": "bash e2e/pcb-workflow.sh"
+    "test:pcb-workflow": "bash e2e/pcb-workflow.sh",
+    "pcb:setup": "devenv shell -- bash e2e/pcb-setup.sh",
+    "pcb:build": "devenv shell -- bash -c 'bash e2e/pcb-setup.sh && bash e2e/pcb-build.sh'",
+    "pcb:verify-package": "devenv shell -- hardware/.venv/bin/python hardware/pnb-1/package_manifest.py --check"
   },
   "devDependencies": {
     "@ai-outfitter/outfitter": "1.16.2",

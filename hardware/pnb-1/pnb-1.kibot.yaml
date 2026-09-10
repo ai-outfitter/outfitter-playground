@@ -1,0 +1,106 @@
+# PNB-1 gates + fab outputs, run by KiBot (https://github.com/INTI-CMNB/KiBot).
+#
+#   gate only:   ../.venv/bin/python -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab __NONE__
+#   full fab:    ../.venv/bin/python -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab
+#
+# There is no .kicad_sch in this flow — the SKiDL module (pnb1_skidl.py) is the
+# canonical schematic and its typed ERC + rev A netlist equivalence run in
+# build.py before any board exists. KiBot's gate here is the board: DRC at all
+# severities with warnings-as-errors, every waiver named below.
+
+kibot:
+  version: 1
+
+# KiBot prints W010 warnings (KiCad libs/templates/3D not in default paths)
+# under nix; they are environmental and do not affect gating or outputs.
+
+preflight:
+  drc:
+    dont_stop: false
+    warnings_as_errors: true
+    format: [RPT, JSON]
+    # Named waivers — every class below is accepted deliberately; anything new
+    # (any other id, e.g. clearance, shorting_items, unconnected_items) fails.
+    filters:
+      - filter: waive silk_over_copper — refs/outlines sit over pour clearances and pads; JLCPCB clips silk on pads, cosmetic only (rev A shipped the same 16)
+        error: silk_over_copper
+      - filter: waive silk_overlap — part outlines overlap 0.7 mm ref texts on this density, cosmetic only (rev A shipped the same 16)
+        error: silk_overlap
+      - filter: waive silk_edge_clearance — J3/J4 header labels sit near the outline, clipped at worst, cosmetic only (rev A shipped the same 4)
+        error: silk_edge_clearance
+
+outputs:
+  - name: gerbers
+    comment: Gerbers for JLCPCB (their recommended layer set and protel extensions)
+    type: gerber
+    dir: gerbers
+    options:
+      exclude_edge_layer: true
+      exclude_pads_from_silkscreen: true
+      plot_sheet_reference: false
+      plot_footprint_refs: true
+      plot_footprint_values: false
+      create_gerber_job_file: false
+      output: "%f.%x"
+      subtract_mask_from_silk: true
+      use_protel_extensions: true
+      gerber_precision: 4.6
+      use_gerber_x2_attributes: false
+      use_gerber_net_attributes: false
+      disable_aperture_macros: true
+    layers:
+      - F.Cu
+      - B.Cu
+      - F.Paste
+      - B.Paste
+      - F.Silkscreen
+      - B.Silkscreen
+      - F.Mask
+      - B.Mask
+      - Edge.Cuts
+
+  - name: drill
+    comment: Excellon drill files, PTH/NPTH separate (JLCPCB)
+    type: excellon
+    dir: gerbers
+    options:
+      pth_and_npth_single_file: false
+      pth_id: PTH
+      npth_id: NPTH
+      metric_units: true
+      output: "%f-%i.%x"
+      map:
+        type: gerber
+        output: "%f-%i.%x"
+
+  - name: position
+    comment: CPL for JLCPCB assembly (their column names and rotation fixes)
+    type: position
+    options:
+      format: CSV
+      output: cpl.%x
+      units: millimeters
+      separate_files_for_front_and_back: false
+      only_smd: false
+      columns:
+        - id: Ref
+          name: Designator
+        - id: PosX
+          name: Mid X
+        - id: PosY
+          name: Mid Y
+        - id: Rot
+          name: Rotation
+        - id: Side
+          name: Layer
+
+  - name: fab_zip
+    comment: One archive for the JLCPCB order form
+    type: compress
+    options:
+      output: pnb-1-gerbers.%x
+      files:
+        - from_output: gerbers
+          dest: /
+        - from_output: drill
+          dest: /

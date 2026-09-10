@@ -1,0 +1,4 @@
+skidl==2.3.0
+kibot==1.9.1
+kinet2pcb==1.1.4
+lxml==6.0.2

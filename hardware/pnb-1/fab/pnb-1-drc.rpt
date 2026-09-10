@@ -1,0 +1,154 @@
+** Drc report for pnb-1.kicad_pcb **
+** Created on 2026-09-10T18:25:08 **
+
+** Found 36 DRC violations **
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    ; warning (excluded)
+    @(58.0 mm, 0.0 mm): Segment on Edge.Cuts
+    @(37.8 mm, 7.3 mm): Segment of U1 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    ; warning (excluded)
+    @(58.0 mm, 0.0 mm): Segment on Edge.Cuts
+    @(58.3 mm, 22.8 mm): Segment of U1 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    ; warning (excluded)
+    @(58.0 mm, 42.0 mm): Segment on Edge.Cuts
+    @(6.53 mm, 42.99 mm): Segment of J1 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    ; warning (excluded)
+    @(58.0 mm, 42.0 mm): Segment on Edge.Cuts
+    @(15.47 mm, 42.99 mm): Segment of J1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.4 mm, 37.4 mm): Segment of C9 on F.Silkscreen
+    @(36.38 mm, 37.5 mm): Segment of J3 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(29.0 mm, 27.5 mm): PCB text 'PNB-1 rev A artera.space' on F.Silkscreen
+    @(35.47 mm, 28.3 mm): Segment of LED1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(34.2 mm, 28.3 mm): Segment of LED1 on F.Silkscreen
+    @(29.0 mm, 27.5 mm): PCB text 'PNB-1 rev A artera.space' on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(37.84 mm, 27.61 mm): Segment of R10 on F.Silkscreen
+    @(29.0 mm, 27.5 mm): PCB text 'PNB-1 rev A artera.space' on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(39.16 mm, 27.61 mm): Segment of R10 on F.Silkscreen
+    @(29.0 mm, 27.5 mm): PCB text 'PNB-1 rev A artera.space' on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.25 mm, 35.04 mm): Segment of C9 on F.Silkscreen
+    @(51.62 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.4 mm, 36.6 mm): Segment of C9 on F.Silkscreen
+    @(51.62 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.25 mm, 35.19 mm): Arc of C9 on F.Silkscreen
+    @(51.62 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.25 mm, 35.04 mm): Segment of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.4 mm, 36.6 mm): Segment of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.25 mm, 35.19 mm): Arc of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(25.93 mm, 32.17 mm): Segment of U2 on F.Silkscreen
+    @(28.61 mm, 32.66 mm): Segment of R9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(29.57 mm, 32.66 mm): Segment of R9 on F.Silkscreen
+    @(28.87 mm, 32.17 mm): Segment of U2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.25 mm, 38.96 mm): Segment of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.4 mm, 37.4 mm): Segment of C9 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    ; warning (excluded)
+    @(36.38 mm, 35.0 mm): Segment of J3 on F.Silkscreen
+    @(36.25 mm, 38.81 mm): Arc of C9 on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(6.16 mm, 34.43 mm): Segment of R3 on F.Silkscreen
+    @(6.67 mm, 36.19 mm): PTH pad 4 [GND] of J1
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(6.16 mm, 35.39 mm): Segment of R3 on F.Silkscreen
+    @(6.67 mm, 36.19 mm): PTH pad 4 [GND] of J1
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(29.0 mm, 27.5 mm): PCB text 'PNB-1 rev A artera.space' on F.Silkscreen
+    @(38.5 mm, 28.25 mm): Pad 2 [DTR_INT] of R10 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(13.65 mm, 7.26 mm): Segment of C10 on F.Silkscreen
+    @(13.25 mm, 8.0 mm): Pad 17 [<no net>] of U3 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(13.65 mm, 7.26 mm): Segment of C10 on F.Silkscreen
+    @(12.0 mm, 8.0 mm): Pad 18 [<no net>] of U3 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(12.15 mm, 7.11 mm): Arc of C10 on F.Silkscreen
+    @(12.0 mm, 8.0 mm): Pad 18 [<no net>] of U3 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(44.0 mm, 33.6 mm): PCB text 'J3: 5V G 3V3 G SDA SCL A B AD1 AD2 C INT' on F.Silkscreen
+    @(30.47 mm, 33.2 mm): Pad 3 [VBUS] of U2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(30.43 mm, 32.66 mm): Segment of R9 on F.Silkscreen
+    @(30.47 mm, 33.2 mm): Pad 3 [VBUS] of U2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(31.39 mm, 32.66 mm): Segment of R9 on F.Silkscreen
+    @(30.47 mm, 33.2 mm): Pad 3 [VBUS] of U2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(34.8 mm, 31.6 mm): Circle of LED2 on F.Silkscreen
+    @(34.75 mm, 32.0 mm): Pad 1 [LED_USER] of LED2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(34.8 mm, 28.6 mm): Circle of LED1 on F.Silkscreen
+    @(34.75 mm, 29.0 mm): Pad 1 [LED_PWR] of LED1 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(25.93 mm, 32.17 mm): Segment of U2 on F.Silkscreen
+    @(29.25 mm, 32.0 mm): Pad 1 [IO21] of R9 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(28.87 mm, 32.17 mm): Segment of U2 on F.Silkscreen
+    @(29.25 mm, 32.0 mm): Pad 1 [IO21] of R9 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(29.57 mm, 32.66 mm): Segment of R9 on F.Silkscreen
+    @(30.47 mm, 33.2 mm): Pad 3 [VBUS] of U2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(31.79 mm, 37.28 mm): Segment of C3 on F.Silkscreen
+    @(30.47 mm, 37.8 mm): Pad 1 [GND] of U2 on F.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    ; warning (excluded)
+    @(31.79 mm, 36.72 mm): Segment of C3 on F.Silkscreen
+    @(30.47 mm, 35.5 mm): Pad 2 [3V3] of U2 on F.Cu
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **

@@ -1,0 +1,34 @@
+{
+  "board": "PNB-1 rev A",
+  "bomRows": 21,
+  "drcWarnings": 36,
+  "files": {
+    "back.png": {
+      "bytes": 51428,
+      "sha256": "74eb2ecb190ab6e2c10c074deb933749593ee5b09d13081cd267962020119c2a"
+    },
+    "bom.csv": {
+      "bytes": 866,
+      "sha256": "2f4856505d9d67fc5d13fdd838b224056786bde4ea22b0ccc8a8213268f6b125"
+    },
+    "cpl.csv": {
+      "bytes": 1148,
+      "sha256": "46cd97389d621389813b1a8b47eaa52e9caa57392039b5c42a9629757db697a6"
+    },
+    "front.png": {
+      "bytes": 91931,
+      "sha256": "0639c5fda2acc71a39035bea9d1fed8bb433d207b2465dcd4a25f5683b279804"
+    },
+    "pnb-1-drc.json": {
+      "bytes": 31600,
+      "sha256": "a3717ba033d6149d084c254518b5930ff5345b7862d0464443c7951e8507dbbc"
+    },
+    "pnb-1-gerbers.zip": {
+      "bytes": 102396,
+      "sha256": "835d9acbdd3bf6422b8e77af07a9af7f7f532dd393d41fdc8588142dceb2c8d8"
+    }
+  },
+  "placements": 33,
+  "schemaVersion": 1,
+  "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> route.py -> pnb-1.kibot.yaml"
+}

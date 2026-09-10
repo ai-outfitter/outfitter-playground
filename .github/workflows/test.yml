@@ -15,3 +15,17 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run test:pcb-workflow
+  pcb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v16
+        with:
+          name: devenv
+      - name: Install devenv
+        run: nix profile add nixpkgs#devenv
+      - name: Generate and gate the PCB release candidate
+        run: npm run pcb:build
+      - name: Verify the fabrication manifest
+        run: npm run pcb:verify-package

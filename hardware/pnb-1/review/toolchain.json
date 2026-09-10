@@ -1,0 +1,125 @@
+{
+  "package": "kicad-mcp@0.1.6",
+  "protocolVersion": "2025-06-18",
+  "toolCount": 280,
+  "requiredTools": [
+    "kicad_tool_inventory",
+    "kicad_project_summary",
+    "kicad_validate_board"
+  ],
+  "toolVersions": {
+    "kicad": "10.0.5",
+    "pythonStack": {
+      "pcbnew": "10.0.5",
+      "skidl": "2.3.0",
+      "kibot": "1.9.1",
+      "kinet2pcb": "1.1.4",
+      "lxml": "6.0.2"
+    },
+    "kicadMcp": "0.1.6",
+    "freerouting": "freerouting-2.2.4",
+    "ngspice": "** ngspice-45 : Circuit level simulation program"
+  },
+  "inventory": {
+    "total": 280,
+    "categories": {
+      "capability_discovery": {
+        "label": "Capability discovery",
+        "description": "Tools that describe the MCP server tool surface.",
+        "count": 1
+      },
+      "project_file": {
+        "label": "Project and file",
+        "description": "Project discovery, metadata, copies, archives, and generated-output inspection.",
+        "count": 7
+      },
+      "schematic": {
+        "label": "Schematic",
+        "description": "Schematic inspection, ERC, object edits, annotation, fields, and sync helpers.",
+        "count": 42
+      },
+      "symbol_library": {
+        "label": "Symbol library",
+        "description": "Symbol library search, inspection, comparison, authoring, and pin/property edits.",
+        "count": 13
+      },
+      "footprint_library_and_placement": {
+        "label": "Footprint library and placement",
+        "description": "Footprint library authoring, pad edits, board footprint inspection, and placement.",
+        "count": 46
+      },
+      "board_net_routing": {
+        "label": "Board, net, and routing",
+        "description": "Board inspection, layers, drills, nets, tracks, vias, measurements, and routing edits.",
+        "count": 40
+      },
+      "board_geometry_zones": {
+        "label": "Board geometry and zones",
+        "description": "Drawings, dimensions, outlines, cutouts, keepouts, and copper-zone edits.",
+        "count": 51
+      },
+      "netclasses_design_rules": {
+        "label": "Netclasses and design rules",
+        "description": "Project netclasses, routing presets, board design rules, and route-size validation.",
+        "count": 14
+      },
+      "gui_bridge": {
+        "label": "Live GUI bridge",
+        "description": "Selection-aware commands for an open KiCad PCB Editor session.",
+        "count": 19
+      },
+      "complex_automation": {
+        "label": "Complex automation",
+        "description": "Aggregate reports and higher-level layout, placement, routing, and release workflows.",
+        "count": 10
+      },
+      "manufacturing_exports": {
+        "label": "Manufacturing and exports",
+        "description": "BOM, Gerber, drill, position, STEP, PDF, SVG, IPC, ODB, and release outputs.",
+        "count": 16
+      },
+      "safety_backup": {
+        "label": "Safety and backup",
+        "description": "Backup listing and restore workflows.",
+        "count": 3
+      },
+      "validation_reports": {
+        "label": "Validation and reports",
+        "description": "DRC/ERC parsing, validation, health, clearance, and other read-only reports.",
+        "count": 18
+      }
+    },
+    "safetyCounts": {
+      "edits_files_or_project": 140,
+      "generates_outputs": 21,
+      "gui_operation": 19,
+      "read_only": 100
+    },
+    "requiresCounts": {
+      "KiCad PCB Editor GUI bridge": 19,
+      "kicad-cli": 26
+    }
+  },
+  "projectSummary": {
+    "projectDir": "hardware/pnb-1",
+    "projectFiles": 1,
+    "schematics": 0,
+    "boards": 1,
+    "outputs": 1,
+    "files": [
+      "pnb-1.kicad_pro",
+      "pnb-1.kicad_pcb"
+    ]
+  },
+  "boardValidation": {
+    "ok": true,
+    "parseOk": true,
+    "fileSizeBytes": 499552,
+    "drc": {
+      "ok": true,
+      "returncode": 0,
+      "violations": 36,
+      "unconnected": null
+    }
+  }
+}

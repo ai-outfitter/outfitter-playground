@@ -6,14 +6,18 @@
 > [#88](https://github.com/ai-outfitter/community-profiles/pull/88),
 > [#90](https://github.com/ai-outfitter/community-profiles/pull/90), and
 > [#96](https://github.com/ai-outfitter/community-profiles/pull/96), selects
-> `hardware-engineer`, and enables `pcb-design`. Run
-> `npm run test:pcb-workflow` to prove strict consumer resolution and two
-> byte-identical workflow exports.
+> `hardware-engineer`, and enables `pcb-design`. The profile is exercised
+> against `hardware/pnb-1`: an ESP32-S3 board whose shared I2C bus carries an
+> SCD41 CO2 sensor and BH1750 light sensor. Run `npm run pcb:build` to rebuild
+> the routed board and its JLCPCB-compatible fabrication package.
 >
-> The check does not execute workflow nodes, launch KiCad MCP, validate a real
-> board, create fabrication files, approve an order, or establish physical
-> acceptance. Replace the branch pin with the release containing the stack
-> before this work is eligible for `main`.
+> `npm run test:pcb-workflow` still checks the workflow's consumer resolution
+> independently. `npm run pcb:build` proves the design toolchain, including a
+> live KiCad MCP inventory/project/board smoke test, typed ERC with an injected
+> failure, numerical margins, pcbnew construction, bounded routing, DRC, and
+> Gerber/BOM/CPL generation. It prepares but never submits an order and cannot
+> establish physical acceptance. Replace the branch pin with the release
+> containing the stack before this work is eligible for `main`.
 
 One pass through this repository teaches you how to use
 [Outfitter](https://github.com/ai-outfitter/outfitter): you end with your

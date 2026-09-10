@@ -1,0 +1,4 @@
+skidl netlist: 23 nets, 140 pins; revA: 23 nets, 140 pins
+netlist equivalence vs rev A: PASS
+saved pnb-1.kicad_pcb
+wrote fab/bom.csv
