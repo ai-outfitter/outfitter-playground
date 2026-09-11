@@ -61,7 +61,12 @@ def validate() -> dict[str, object]:
         assert "X14940000Y-14940000D03*" not in gerber, f"{copper} contains copper flash at SCD41 relief hole"
 
     with ZipFile(FAB / "pnb-1-gerbers.zip") as archive:
-        suffixes = {Path(name).suffix.lower() for name in archive.namelist()}
+        names = archive.namelist()
+        suffixes = {Path(name).suffix.lower() for name in names}
+        for name in names:
+            loose = FAB / "gerbers" / Path(name).name
+            assert loose.is_file(), f"ZIP member has no loose source: {name}"
+            assert archive.read(name) == loose.read_bytes(), f"ZIP member differs from checked loose artifact: {name}"
     required_suffixes = {".gtl", ".gbl", ".gts", ".gbs", ".gm1", ".drl"}
     assert required_suffixes <= suffixes, f"Gerber ZIP missing {sorted(required_suffixes-suffixes)}"
 

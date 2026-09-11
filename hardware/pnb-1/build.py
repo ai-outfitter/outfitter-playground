@@ -80,9 +80,9 @@ def main():
         ds.m_NetSettings.SetNetclassPatternAssignment(net, "power")
     # Absolute manufacturing floors. Normal nets retain 0.2 mm; only the
     # USB-C receptacle uses the 0.09 mm copper-clearance floor. The SCD41's
-    # exact 0.25 mm NPTH has about 0.188 mm copper-to-hole clearance.
+    # exact 0.25 mm NPTH has at least 0.2 mm copper-to-hole clearance.
     ds.m_MinClearance = mm(0.09)
-    ds.m_HoleClearance = mm(0.15)
+    ds.m_HoleClearance = mm(0.20)
     ds.m_TrackMinWidth = mm(0.15)
     ds.m_ViasMinSize = mm(0.5)
     ds.m_MinThroughDrill = mm(0.25)  # Sensirion SCD4x thermal-relief-hole requirement
@@ -165,6 +165,9 @@ def main():
     u3_npth = [pad for pad in fps["U3"].Pads() if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH]
     assert len(u3_npth) == 1 and u3_npth[0].GetDrillSize().x == mm(0.25), "SCD41 thermal-relief hole must be 0.25 mm NPTH"
     assert u3_npth[0].GetSize().x == u3_npth[0].GetDrillSize().x, "SCD41 relief hole must have no copper annulus"
+    for pad_number in ("10", "11"):
+        pad = next(p for p in fps["U3"].Pads() if p.GetNumber() == pad_number)
+        assert sorted((pad.GetSize().x, pad.GetSize().y)) == [mm(0.8), mm(1.44)], "SCD41 lands 10/11 preserve JLCPCB NPTH clearance"
     verify.run(pad_names)
 
     def silk(text, x, y, size=0.8, rot=0):
@@ -217,9 +220,9 @@ def main():
     relief_ko.SetDoNotAllowPads(False)
     relief_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); relief_ko.SetZoneName("SCD41_RELIEF_KEEPFREE_D0.6")
     relief_ko.Outline().NewOutline()
-    cx, cy, radius = 14.94, 14.94, 0.30
-    for i in range(24):
-        angle = 2 * math.pi * i / 24
+    cx, cy, radius = 14.94, 14.94, 0.33
+    for i in range(32):
+        angle = 2 * math.pi * i / 32
         relief_ko.Outline().Append(mm(cx + radius * math.cos(angle)),
                                   mm(cy + radius * math.sin(angle)))
     add(relief_ko)

@@ -60,10 +60,15 @@ complete `hardware-engineer` path against a real fabrication-package candidate.
 - The SCD41 footprint follows the Sensirion SCD4x land pattern: 20 electrical
   lands, a 4.8 x 4.8 mm central all-copper keep-free area, and a 0.25 mm NPTH
   relief hole with 0.6 mm solder/flux keep-free diameter between lands 10/11.
+  Lands 10/11 are shortened from the recommended 1.50 mm to 1.44 mm, within
+  Sensirion's instruction to adapt the recommended land pattern to the
+  soldering process, so the hole-to-copper clearance exceeds JLCPCB's 0.20 mm
+  minimum.
   Source: [Sensirion SCD4x datasheet v1.7, section 4.2](https://sensirion.com/media/documents/48C4B7FB/67FE0194/CD_DS_SCD4x_Datasheet_D1.pdf).
+  Fabrication constraint: [JLCPCB PCB capabilities, NPTH to Track](https://jlcpcb.com/capabilities/pcb-capabilities/).
 - The USB-C footprint requires a local 0.09 mm clearance between its own pads.
-  Routed copper and GND pours otherwise use at least 0.15 mm width/space; the
-  sole smaller copper-to-hole gap is the SCD41 vendor land-pattern exception.
+  Routed copper and GND pours otherwise use at least 0.15 mm width/space;
+  NPTH-to-copper clearance is at least 0.20 mm.
 - J3 is excluded from the assembly BOM and CPL. Its footprint remains for an
   exact, separately sourced 2x6 header to be hand-installed after assembly.
 

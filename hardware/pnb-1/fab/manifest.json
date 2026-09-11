@@ -4,8 +4,8 @@
   "drcWarnings": 0,
   "files": {
     "back.png": {
-      "bytes": 52341,
-      "sha256": "e2e46d2cb7a86f10580efebec4003b324f4b7e2b984184f5ad0b1cdff64f4cb6"
+      "bytes": 52347,
+      "sha256": "2559dd9dcddae2bed751c045e2f91e0ab17a74e4730f3b1d2219fd5b150d85ae"
     },
     "bom.csv": {
       "bytes": 1122,
@@ -16,16 +16,16 @@
       "sha256": "9535f5fdc7e49048c60875158395164deec4608855ed2ff45bc2b044b7aa2593"
     },
     "front.png": {
-      "bytes": 72353,
-      "sha256": "61380c6f8ffb1f480df5eaab547ce7e0f3c74acf2515bbeddb49a5081cb971ea"
+      "bytes": 72383,
+      "sha256": "b7c26889d7d572da53a90bb6bbb76acfa8fad933fa4131a3844a95079d28dc1c"
     },
     "pnb-1-drc.json": {
       "bytes": 1082,
-      "sha256": "88201ef6cee78f328906979772afb04503109c12f7fcd3dff64f6b0f12e21874"
+      "sha256": "cdfccf759017970d5f4b174e1558f0f790c48d527c79c041c514cbf8b27e31a1"
     },
     "pnb-1-gerbers.zip": {
-      "bytes": 92593,
-      "sha256": "48e6781973776f9b81409fddef562cf34eac5898030af69605b92f00ebec5cf3"
+      "bytes": 92798,
+      "sha256": "e785eeeec1474d95fcf906b162299e95c8a922eb6aad37814b167abdb7f02d71"
     }
   },
   "placements": 32,

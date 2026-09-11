@@ -132,7 +132,7 @@
   "boardValidation": {
     "ok": true,
     "parseOk": true,
-    "fileSizeBytes": 475425,
+    "fileSizeBytes": 475366,
     "drc": {
       "ok": true,
       "returncode": 0,
