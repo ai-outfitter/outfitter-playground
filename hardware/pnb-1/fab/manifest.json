@@ -1,34 +1,34 @@
 {
   "board": "PNB-1 rev A",
-  "bomRows": 21,
+  "bomRows": 20,
   "drcWarnings": 0,
   "files": {
     "back.png": {
-      "bytes": 52862,
-      "sha256": "b7b58dcc5fdb55e7c379ad15cc36fb34c5c5845450530f2f289ae8005084f06c"
+      "bytes": 52464,
+      "sha256": "2696f213e592a1737d1af2907b275c71bcefcf8bb748858b2d38305c996c5c55"
     },
     "bom.csv": {
-      "bytes": 1212,
-      "sha256": "95859e37d5256c36d7c856d4153ee9baae1ed1815b356eb85d110e1157474368"
+      "bytes": 1122,
+      "sha256": "d02484cd119ff3db9fca620689d86ce43fa6a4b0ecf7ff16a9add489c59cd8f5"
     },
     "cpl.csv": {
-      "bytes": 1147,
-      "sha256": "20b93cea37ac3875e21ce62477849af04e52dd1703e8fe53fc0b01c420ca4776"
+      "bytes": 1114,
+      "sha256": "9535f5fdc7e49048c60875158395164deec4608855ed2ff45bc2b044b7aa2593"
     },
     "front.png": {
-      "bytes": 70392,
-      "sha256": "fdae260a65646e20af2b6d447151e540fa72a6f2b7fc799206e949a7e310c7a6"
+      "bytes": 72542,
+      "sha256": "9809993777969c57c830edb66c12f541e5d826b160c72a1f3bba46299b51cf6f"
     },
     "pnb-1-drc.json": {
       "bytes": 1082,
-      "sha256": "3c3df74b56a03c0f7a573072a590158d7c7b289954a082a19607365733cba721"
+      "sha256": "00befe3c92b749d0b609b77bc5930f3e1fa47f3970dea076b0c58ab40a02579a"
     },
     "pnb-1-gerbers.zip": {
-      "bytes": 86399,
-      "sha256": "1cc78a290d0b8d9c25d606c811011e1ebaa02422acd2a65708251526ab53effa"
+      "bytes": 92595,
+      "sha256": "35febe43d4498923bee14de46daec6145081e94378daa1be757bb7f0e6ef565d"
     }
   },
-  "placements": 33,
+  "placements": 32,
   "schemaVersion": 1,
   "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> route.py -> pnb-1.kibot.yaml"
 }

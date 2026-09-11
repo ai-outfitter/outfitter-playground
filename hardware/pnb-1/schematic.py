@@ -19,7 +19,7 @@ PARTS = {
     "U4": ("WSOF-6_L2.6-W1.6-P0.50-TL-EP", "BH1750FVI-TR", "C78960", "BH1750FVI-TR", "ambient light sensor, I2C 0x23"),
     "D1": ("SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL", "USBLC6-2SC6", "C2687116", "USBLC6-2SC6", "USB ESD array"),
     "J1": ("USB-C_SMD-TYPE-C-31-M-12_1", "USB-C 16P", "C165948", "TYPE-C-31-M-12", "USB-C receptacle USB 2.0"),
-    "J3": ("HDR-TH_12P-P2.54-V-M-R2-C6-S2.54", "DTR 2x6", "C66689", "Dual Row Pin Header2.54mm2*6Pin Header", "daughter header (contract J3)"),
+    "J3": ("HDR-TH_12P-P2.54-V-M-R2-C6-S2.54", "DTR 2x6 DNP", "DNP", "DNP", "optional hand-installed daughter header (contract J3)"),
     "J4": ("HDR-TH_4P-P2.54-V-M", "UART 1x4", "C124378", "B-2100S04P-A110", "UART0 header 3V3/TX/RX/GND"),
     "SW1": ("SW-SMD_L3.9-W3.0-P4.45", "BOOT", "C720477", "TS-1088-AR02016", "tactile"),
     "SW2": ("SW-SMD_L3.9-W3.0-P4.45", "RESET", "C720477", "TS-1088-AR02016", "tactile"),
@@ -47,13 +47,14 @@ PARTS = {
     "LED1": ("LED-SMD_L1.6-W0.8-R-RD", "PWR", "C2286", "KT-0603R", "red 0603, 3V3 present"),
     "LED2": ("LED-SMD_L1.6-W0.8-R-RD", "USER", "C2286", "KT-0603R", "red 0603, GPIO21"),
 }
+DNP = {"J3"}
 
 # Symbol pin numbers (from lib/artera.kicad_sym, verified against datasheets):
 # U1 ESP32-S3-MINI-1: GND 1,2,42,43,46-60,+paddle 'GND'; 3V3 3; IO0 4; IO1 5; IO2 6; IO3 7;
 #   IO4 8; IO5 9; IO6 10; IO7 11; IO8 12; IO9 13; IO10 14; ... IO19 23; IO20 24; IO21 25;
 #   TXD0 39; RXD0 40; IO45 41; IO46 44; EN 45
 # U2 AMS1117: GND 1, VOUT 2, VIN 3, VOUT(tab) 4
-# U3 SCD41: VDD 7, VDDH 19, SCL 9, SDA 10, GND 6,20,21; DNC 1-5,8,11-18
+# U3 SCD41: VDD 7, VDDH 19, SCL 9, SDA 10, GND 6,20; DNC 1-5,8,11-18
 # U4 BH1750: VCC 1, ADDR 2, GND 3, SDA 4, DVI 5, SCL 6, EP 7
 # D1 USBLC6: I/O1 1&6, GND 2, I/O2 3&4, VBUS 5
 # J1 USB-C: A1B12/B1A12 GND, A4B9/B4A9 VBUS, A5 CC1, B5 CC2, A6/B6 D+, A7/B7 D-, A8/B8 SBU, 1-4 + '' shell
@@ -63,7 +64,7 @@ ESP_GND = ["1", "2", "42", "43"] + [str(n) for n in range(46, 61)] + ["GND"]
 
 NETS = {
     "GND": [("U1", p) for p in ESP_GND] + [
-        ("U2", "1"), ("U3", "6"), ("U3", "20"), ("U3", "21"), ("U4", "3"), ("U4", "2"), ("U4", "7"),
+        ("U2", "1"), ("U3", "6"), ("U3", "20"), ("U4", "3"), ("U4", "2"), ("U4", "7"),
         ("D1", "2"), ("J1", "A1B12"), ("J1", "B1A12"), ("J1", "1"), ("J1", "2"), ("J1", "3"), ("J1", "4"),
         ("J3", "2"), ("J3", "4"), ("J4", "4"), ("SW1", "2"), ("SW2", "2"),
         ("R3", "2"), ("R4", "2"),
@@ -144,6 +145,8 @@ def erc(pad_names):
 def bom_rows():
     groups = defaultdict(list)
     for ref, (fp, val, lcsc, mpn, desc) in PARTS.items():
+        if ref in DNP:
+            continue
         groups[(val, fp, lcsc, mpn)].append(ref)
     rows = []
     for (val, fp, lcsc, mpn), refs in sorted(groups.items(), key=lambda kv: kv[1][0]):
@@ -176,7 +179,7 @@ SYMBOLS = {
     "D1": "USBLC6-2SC6_C2687116", "J1": "TYPE-C-31-M-12", "J3": "Header-Male-2.54_2x6",
     "J4": "Header-Male-2.54_1x4", "SW1": "TS-1088-AR02016", "SW2": "TS-1088-AR02016",
     "LED1": "KT-0603R", "LED2": "KT-0603R",
-    "C9": "CL21A226MAQNNNE",
+    "C9": "TAJA226K010RNJ",
 }
 for _r, (_fp, _v, _lcsc, _mpn, _d) in PARTS.items():
     SYMBOLS.setdefault(_r, _mpn)
@@ -191,19 +194,20 @@ PIN_TYPES = {
            **{str(n): "bidirectional" for n in range(4, 39)}},
     "U2": {"1": "power_in", "2": "power_out", "3": "power_in", "4": "passive"},
     "U3": {"7": "power_in", "19": "power_in", "9": "input", "10": "bidirectional",
-           "6": "power_in", "20": "power_in", "21": "power_in"},
+           "6": "power_in", "20": "power_in"},
     "U4": {"1": "power_in", "2": "input", "3": "power_in", "4": "bidirectional",
            "5": "input", "6": "input", "7": "power_in"},
     "D1": {"2": "power_in", "5": "power_in"},
     "J1": {"A4B9": "power_out", "B4A9": "passive", "A1B12": "power_out", "B1A12": "passive"},
+    "C9": {"1": "passive", "2": "passive"},
 }
 
 # Independent cross-check: for each net, the pin NAME the lib symbol must carry
 # on the pad we connected (regex). Only ICs/connectors carry meaningful names.
 EXPECT = {
-    "3V3": {"U1": r"3V3|VDD|VCC", "U2": r"VOUT", "U3": r"VDD", "U4": r"VCC"},
+    "3V3": {"U1": r"3V3|VDD|VCC", "U2": r"VOUT", "U3": r"VDD", "U4": r"VCC", "C9": r"^1$"},
     "GND": {"U1": r"GND", "U2": r"GND", "U3": r"GND", "U4": r"GND|ADDR|EP", "D1": r"GND",
-            "J1": r"GND|^EH$"},  # EH = USB-C shell pads, legitimately on GND
+            "J1": r"GND|^EH$", "C9": r"^2$"},  # EH = USB-C shell pads, legitimately on GND
     "VBUS": {"U2": r"VIN", "D1": r"VBUS", "J1": r"VBUS"},
     "USB_DP": {"U1": r"IO20|D\+", "D1": r"I/?O1", "J1": r"D\+|DP"},
     "USB_DN": {"U1": r"IO19|D-", "D1": r"I/?O2", "J1": r"D-|DN"},
@@ -222,9 +226,10 @@ MARGIN_PARAMS = {
     "t_ambient_max": 50.0, "t_junction_max": 125.0,
     "rail_peak_ma": {"U1": 350, "U3": 205, "U4": 1, "LED1": 4, "LED2": 4, "pullups": 3, "J3": 50},
     "ldo_i_max_ma": 1000,
-    # Thermal is computed at the SUSTAINED current, not the sum of peaks: design
-    # doc waiver "U2 thermal" (rev A) — bench loads ~0.4 A, Wi-Fi TX and SCD41
-    # heater peaks are ms-scale. At the 680 mA peak sum Tj would be ~149 °C.
+    # Thermal is computed at the controlled SUSTAINED current, not coincident
+    # peaks. At 617 mA this model gives 193 C and explicitly fails; firmware must
+    # prevent sustained coincidence until prototype measurement replaces the
+    # assumed theta-JA bound.
     "rail_sustained_ma": 200,
     "led": {"LED1": ("R8", 2.0, 1, 20), "LED2": ("R9", 2.0, 1, 20)},  # (series R, Vf, Imin mA, Imax mA)
     "i2c": {"pullups": ("R5", "R6"), "min_ohm": 1000, "max_ohm": 10000},   # 400 kHz, ~100 pF bus
@@ -232,7 +237,10 @@ MARGIN_PARAMS = {
 }
 
 # Parameters whose value comes from an accepted waiver, not a datasheet.
-WAIVERS = {}
+WAIVERS = {
+    "ldo_theta_ja": "136 C/W pre-prototype engineering bound; retire with thermocouple measurement at 5 V, 200 mA, and 50 C ambient",
+    "rail_sustained_ma": "firmware-enforced 200 mA sustained limit; verify on the assembled prototype before functional release",
+}
 
 def _ohms(ref):
     v = PARTS[ref][1].lower().replace("ω", "").replace("r", "")
@@ -261,3 +269,17 @@ def margins(p=MARGIN_PARAMS):
         if _ohms(r) > p["esp_strap_pullup_max"]:
             out.append(f"{r} pull-up too weak for a strap/INT line")
     return out
+
+
+def thermal_cases(p=MARGIN_PARAMS):
+    """Return the explicitly modeled sustained and coincident-peak LDO cases."""
+    def junction(current_ma):
+        watts = (p["vbus"] - p["v3v3"]) * current_ma / 1000
+        return watts, p["t_ambient_max"] + watts * p["ldo_theta_ja"]
+    peak_ma = sum(p["rail_peak_ma"].values())
+    sustained_w, sustained_tj = junction(p["rail_sustained_ma"])
+    peak_w, peak_tj = junction(peak_ma)
+    return {
+        "sustained": (p["rail_sustained_ma"], sustained_w, sustained_tj),
+        "coincident_peak": (peak_ma, peak_w, peak_tj),
+    }

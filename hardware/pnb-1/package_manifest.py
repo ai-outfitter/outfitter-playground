@@ -6,6 +6,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -48,7 +49,13 @@ def validate() -> dict[str, object]:
     bom_refs = {ref for row in bom for ref in row["Designator"].replace('"', "").split(",")}
     cpl_refs = {row["Designator"].replace('"', "") for row in cpl}
     assert cpl_refs <= bom_refs, f"CPL references absent from BOM: {sorted(cpl_refs - bom_refs)}"
-    assert bom_refs - cpl_refs <= {"J3", "J4"}, f"populated BOM refs absent from CPL: {sorted(bom_refs-cpl_refs)}"
+    assert bom_refs - cpl_refs <= {"J4"}, f"populated BOM refs absent from CPL: {sorted(bom_refs-cpl_refs)}"
+    assert "J3" not in bom_refs | cpl_refs, "DNP J3 must be absent from assembly BOM and CPL"
+    assert all(re.fullmatch(r"C\d+", row["LCSC Part #"]) for row in bom), "every populated BOM row needs an LCSC id"
+    c9 = next(row for row in bom if row["Designator"] == "C9")
+    assert (c9["LCSC Part #"], c9["MPN"]) == ("C11366", "TAJA226K010RNJ"), "C9 identity/polarity contract changed"
+    npth = (FAB / "gerbers" / "pnb-1-NPTH.drl").read_text()
+    assert "T1C0.250" in npth and "X14.94Y-14.94" in npth, "SCD41 0.25 mm NPTH relief hole missing"
 
     with ZipFile(FAB / "pnb-1-gerbers.zip") as archive:
         suffixes = {Path(name).suffix.lower() for name in archive.namelist()}

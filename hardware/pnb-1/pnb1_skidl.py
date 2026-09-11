@@ -100,9 +100,9 @@ d1 = part("D1", "USBLC6-2SC6_C2687116", "USBLC6-2SC6",
 j1 = part("J1", "TYPE-C-31-M-12", "USB-C 16P",
           "USB-C_SMD-TYPE-C-31-M-12_1", "C165948", "TYPE-C-31-M-12",
           "USB-C receptacle USB 2.0")
-j3 = part("J3", "Header-Male-2.54_2x6", "DTR 2x6",
-          "HDR-TH_12P-P2.54-V-M-R2-C6-S2.54", "C66689", "Dual Row Pin Header2.54mm2*6Pin Header",
-          "daughter header (contract J3)")
+j3 = part("J3", "Header-Male-2.54_2x6", "DTR 2x6 DNP",
+          "HDR-TH_12P-P2.54-V-M-R2-C6-S2.54", "DNP", "DNP",
+          "optional hand-installed daughter header (contract J3)")
 j4 = part("J4", "Header-Male-2.54_1x4", "UART 1x4",
           "HDR-TH_4P-P2.54-V-M", "C124378", "B-2100S04P-A110", "UART0 header 3V3/TX/RX/GND")
 sw1 = part("SW1", "TS-1088-AR02016", "BOOT", "SW-SMD_L3.9-W3.0-P4.45", "C720477",
@@ -138,7 +138,7 @@ CAPS = {  # ref: (value, fp, lcsc, symbol/mpn, desc)
     "C10": ("10uF", "C0805", "C15850", "CL21A106KAYNNNE", "U3 VDD bulk (205 mA maximum)"),
     "C11": ("10uF", "C0805", "C15850", "CL21A106KAYNNNE", "U1 3V3 bulk at the module"),
 }
-C = {ref: part(ref, "CL21A226MAQNNNE" if ref == "C9" else mpn, val, fp, lcsc, mpn, desc)
+C = {ref: part(ref, mpn, val, fp, lcsc, mpn, desc)
      for ref, (val, fp, lcsc, mpn, desc) in CAPS.items()}
 
 led1 = part("LED1", "KT-0603R", "PWR", "LED-SMD_L1.6-W0.8-R-RD", "C2286", "KT-0603R",

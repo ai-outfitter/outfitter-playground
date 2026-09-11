@@ -2,7 +2,7 @@
   (version "D")
   (design
     (source "pnb1_skidl.py")
-    (date "09/10/2026 08:02 PM")
+    (date "09/10/2026 08:40 PM")
     (tool "SKiDL (2.3.0)")
     (sheet
       (number 1)
@@ -359,14 +359,14 @@
         (field
           (name "Footprint") "artera:CASE-A_3216")
         (field
-          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A226MAQNNNE_22uF-226-20-25V_C45783.html")
+          (name "Datasheet") "https://lcsc.com/product-detail/Tantalum-Capacitors_AVX_TAJA226K010RNJ_22uF-226-10-10V_C11366.html")
         (field
           (name "SKiDL Tag") "C9")
         (field
           (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
-        (part "CL21A226MAQNNNE"))
+        (part "TAJA226K010RNJ"))
       (sheetpath
         (names "/")
         (tstamps "/"))
@@ -434,16 +434,16 @@
       (tstamps "d7608689-a7d2-514c-aa16-0f8bde5cf213"))
     (comp
       (ref "J3")
-      (value "DTR 2x6")
+      (value "DTR 2x6 DNP")
       (description "")
       (footprint "artera:HDR-TH_12P-P2.54-V-M-R2-C6-S2.54")
       (fields
         (field
-          (name "LCSC Part #") "C66689")
+          (name "LCSC Part #") "DNP")
         (field
-          (name "MPN") "Dual Row Pin Header2.54mm2*6Pin Header")
+          (name "MPN") "DNP")
         (field
-          (name "Description") "daughter header (contract J3)")
+          (name "Description") "optional hand-installed daughter header (contract J3)")
         (field
           (name "Description"))
         (field
@@ -1064,7 +1064,7 @@
       (node
         (ref "C9")
         (pin "1")
-        (pintype "PASSIVE"))
+        (pintype "INPUT"))
       (node
         (ref "J3")
         (pin "3")
@@ -1308,7 +1308,7 @@
       (node
         (ref "C9")
         (pin "2")
-        (pintype "PASSIVE"))
+        (pintype "INPUT"))
       (node
         (ref "D1")
         (pin "2")
@@ -1460,10 +1460,6 @@
       (node
         (ref "U3")
         (pin "20")
-        (pintype "POWER-IN"))
-      (node
-        (ref "U3")
-        (pin "21")
         (pintype "POWER-IN"))
       (node
         (ref "U3")

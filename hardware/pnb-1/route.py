@@ -73,7 +73,7 @@ def import_ses(board, path, keep):
 
 # Hand routes the autorouter cannot place. ("track", net, layer, width_mm, [(x,y),...]) / ("via", net, x, y)
 USB_DP_PATH = [(32.75, 35.43), (32.75, 34.5), (31.7, 33.45), (31.7, 32.0), (34.05, 30.15),
-               (34.05, 27.85), (34.05, 26.0), (33.4, 26.0), (29.45, 23.0), (33.85, 20.0), (34.05, 20.0),
+               (34.05, 27.85), (34.05, 26.0), (33.4, 26.0), (30.0, 23.0), (33.85, 20.0), (34.05, 20.0),
                (34.05, 15.85), (38.47, 15.85)]
 USB_DN_PATH = [(33.25, 35.43), (33.25, 34.5), (33.6, 34.1), (35.0, 33.2),
                (35.0, 31.2), (36.8, 31.2), (36.8, 30.15), (35.95, 30.15),
@@ -86,12 +86,17 @@ HAND = [
     ("track", "3V3", "F.Cu", 0.3, [(10.75, 16.0), (10.75, 17.5), (5.8, 17.5),
                                      (5.8, 6.5), (10.75, 6.5), (10.75, 8.0)]),
     ("track", "3V3", "F.Cu", 0.3, [(4.5, 8.0), (5.8, 8.0)]),
+    # Join the two SCD41 GND lands around the package edge; the central area is
+    # deliberately empty for the sensor opening.
+    ("track", "GND", "F.Cu", 0.25, [(9.5, 8.0), (6.5, 8.0),
+                                      (6.5, 16.0), (9.5, 16.0)]),
     # LDO tab thermal vias (3V3 pour both layers around U2 pad 4 at 24.5/35.5, tab 2.34 x 3.6)
     *[("via", "3V3", x, y) for (x, y) in [(43.1, 34.2), (42.5, 32.4), (46.9, 34.2), (46.9, 36.8), (45.0, 32.7)]],
     # GND vias in the module's 3x3 centre paddle so the B.Cu plane is tied under U1
     *[("via", "GND", x, y) for x in (43.85, 45.5, 47.15) for y in (13.35, 15.0, 16.65)],
-    # SCD41 exposed GND pad 21: the datasheet requires this central pad at GND.
-    ("via", "GND", 12.0, 12.0),
+    # SCL link around (never through) the SCD41 central 4.8 mm keep-free area.
+    ("track", "SCL", "B.Cu", 0.25, [(12.73, 17.6864), (8.0, 17.6864),
+                                      (8.0, 3.0), (26.069, 3.0), (26.069, 4.3474)]),
     # CC2 escape from the fine-pitch receptacle pad to its independent Rd.
     ("track", "CC2", "F.Cu", 0.15, [(34.75, 35.43), (34.75, 38.0), (39.0, 38.0), (39.0, 34.75)]),
 ]
@@ -155,9 +160,9 @@ def audit_usb_paths():
     def length(points):
         return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:]))
     dp, dn = length(USB_DP_PATH), length(USB_DN_PATH)
-    if max(dp, dn) >= 32.0 or abs(dp - dn) > 1.0:
+    if max(dp, dn) >= 30.0 or abs(dp - dn) > 0.25:
         raise SystemExit(f"USB pair constraint failed: D+={dp:.3f} mm D-={dn:.3f} mm skew={abs(dp-dn):.3f} mm")
-    print(f"USB pair: D+={dp:.3f} mm, D-={dn:.3f} mm, skew={abs(dp-dn):.3f} mm; D+ two vias, D- four vias")
+    print(f"USB pair: D+={dp:.3f} mm, D-={dn:.3f} mm, skew={abs(dp-dn):.3f} mm; D+ two main vias, D- four")
 
 
 def add_item(board, item, keep):
@@ -192,6 +197,27 @@ def replace_usb_routes(board):
         add_item(board, item, keep)
     print(f"USB routes replaced: {len(keep)} fixed items")
     return keep
+
+
+def remove_obsolete_scd_routes(board):
+    """Drop rev-A-session copper that terminated on the fictitious pad 21."""
+    removed = 0
+    for item in list(board.GetTracks()):
+        if isinstance(item, pcbnew.PCB_VIA):
+            x, y = item.GetPosition().x / 1e6, item.GetPosition().y / 1e6
+            obsolete = item.GetNetname() == "GND" and 3.0 <= x <= 15.5 and 3.0 <= y <= 20.5
+        else:
+            bb = item.GetBoundingBox()
+            legacy_gnd_region = (bb.GetLeft() / 1e6 < 15.5 and bb.GetRight() / 1e6 > 3.0 and
+                                 bb.GetTop() / 1e6 < 20.5 and bb.GetBottom() / 1e6 > 3.0)
+            obsolete = item.GetNetname() == "GND" and legacy_gnd_region
+            if item.GetNetname() == "SCL":
+                ends = {(round(item.GetStart().x / 1e6, 4), round(item.GetStart().y / 1e6, 4)),
+                        (round(item.GetEnd().x / 1e6, 4), round(item.GetEnd().y / 1e6, 4))}
+                obsolete |= ends == {(12.73, 17.6864), (26.069, 4.3474)}
+        if obsolete:
+            board.Remove(item); removed += 1
+    print(f"obsolete SCD41 pad-21 routes removed: {removed}")
 
 
 def ensure_hand_routes(board):
@@ -467,20 +493,25 @@ def main():
     open(SES, "w").write(best[2])
     print(f"using attempt {best[1]} ({best[0]} reported unrouted)")
     b = pcbnew.LoadBoard(PCB)
-    keep = hand_routes(b)
+    keep = []
     import_new(b, keep)
+    remove_obsolete_scd_routes(b)
+    keep += hand_routes(b)
     keep += ensure_hand_routes(b)
     keep += replace_usb_routes(b)
     # Add these only after autorouting: they ground front-pour pockets without
     # constraining the router's already crowded ESP32 escape channels.
-    for item in [("v", "GND", (31.0, 8.6))]:
+    for item in [("v", "GND", (31.0, 8.6)), ("v", "GND", (2.0, 10.0)),
+                 ("v", "GND", (6.6, 7.3))]:
         add_item(b, item, keep)
     widen_power(b)
     keep += stitch_gnd(b)
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())
-    keep += via_islands(b)
-    pcbnew.ZONE_FILLER(b).Fill(b.Zones())
     prune_orphan_vias(b)
+    pcbnew.ZONE_FILLER(b).Fill(b.Zones())
+    # Refill after pruning, then bridge every remaining filled GND island. Do
+    # not prune these topology-derived bridges against an older fill snapshot.
+    keep += via_islands(b)
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())
     b.Save(PCB)
     rep = os.path.join(HERE, "review", "drc.json")

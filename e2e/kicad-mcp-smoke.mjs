@@ -98,6 +98,10 @@ try {
   const ercData = JSON.parse(erc.content[0].text);
   const validationData = JSON.parse(validation.content[0].text);
   if (ercData.returncode !== 0) throw new Error(`KiCad MCP ERC failed: ${JSON.stringify(ercData)}`);
+  if (!validationData.ok || !validationData.drc?.ok || validationData.drc?.returncode !== 0 ||
+      (validationData.drc?.violations ?? 0) !== 0 || (validationData.drc?.unconnected ?? 0) !== 0) {
+    throw new Error(`KiCad MCP board validation failed: ${JSON.stringify(validationData)}`);
+  }
   const report = {
     package: "kicad-mcp@0.1.6",
     protocolVersion: initialized.protocolVersion,

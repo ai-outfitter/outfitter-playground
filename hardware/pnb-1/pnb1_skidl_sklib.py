@@ -93,8 +93,7 @@ pnb1_skidl = SchLib(tool=SKIDL).add_parts(*[
             Pin(num='9',name='SCL',func=pin_types.INPUT),
             Pin(num='10',name='SDA',func=pin_types.BIDIR),
             Pin(num='6',name='GND',func=pin_types.PWRIN),
-            Pin(num='8',name='DNC',func=pin_types.PASSIVE),
-            Pin(num='21',name='GND',func=pin_types.PWRIN)], 'unit_defs':[] }),
+            Pin(num='8',name='DNC',func=pin_types.PASSIVE)], 'unit_defs':[] }),
         Part(**{ 'name':'BH1750FVI-TR', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'BH1750FVI-TR'}), 'ref_prefix':'U', 'fplist':['artera:WSOF-6_L2.6-W1.6-P0.50-TL-EP'], 'footprint':'artera:WSOF-6_L2.6-W1.6-P0.50-TL-EP', 'keywords':'Ambient Light Sensors', 'description':'', 'datasheet':'https://lcsc.com/product-detail/Sensors_ROHM_BH1750FVI-TR_BH1750FVI-TR_C78960.html', 'pins':[
             Pin(num='1',name='VCC',func=pin_types.PWRIN),
             Pin(num='2',name='ADDR',func=pin_types.INPUT),
@@ -172,9 +171,9 @@ pnb1_skidl = SchLib(tool=SKIDL).add_parts(*[
         Part(**{ 'name':'CL21A106KAYNNNE', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'CL21A106KAYNNNE'}), 'ref_prefix':'C', 'fplist':['artera:C0805'], 'footprint':'artera:C0805', 'keywords':'Capacitors', 'description':'', 'datasheet':'https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A106KAYNNNE_10uF-106-10-25V_C15850.html', 'pins':[
             Pin(num='2',name='2',func=pin_types.PASSIVE),
             Pin(num='1',name='1',func=pin_types.PASSIVE)], 'unit_defs':[] }),
-        Part(**{ 'name':'CL21A226MAQNNNE', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'CL21A226MAQNNNE'}), 'ref_prefix':'C', 'fplist':['artera:C0805'], 'footprint':'artera:CASE-A_3216', 'keywords':'Multilayer Ceramic Capacitors MLCC - SMD/SMT', 'description':'', 'datasheet':'https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A226MAQNNNE_22uF-226-20-25V_C45783.html', 'pins':[
-            Pin(num='1',name='1',func=pin_types.PASSIVE),
-            Pin(num='2',name='2',func=pin_types.PASSIVE)], 'unit_defs':[] }),
+        Part(**{ 'name':'TAJA226K010RNJ', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'TAJA226K010RNJ'}), 'ref_prefix':'C', 'fplist':['artera:CASE-A_3216'], 'footprint':'artera:CASE-A_3216', 'keywords':'Tantalum Capacitors', 'description':'', 'datasheet':'https://lcsc.com/product-detail/Tantalum-Capacitors_AVX_TAJA226K010RNJ_22uF-226-10-10V_C11366.html', 'pins':[
+            Pin(num='1',name='1',func=pin_types.INPUT),
+            Pin(num='2',name='2',func=pin_types.INPUT)], 'unit_defs':[] }),
         Part(**{ 'name':'KT-0603R', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'KT-0603R'}), 'ref_prefix':'LED', 'fplist':['artera:LED-SMD_L1.6-W0.8-R-RD'], 'footprint':'artera:LED-SMD_L1.6-W0.8-R-RD', 'keywords':'Light Emitting Diodes (LED)', 'description':'', 'datasheet':'https://lcsc.com/product-detail/Light-Emitting-Diodes-LED_Red-LED-0603_C2286.html', 'pins':[
             Pin(num='2',name='K',func=pin_types.PASSIVE),
             Pin(num='1',name='A',func=pin_types.PASSIVE)], 'unit_defs':[] })])

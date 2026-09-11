@@ -101,8 +101,9 @@ def write_schematic(symbols):
         pins = _pins(symbols[sym])
         pin_xy = {n: (x + px, y - py) for n, _, px, py in pins}   # sheet y is down
         pin_uuids = "".join(f'\n\t\t(pin "{n}" (uuid "{uuid.uuid4()}"))' for n, *_ in pins)
+        is_dnp = ref in S.DNP
         body.append(f'''\t(symbol (lib_id "{S.LIB}:{sym}") (at {x:.2f} {y:.2f} 0) (unit 1)
-\t\t(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no) (uuid "{uuid.uuid4()}")
+\t\t(exclude_from_sim no) (in_bom {'no' if is_dnp else 'yes'}) (on_board yes) (dnp {'yes' if is_dnp else 'no'}) (uuid "{uuid.uuid4()}")
 \t\t(property "Reference" "{ref}" (at {x:.2f} {y + 8:.2f} 0) (effects (font (size 1.27 1.27))))
 \t\t(property "Value" "{val}" (at {x:.2f} {y - 8:.2f} 0) (effects (font (size 1.27 1.27))))
 \t\t(property "Footprint" "{S.LIB}:{fp}" (at {x:.2f} {y:.2f} 0) (effects (font (size 1.27 1.27)) (hide yes))){pin_uuids}
@@ -185,10 +186,14 @@ def run(pad_names=None):
     sch = write_schematic(symbols)
     v = kicad_erc(sch)
     gate("KiCad ERC, all severities", [f"{x['severity']} {x['type']}: " + "; ".join(i["description"] for i in x["items"]) for x in v],
-         f"{len(v)} violations in {os.path.relpath(sch, HERE)}")
+         f"{len(v)} violations in sch/{os.path.basename(sch)}")
+    thermal = S.thermal_cases()
+    thermal_detail = "; ".join(
+        f"{name}={ma} mA/{watts:.2f} W/{tj:.1f} C"
+        for name, (ma, watts, tj) in thermal.items())
     gate("numeric margins", S.margins(), ", ".join(
         f"{k}={v}" + (f" (waiver: {S.WAIVERS[k]})" if k in S.WAIVERS else "")
-        for k, v in S.MARGIN_PARAMS.items() if not isinstance(v, dict)))
+        for k, v in S.MARGIN_PARAMS.items() if not isinstance(v, dict)) + f"; thermal cases: {thermal_detail}")
     open(os.path.join(REVIEW, "verify.md"), "w").write("\n".join(report))
     if failed:
         sys.exit("verify: FAILED — see review/verify.md")
@@ -196,22 +201,27 @@ def run(pad_names=None):
 
 
 def selftest():
-    """Prove the gates bite: inject a short (LDO output onto SCL) and a bad
-    resistor, expect FAIL from KiCad ERC and margins. Runs on temp copies."""
+    """Prove the gates bite: inject a short, bad resistor, and absent U3 pad."""
     import copy, tempfile, shutil
     global SCH_DIR, REVIEW
     SCH_DIR, REVIEW = tempfile.mkdtemp(), tempfile.mkdtemp()
     nets, parts = S.NETS, S.PARTS
     S.NETS = copy.deepcopy(nets); S.NETS["SCL"].append(("U2", "2"))
     S.PARTS = dict(parts); S.PARTS["R8"] = ("R0603", "10R", "C0", "x", "bad LED resistor")
+    pad_names = {ref: sorted({pad for pins in S.NETS.values() for r, pad in pins if r == ref} |
+                             {pad for r, pad in S.NC if r == ref})
+                 for ref in S.PARTS}
+    pad_names["U3"].remove("9")
     try:
-        run()
+        run(pad_names)
     except SystemExit as e:
         v = json.load(open(os.path.join(REVIEW, "erc.json")))
         kinds = {x["type"] for s_ in v["sheets"] for x in s_["violations"]}
         assert "pin_to_pin" in kinds, kinds
         assert any("LED1" in p for p in S.margins()), S.margins()
-        print("selftest: injected faults were caught (KiCad ERC:", ", ".join(sorted(kinds)), "; margins: LED1)")
+        assert "SCL: U3 has no pad '9'" in S.erc(pad_names), S.erc(pad_names)
+        print("selftest: injected faults were caught (footprint pad: U3.9; KiCad ERC:",
+              ", ".join(sorted(kinds)), "; margins: LED1)")
     else:
         sys.exit("selftest FAILED: injected faults passed the gates")
     finally:

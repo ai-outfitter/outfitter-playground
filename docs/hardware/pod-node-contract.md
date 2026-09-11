@@ -1,6 +1,8 @@
 # Pod-node interconnect contract
 
-PNB-1 exposes J3 as a 2x6, 2.54 mm daughter-board connector.
+PNB-1 exposes the J3 footprint as a 2x6, 2.54 mm daughter-board interface. J3
+is DNP in the assembly package and requires an exact separately sourced header
+for hand installation.
 
 | Pin | Signal | Direction from base | Limit |
 | --- | --- | --- | --- |

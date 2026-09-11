@@ -31,5 +31,7 @@ devenv provides KiCad, pcbnew, freerouting, EasyEDA import, and ngspice;
 cross-checks it against the vendor-derived library and generates
 `sch/pnb-1.kicad_sch`. The committed Specctra session makes normal builds
 reproducible; regeneration is explicit because freerouting is nondeterministic.
-The fabrication package is ready for a supplier dry run; it does not authorize
-an order or claim physical acceptance.
+The fabrication package is ready to upload for an authenticated supplier dry
+run; it does not prove quote acceptance, authorize an order, or claim physical
+acceptance. J3 is deliberately DNP in the assembly package and remains as a
+hand-installable daughter-header footprint.

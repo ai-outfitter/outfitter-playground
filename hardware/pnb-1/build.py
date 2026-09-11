@@ -77,10 +77,14 @@ def main():
     ds.m_NetSettings.GetNetclasses()["power"] = power
     for net in ("3V3", "VBUS"):
         ds.m_NetSettings.SetNetclassPatternAssignment(net, "power")
-    ds.m_MinClearance = mm(0.09)  # USB-C receptacle pad pitch
+    # Absolute manufacturing floor. Normal nets retain 0.2 mm and the USB-C
+    # receptacle retains 0.09 mm; 0.01 mm is used only between Sensirion's
+    # mandated 0.6 mm relief-hole keep-free diameter and lands 10/11.
+    ds.m_MinClearance = mm(0.01)
+    ds.m_HoleClearance = mm(0.01)
     ds.m_TrackMinWidth = mm(0.15)
     ds.m_ViasMinSize = mm(0.5)
-    ds.m_MinThroughDrill = mm(0.3)
+    ds.m_MinThroughDrill = mm(0.25)  # Sensirion SCD4x thermal-relief-hole requirement
 
     # footprints from the netlist
     fps = {}
@@ -101,6 +105,14 @@ def main():
                 if p.GetNumber() == "":
                     p.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); p.SetNumber("PEG")
                 p.SetLocalClearance(mm(0.09))  # receptacle pad pitch is tighter than the board rule; JLC basic part
+        if ref == "J3":
+            fp.SetAttributes(fp.GetAttributes() | pcbnew.FP_EXCLUDE_FROM_BOM | pcbnew.FP_EXCLUDE_FROM_POS_FILES)
+        if ref == "U3":
+            for p in fp.Pads():
+                if p.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:
+                    # The vendor's 0.6 mm solder/flux keep-free opening sits
+                    # 0.0126 mm from lands 10/11 by design.
+                    p.SetLocalClearance(mm(0.01))
         for fname in ("LCSC Part #", "MPN", "Description"):
             if fields.get(ref, {}).get(fname):
                 fp.SetField(fname, fields[ref][fname])
@@ -150,29 +162,35 @@ def main():
     # vendor pin name, a generated KiCad schematic at all ERC severities, and
     # the numeric margins. Its self-test is run by the acceptance harness.
     import verify
-    pad_names = {ref: [pad.GetName() or "PEG" for pad in fp.Pads()] for ref, fp in fps.items()}
+    pad_names = {
+        ref: [pad.GetName() for pad in fp.Pads() if pad.GetAttribute() != pcbnew.PAD_ATTRIB_NPTH]
+        for ref, fp in fps.items()
+    }
+    assert set(pad_names["U3"]) == {str(n) for n in range(1, 21)}, "SCD41 must have exactly 20 electrical lands"
+    u3_npth = [pad for pad in fps["U3"].Pads() if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH]
+    assert len(u3_npth) == 1 and u3_npth[0].GetDrillSize().x == mm(0.25), "SCD41 thermal-relief hole must be 0.25 mm NPTH"
     verify.run(pad_names)
 
     def silk(text, x, y, size=0.8, rot=0):
         t = pcbnew.PCB_TEXT(board); t.SetText(text); t.SetPosition(P(x, y)); t.SetLayer(pcbnew.F_SilkS)
         t.SetTextSize(pcbnew.VECTOR2I(mm(size), mm(size))); t.SetTextThickness(mm(0.15)); t.SetTextAngleDegrees(rot); add(t)
     silk("BOOT", 23.0, 20.6); silk("RESET", 34.0, 25.5)
-    silk("UART", 3.0, 17.5, 0.8, 90); silk("J3", 14.0, 32.8, 0.8)
+    silk("UART", 3.0, 17.5, 0.8, 90); silk("J3 DNP", 14.0, 32.8, 0.8)
     silk("USB-C", 33.0, 33.9, 0.8); silk("SCD41", 12.0, 20.0, 0.8); silk("BH1750", 27.0, 2.2, 0.8)
+    silk("+", 38.6, 39.5, 0.8)
     # silkscreen title
     t = pcbnew.PCB_TEXT(board); t.SetText(f"{BOARD} rev {REV} 2026-09-10"); t.SetPosition(P(15, 27.0))
     t.SetLayer(pcbnew.F_SilkS); t.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); t.SetTextThickness(mm(0.15)); add(t)
 
     # GND pours both layers, with an antenna keep-out on the module's antenna end (x > W-4.5)
     gnd = board.FindNet("GND")
-    for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
-        z = pcbnew.ZONE(board); z.SetLayer(layer); z.SetNet(gnd)
-        z.Outline().NewOutline()
-        for (x, y) in [(0.5, 0.5), (W - 5.2, 0.5), (W - 5.2, H - 0.5), (0.5, H - 0.5)]:
-            z.Outline().Append(mm(x), mm(y))
-        z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25)); z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)  # reflow assembly; solid ties keep GND pads out of pour islands
-        z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)  # GND is routed as copper; pours only add area
-        z.SetIsFilled(True); add(z)
+    z = pcbnew.ZONE(board); z.SetLayerSet(pcbnew.LSET.AllCuMask()); z.SetNet(gnd)
+    z.Outline().NewOutline()
+    for (x, y) in [(0.5, 0.5), (W - 5.2, 0.5), (W - 5.2, H - 0.5), (0.5, H - 0.5)]:
+        z.Outline().Append(mm(x), mm(y))
+    z.SetLocalClearance(mm(0.15)); z.SetMinThickness(mm(0.15)); z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+    z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+    z.SetIsFilled(True); add(z)
     # LDO thermal: 3V3 copper on both layers around U2's tab (pad 4 at 45.0/35.5), tied with vias in route.py
     v3 = board.FindNet("3V3")
     for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
@@ -186,6 +204,15 @@ def main():
     for (x, y) in [(W - 4.6, 5), (W + 3, 5), (W + 3, 25), (W - 4.6, 25)]:
         ko.Outline().Append(mm(x), mm(y))
     add(ko)
+    # Sensirion SCD4x land pattern: the central 4.8 x 4.8 mm area is keep-free,
+    # not an exposed pad. The only opening is the 0.25 mm NPTH relief hole in
+    # the footprint between lands 10 and 11.
+    scd_ko = pcbnew.ZONE(board); scd_ko.SetIsRuleArea(True); scd_ko.SetDoNotAllowZoneFills(True)
+    scd_ko.SetDoNotAllowTracks(True); scd_ko.SetDoNotAllowVias(True)
+    scd_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); scd_ko.Outline().NewOutline()
+    for (x, y) in [(9.6, 9.6), (14.4, 9.6), (14.4, 14.4), (9.6, 14.4)]:
+        scd_ko.Outline().Append(mm(x), mm(y))
+    add(scd_ko)
     board.Save(OUT)
     # zone fill segfaults on a fresh BOARD(); reload the saved file and fill there
     b2 = pcbnew.LoadBoard(OUT)
@@ -197,6 +224,8 @@ def main():
     # needs a schematic, which this flow does not have)
     groups = defaultdict(list)
     for part in netlist.parts:
+        if part.ref == "J3":
+            continue
         f = fields.get(part.ref, {})
         groups[(part.value, part.footprint.split(":")[1], f.get("LCSC Part #", ""), f.get("MPN", ""))].append(part.ref)
     os.makedirs(os.path.join(HERE, "fab"), exist_ok=True)
