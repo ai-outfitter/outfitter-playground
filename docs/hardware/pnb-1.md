@@ -60,7 +60,7 @@ complete `hardware-engineer` path against a real fabrication-package candidate.
 - The SCD41 footprint follows the Sensirion SCD4x land pattern: 20 electrical
   lands, a 4.8 x 4.8 mm central all-copper keep-free area, and a 0.25 mm NPTH
   relief hole with 0.6 mm solder/flux keep-free diameter between lands 10/11.
-  Source: [Sensirion SCD4x datasheet v1.7, section 5.6](https://sensirion.com/media/documents/48C4B7FB/67FE0194/CD_DS_SCD4x_Datasheet_D1.pdf).
+  Source: [Sensirion SCD4x datasheet v1.7, section 4.2](https://sensirion.com/media/documents/48C4B7FB/67FE0194/CD_DS_SCD4x_Datasheet_D1.pdf).
 - The USB-C footprint requires a local 0.09 mm clearance between its own pads.
   Routed copper and GND pours otherwise use at least 0.15 mm width/space; the
   sole smaller copper-to-hole gap is the SCD41 vendor land-pattern exception.
