@@ -1,26 +1,17 @@
-"""Numerical checks whose inputs are documented in docs/hardware/pnb-1.md."""
+"""Standalone entry point for the canonical schematic margin checks."""
 
-PEAK_MA = {
-    "esp32_wifi_tx": 350,
-    "scd41": 175,
-    "bh1750": 1,
-    "daughter_3v3": 150,
-}
+import schematic
 
 
 def main() -> None:
-    peak_ma = sum(PEAK_MA.values())
-    assert peak_ma <= 800, f"3V3 peak {peak_ma} mA exceeds 800 mA design limit"
-
-    ambient_c = 50
-    sustained_a = 0.400
-    theta_c_per_w = 50
-    junction_c = ambient_c + (5.0 - 3.3) * sustained_a * theta_c_per_w
-    assert junction_c <= 125, f"estimated LDO junction {junction_c:.1f} C exceeds 125 C"
-
-    pullup_ohms = 4700
-    assert 2200 <= pullup_ohms <= 10000, "I2C pull-up outside declared range"
-    print(f"margins: peak={peak_ma} mA, LDO Tj={junction_c:.1f} C, I2C={pullup_ohms} ohm")
+    problems = schematic.margins()
+    assert not problems, "\n".join(problems)
+    p = schematic.MARGIN_PARAMS
+    peak_ma = sum(p["rail_peak_ma"].values())
+    pd_w = (p["vbus"] - p["v3v3"]) * p["rail_sustained_ma"] / 1000
+    junction_c = p["t_ambient_max"] + pd_w * p["ldo_theta_ja"]
+    print(f"margins: peak={peak_ma} mA, sustained={p['rail_sustained_ma']} mA, "
+          f"LDO Tj={junction_c:.1f} C, I2C={schematic._ohms('R5'):.0f} ohm")
 
 
 if __name__ == "__main__":

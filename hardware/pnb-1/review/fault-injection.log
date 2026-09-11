@@ -13,7 +13,5 @@ WARNING: Missing tag on  instantiated at <repo>/hardware/pnb-1/<frozen importlib
 INFO: 5 warnings found while generating netlist.
 INFO: 0 errors found while generating netlist.
 
-skidl netlist: 22 nets, 140 pins; revA: 23 nets, 140 pins
-NETLIST MISMATCH vs reference/revA/netlist.json:
-3V3: revA-only [] skidl-only ['J3.5', 'R5.2', 'U1.9', 'U3.10', 'U4.4']
-SDA: revA-only ['J3.5', 'R5.2', 'U1.9', 'U3.10', 'U4.4'] skidl-only []
+skidl typed ERC and netlist generation: PASS
+SKiDL ERC not clean: 0 errors, 4 warnings

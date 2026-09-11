@@ -20,9 +20,9 @@ REQUIRED = [
     "back.png",
     "pnb-1-drc.json",
 ]
-BOM_COLUMNS = {"Comment", "Designator", "Footprint", "LCSC Part #"}
+BOM_COLUMNS = {"Comment", "Designator", "Footprint", "LCSC Part #", "MPN"}
 CPL_COLUMNS = {"Designator", "Mid X", "Mid Y", "Rotation", "Layer"}
-ALLOWED_DRC = {"silk_over_copper", "silk_overlap", "silk_edge_clearance"}
+ALLOWED_DRC: set[str] = set()
 
 
 def rows(path: Path, columns: set[str]) -> list[dict[str, str]]:
@@ -59,6 +59,7 @@ def validate() -> dict[str, object]:
     assert not drc.get("unconnected_items"), "DRC has unconnected items"
     unexpected = {item["type"] for item in drc.get("violations", [])} - ALLOWED_DRC
     assert not unexpected, f"unexpected DRC violations: {sorted(unexpected)}"
+    assert not drc.get("violations"), "DRC warnings require correction; no class-wide waivers are accepted"
 
     return {
         "schemaVersion": 1,

@@ -17,16 +17,19 @@ devenv provides KiCad, pcbnew, freerouting, EasyEDA import, and ngspice;
 
 | Stage | Source or command | Evidence |
 | --- | --- | --- |
-| setup | `npm run pcb:setup` | version and KiCad MCP inventory report |
-| schematic | `$V pnb1_skidl.py` | typed ERC and connectivity-baseline match |
+| setup | `npm run pcb:setup` | pinned tool availability and versions |
+| schematic | `$V pnb1_skidl.py && $V build.py` | typed ERC, independent vendor pad-map check, generated KiCad schematic, and all-severity KiCad ERC |
 | fault test | `PNB_FAULT=short-3v3-to-sda $V pnb1_skidl.py` | required nonzero exit |
 | margins | `$V verify_margins.py` | peak-current, thermal, and pull-up checks |
 | build | `$V build.py` | footprints, placement, outline, and BOM |
-| route | `$V route.py` | bounded freerouting and zero-error/unconnected DRC |
+| route | `$V route.py` | validated committed route session and zero-error/unconnected DRC |
+| reroute | `PNB_ROUTE_REGENERATE=1 $V route.py` | bounded freerouting regeneration for layout iteration |
 | release | `$V -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab` | Gerbers, drill files, CPL, ZIP, and DRC reports |
 | package | `npm run pcb:verify-package` | BOM/CPL agreement and checksummed manifest |
 
-The committed `reference/revA/netlist.json` is a connectivity regression
-oracle from the proven design. It does not replace schematic or layout review.
+`schematic.py` is the independent connectivity and numeric model; `verify.py`
+cross-checks it against the vendor-derived library and generates
+`sch/pnb-1.kicad_sch`. The committed Specctra session makes normal builds
+reproducible; regeneration is explicit because freerouting is nondeterministic.
 The fabrication package is ready for a supplier dry run; it does not authorize
 an order or claim physical acceptance.

@@ -4,9 +4,9 @@ PNB-1 exposes J3 as a 2x6, 2.54 mm daughter-board connector.
 
 | Pin | Signal | Direction from base | Limit |
 | --- | --- | --- | --- |
-| 1 | 5V | output | 500 mA |
+| 1 | reserved | not connected | - |
 | 2 | GND | - | - |
-| 3 | 3V3 | output | 150 mA |
+| 3 | 3V3 | output | 50 mA peak |
 | 4 | GND | - | - |
 | 5 | SDA | bidirectional | 3.3 V; pull-ups on base only |
 | 6 | SCL | bidirectional | 3.3 V; pull-ups on base only |
@@ -17,6 +17,6 @@ PNB-1 exposes J3 as a 2x6, 2.54 mm daughter-board connector.
 | 11 | GPIO10 | bidirectional | - |
 | 12 | GPIO1 | input | open-drain interrupt; base pull-up |
 
-Daughters MUST NOT add I2C pull-ups, back-feed either supply, or use ESP32
-strapping pins. A daughter that exceeds the 3.3 V budget MUST regulate from
-5 V itself.
+Daughters MUST NOT add I2C pull-ups, back-feed 3V3, use pin 1, or use ESP32
+strapping pins. This USB-powered prototype does not provide a daughter-board
+5 V rail; a larger load needs its own independently protected supply.

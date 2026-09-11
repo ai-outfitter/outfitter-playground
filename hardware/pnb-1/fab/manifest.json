@@ -1,31 +1,31 @@
 {
   "board": "PNB-1 rev A",
   "bomRows": 21,
-  "drcWarnings": 36,
+  "drcWarnings": 0,
   "files": {
     "back.png": {
-      "bytes": 51428,
-      "sha256": "74eb2ecb190ab6e2c10c074deb933749593ee5b09d13081cd267962020119c2a"
+      "bytes": 52862,
+      "sha256": "b7b58dcc5fdb55e7c379ad15cc36fb34c5c5845450530f2f289ae8005084f06c"
     },
     "bom.csv": {
-      "bytes": 866,
-      "sha256": "2f4856505d9d67fc5d13fdd838b224056786bde4ea22b0ccc8a8213268f6b125"
+      "bytes": 1212,
+      "sha256": "95859e37d5256c36d7c856d4153ee9baae1ed1815b356eb85d110e1157474368"
     },
     "cpl.csv": {
-      "bytes": 1148,
-      "sha256": "46cd97389d621389813b1a8b47eaa52e9caa57392039b5c42a9629757db697a6"
+      "bytes": 1147,
+      "sha256": "20b93cea37ac3875e21ce62477849af04e52dd1703e8fe53fc0b01c420ca4776"
     },
     "front.png": {
-      "bytes": 91931,
-      "sha256": "0639c5fda2acc71a39035bea9d1fed8bb433d207b2465dcd4a25f5683b279804"
+      "bytes": 70392,
+      "sha256": "fdae260a65646e20af2b6d447151e540fa72a6f2b7fc799206e949a7e310c7a6"
     },
     "pnb-1-drc.json": {
-      "bytes": 31600,
-      "sha256": "a3717ba033d6149d084c254518b5930ff5345b7862d0464443c7951e8507dbbc"
+      "bytes": 1082,
+      "sha256": "3c3df74b56a03c0f7a573072a590158d7c7b289954a082a19607365733cba721"
     },
     "pnb-1-gerbers.zip": {
-      "bytes": 102396,
-      "sha256": "835d9acbdd3bf6422b8e77af07a9af7f7f532dd393d41fdc8588142dceb2c8d8"
+      "bytes": 86399,
+      "sha256": "1cc78a290d0b8d9c25d606c811011e1ebaa02422acd2a65708251526ab53effa"
     }
   },
   "placements": 33,

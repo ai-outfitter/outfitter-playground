@@ -18,8 +18,10 @@ complete `hardware-engineer` path against a real, orderable design.
 - R2 MUST use GPIO5 for SDA and GPIO6 for SCL on one 3.3 V I2C bus.
 - R3 MUST put SCD41 address `0x62` and BH1750 address `0x23` on that bus with
   one pair of 4.7 kOhm pull-ups.
-- R4 MUST be powered from USB-C 5 V with independent 5.1 kOhm CC resistors,
-  USB data-line ESD protection, and a regulator rated for at least 800 mA.
+- R4 MUST be powered from a qualified USB-C 5 V / 1 A source with independent
+  5.1 kOhm CC resistors, USB data-line ESD protection, and a regulator rated
+  for at least 800 mA. Firmware MUST enumerate at no more than 500 mA when
+  connected to a legacy USB host; full-load tests use the qualified supply.
 - R5 MUST provide BOOT, RESET, UART0, a power LED, and a user LED.
 - R6 MUST implement the daughter-header contract in `pod-node-contract.md`.
 - R7 MUST be a two-layer board no larger than 60 x 45 mm with four M2.5 holes.
@@ -40,13 +42,16 @@ complete `hardware-engineer` path against a real, orderable design.
 
 ## Electrical limits and waivers
 
-- The rail peak model is 350 mA for ESP32 Wi-Fi transmission, 175 mA for the
-  SCD41, 1 mA for the BH1750, and 150 mA for the daughter connector. The total
-  676 mA is below the AMS1117's 800 mA design requirement.
-- Sustained bench load is limited to 400 mA. At 5.0 V input, 3.3 V output, and
-  50 C/W with the committed copper and thermal-via treatment, estimated
-  junction rise is 34 C. This MUST remain below a 125 C junction limit at a
-  50 C ambient design point.
+- The 3V3 peak model is 350 mA for ESP32 Wi-Fi transmission, the SCD41
+  datasheet-v1.7 maximum of 205 mA, 1 mA for BH1750, 11 mA for indicators and
+  pull-ups, and 50 mA for J3. The 617 mA total is below the 1 A regulator
+  rating; coincident peaks are supplied only from the qualified 1 A source.
+- Sustained 3V3 load is limited to 200 mA until prototype thermal measurement.
+  At 5.0 V input, 3.3 V output, 136 C/W (a conservative no-heatsink bound),
+  and 50 C ambient, the model gives 96.2 C junction, below the 125 C limit.
+- C9 is the AMS1117-supported 22 uF solid-tantalum stability configuration:
+  TAJA226K010RNJ, 10 V, 3 ohm ESR. Its polarity MUST be checked at assembly.
+- J3 pin 1 is deliberately unconnected; raw USB VBUS is not exported.
 - The USB-C footprint requires a local 0.09 mm clearance between its own pads;
   all routed copper uses at least 0.15 mm width/space.
 - J3 is through-hole and may be excluded from assembly for hand soldering if

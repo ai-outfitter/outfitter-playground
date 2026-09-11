@@ -1,1 +1,1 @@
-margins: peak=676 mA, LDO Tj=84.0 C, I2C=4700 ohm
+margins: peak=617 mA, sustained=200 mA, LDO Tj=96.2 C, I2C=4700 ohm

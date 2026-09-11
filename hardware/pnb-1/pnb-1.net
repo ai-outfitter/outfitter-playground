@@ -2,7 +2,7 @@
   (version "D")
   (design
     (source "pnb1_skidl.py")
-    (date "09/10/2026 06:24 PM")
+    (date "09/10/2026 08:02 PM")
     (tool "SKiDL (2.3.0)")
     (sheet
       (number 1)
@@ -63,7 +63,7 @@
         (field
           (name "SKiDL Tag") "C1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CC0603KRX7R9BB104"))
@@ -83,7 +83,7 @@
         (field
           (name "MPN") "CL21A106KAYNNNE")
         (field
-          (name "Description") "U3 VDD bulk (175 mA peaks)")
+          (name "Description") "U3 VDD bulk (205 mA maximum)")
         (field
           (name "Description"))
         (field
@@ -93,7 +93,7 @@
         (field
           (name "SKiDL Tag") "C10")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL21A106KAYNNNE"))
@@ -123,7 +123,7 @@
         (field
           (name "SKiDL Tag") "C11")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL21A106KAYNNNE"))
@@ -153,7 +153,7 @@
         (field
           (name "SKiDL Tag") "C2")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CC0603KRX7R9BB104"))
@@ -183,7 +183,7 @@
         (field
           (name "SKiDL Tag") "C3")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CC0603KRX7R9BB104"))
@@ -213,7 +213,7 @@
         (field
           (name "SKiDL Tag") "C4")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CC0603KRX7R9BB104"))
@@ -243,7 +243,7 @@
         (field
           (name "SKiDL Tag") "C5")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CC0603KRX7R9BB104"))
@@ -273,7 +273,7 @@
         (field
           (name "SKiDL Tag") "C6")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL10A105KB8NNNC"))
@@ -303,7 +303,7 @@
         (field
           (name "SKiDL Tag") "C7")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL10A105KB8NNNC"))
@@ -333,7 +333,7 @@
         (field
           (name "SKiDL Tag") "C8")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL21A106KAYNNNE"))
@@ -344,26 +344,26 @@
       (tstamps "5745235a-c3ad-560a-9498-c294be8e78c3"))
     (comp
       (ref "C9")
-      (value "22uF")
+      (value "22uF tantalum")
       (description "")
-      (footprint "artera:C0805")
+      (footprint "artera:CASE-A_3216")
       (fields
         (field
-          (name "LCSC Part #") "C45783")
+          (name "LCSC Part #") "C11366")
         (field
-          (name "MPN") "CL21A226MAQNNNE")
+          (name "MPN") "TAJA226K010RNJ")
         (field
-          (name "Description") "U2 VOUT bulk (AMS1117 stability)")
+          (name "Description") "U2 VOUT stability capacitor, 10 V, 3 ohm ESR")
         (field
           (name "Description"))
         (field
-          (name "Footprint") "artera:C0805")
+          (name "Footprint") "artera:CASE-A_3216")
         (field
           (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A226MAQNNNE_22uF-226-20-25V_C45783.html")
         (field
           (name "SKiDL Tag") "C9")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "CL21A226MAQNNNE"))
@@ -393,7 +393,7 @@
         (field
           (name "SKiDL Tag") "D1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "USBLC6-2SC6_C2687116"))
@@ -423,7 +423,7 @@
         (field
           (name "SKiDL Tag") "J1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "TYPE-C-31-M-12"))
@@ -441,7 +441,7 @@
         (field
           (name "LCSC Part #") "C66689")
         (field
-          (name "MPN") "2.54-2x6P")
+          (name "MPN") "Dual Row Pin Header2.54mm2*6Pin Header")
         (field
           (name "Description") "daughter header (contract J3)")
         (field
@@ -453,7 +453,7 @@
         (field
           (name "SKiDL Tag") "J3")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "Header-Male-2.54_2x6"))
@@ -471,7 +471,7 @@
         (field
           (name "LCSC Part #") "C124378")
         (field
-          (name "MPN") "2.54-1x4P")
+          (name "MPN") "B-2100S04P-A110")
         (field
           (name "Description") "UART0 header 3V3/TX/RX/GND")
         (field
@@ -483,7 +483,7 @@
         (field
           (name "SKiDL Tag") "J4")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "Header-Male-2.54_1x4"))
@@ -513,7 +513,7 @@
         (field
           (name "SKiDL Tag") "LED1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "KT-0603R"))
@@ -543,7 +543,7 @@
         (field
           (name "SKiDL Tag") "LED2")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "KT-0603R"))
@@ -573,7 +573,7 @@
         (field
           (name "SKiDL Tag") "R1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF1002T5E"))
@@ -603,7 +603,7 @@
         (field
           (name "SKiDL Tag") "R10")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF1002T5E"))
@@ -633,7 +633,7 @@
         (field
           (name "SKiDL Tag") "R2")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF1002T5E"))
@@ -663,7 +663,7 @@
         (field
           (name "SKiDL Tag") "R3")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF5101T5E"))
@@ -693,7 +693,7 @@
         (field
           (name "SKiDL Tag") "R4")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF5101T5E"))
@@ -723,7 +723,7 @@
         (field
           (name "SKiDL Tag") "R5")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF4701T5E"))
@@ -753,7 +753,7 @@
         (field
           (name "SKiDL Tag") "R6")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF4701T5E"))
@@ -783,7 +783,7 @@
         (field
           (name "SKiDL Tag") "R7")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF1001T5E"))
@@ -813,7 +813,7 @@
         (field
           (name "SKiDL Tag") "R8")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF3300T5E"))
@@ -843,7 +843,7 @@
         (field
           (name "SKiDL Tag") "R9")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "0603WAF3300T5E"))
@@ -873,7 +873,7 @@
         (field
           (name "SKiDL Tag") "SW1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "TS-1088-AR02016"))
@@ -903,7 +903,7 @@
         (field
           (name "SKiDL Tag") "SW2")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "TS-1088-AR02016"))
@@ -933,7 +933,7 @@
         (field
           (name "SKiDL Tag") "U1")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "ESP32-S3-MINI-1-N8"))
@@ -963,7 +963,7 @@
         (field
           (name "SKiDL Tag") "U2")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "AMS1117-3.3"))
@@ -993,7 +993,7 @@
         (field
           (name "SKiDL Tag") "U3")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "SCD41-D-R2"))
@@ -1023,7 +1023,7 @@
         (field
           (name "SKiDL Tag") "U4")
         (field
-          (name "SKiDL Line") "pnb1_skidl.py:63"))
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
       (libsource
         (lib "artera")
         (part "BH1750FVI-TR"))
@@ -1677,10 +1677,6 @@
         (ref "J1")
         (pin "B4A9")
         (pintype "PASSIVE"))
-      (node
-        (ref "J3")
-        (pin "1")
-        (pintype "INPUT"))
       (node
         (ref "U2")
         (pin "3")

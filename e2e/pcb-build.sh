@@ -13,7 +13,8 @@ test -x "$python" || {
 mkdir -p "$board/review" "$board/fab"
 cd "$board"
 
-"$python" -m compileall -q pnb1_skidl.py build.py route.py verify_margins.py package_manifest.py
+"$python" -m compileall -q pnb1_skidl.py schematic.py verify.py build.py route.py verify_margins.py package_manifest.py
+"$python" verify.py --selftest | tee review/verify-selftest.log
 "$python" verify_margins.py | tee review/margins.log
 
 if PNB_FAULT=short-3v3-to-sda "$python" pnb1_skidl.py >review/fault-injection.log 2>&1; then
@@ -21,7 +22,7 @@ if PNB_FAULT=short-3v3-to-sda "$python" pnb1_skidl.py >review/fault-injection.lo
   exit 1
 fi
 sed -i "s|$repo_root|<repo>|g" review/fault-injection.log
-grep -Eq 'Pin conflict|NETLIST MISMATCH|SKiDL ERC not clean' review/fault-injection.log
+grep -Eq 'Pin conflict|SKiDL ERC not clean' review/fault-injection.log
 
 "$python" pnb1_skidl.py | tee review/schematic-gate.log
 "$python" build.py | tee review/build.log

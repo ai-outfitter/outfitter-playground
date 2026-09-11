@@ -3,10 +3,11 @@
 #   gate only:   ../.venv/bin/python -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab __NONE__
 #   full fab:    ../.venv/bin/python -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab
 #
-# There is no .kicad_sch in this flow — the SKiDL module (pnb1_skidl.py) is the
-# canonical schematic and its typed ERC + rev A netlist equivalence run in
-# build.py before any board exists. KiBot's gate here is the board: DRC at all
-# severities with warnings-as-errors, every waiver named below.
+# The SKiDL module (pnb1_skidl.py) is the canonical schematic. An independent
+# representation (schematic.py + verify.py) checks the vendor pad map, emits
+# sch/pnb-1.kicad_sch, and runs KiCad ERC at all severities. KiBot's gate here
+# is the board: DRC at all severities with warnings-as-errors and no class-wide
+# waivers.
 
 kibot:
   version: 1
@@ -19,15 +20,6 @@ preflight:
     dont_stop: false
     warnings_as_errors: true
     format: [RPT, JSON]
-    # Named waivers — every class below is accepted deliberately; anything new
-    # (any other id, e.g. clearance, shorting_items, unconnected_items) fails.
-    filters:
-      - filter: waive silk_over_copper — refs/outlines sit over pour clearances and pads; JLCPCB clips silk on pads, cosmetic only (rev A shipped the same 16)
-        error: silk_over_copper
-      - filter: waive silk_overlap — part outlines overlap 0.7 mm ref texts on this density, cosmetic only (rev A shipped the same 16)
-        error: silk_overlap
-      - filter: waive silk_edge_clearance — J3/J4 header labels sit near the outline, clipped at worst, cosmetic only (rev A shipped the same 4)
-        error: silk_edge_clearance
 
 outputs:
   - name: gerbers

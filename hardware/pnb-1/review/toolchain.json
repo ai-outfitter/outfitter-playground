@@ -5,6 +5,7 @@
   "requiredTools": [
     "kicad_tool_inventory",
     "kicad_project_summary",
+    "kicad_run_erc",
     "kicad_validate_board"
   ],
   "toolVersions": {
@@ -111,14 +112,31 @@
       "pnb-1.kicad_pcb"
     ]
   },
+  "schematicSummary": {
+    "projectDir": "hardware/pnb-1/sch",
+    "projectFiles": 1,
+    "schematics": 1,
+    "boards": 0,
+    "files": [
+      "pnb-1.kicad_pro",
+      "pnb-1.kicad_sch",
+      "fp-lib-table",
+      "sym-lib-table"
+    ]
+  },
+  "schematicValidation": {
+    "ok": true,
+    "returncode": 0,
+    "report": "hardware/pnb-1/review/mcp-erc.json"
+  },
   "boardValidation": {
     "ok": true,
     "parseOk": true,
-    "fileSizeBytes": 499552,
+    "fileSizeBytes": 456979,
     "drc": {
       "ok": true,
       "returncode": 0,
-      "violations": 36,
+      "violations": 0,
       "unconnected": null
     }
   }

@@ -1,0 +1,9 @@
+[SKIP] erc() vs footprint pads: standalone run — build.py/release.py run it against the footprints
+[FAIL] pad map vs EasyEDA pin names (independent): 74 IC/connector pads checked
+   - SCL: no EXPECT entry for U2 (typed part) — add one, don't skip
+[FAIL] KiCad ERC, all severities: 2 violations in ../../../../../../../../../tmp/tmpu56sk0bs/pnb-1.kicad_sch
+   - warning multiple_net_names: Global Label '3V3'; Global Label 'SCL'
+   - warning pin_to_pin: Symbol U1 Pin 10 [IO6, Bidirectional, Line]; Symbol U2 Pin 2 [VOUT, Power output, Line]
+[FAIL] numeric margins: vbus=5.0, vbus_min=4.75, v3v3=3.3, ldo_dropout=1.1, ldo_theta_ja=136.0, t_ambient_max=50.0, t_junction_max=125.0, ldo_i_max_ma=1000, rail_sustained_ma=200, esp_strap_pullup_max=100000.0
+   - LED1: 130.0 mA through R8 outside 1–20 mA
+selftest: injected faults were caught (KiCad ERC: multiple_net_names, pin_to_pin ; margins: LED1)

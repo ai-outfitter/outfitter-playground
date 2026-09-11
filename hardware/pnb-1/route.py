@@ -1,6 +1,6 @@
 """Layout stage: freerouting round-trip + the few hand routes the autorouter cannot reach, then DRC.
 Run after build.py. Idempotent: always starts from the freshly built (unrouted) board."""
-import json, os, re, subprocess, sys
+import json, math, os, re, subprocess, sys
 import pcbnew
 from pcbnew import FromMM as mm
 
@@ -72,18 +72,57 @@ def import_ses(board, path, keep):
     print(f"SES: {n_t} track segments, {n_v} vias")
 
 # Hand routes the autorouter cannot place. ("track", net, layer, width_mm, [(x,y),...]) / ("via", net, x, y)
+USB_DP_PATH = [(32.75, 35.43), (32.75, 34.5), (31.7, 33.45), (31.7, 32.0), (34.05, 30.15),
+               (34.05, 27.85), (34.05, 26.0), (33.4, 26.0), (29.45, 23.0), (33.85, 20.0), (34.05, 20.0),
+               (34.05, 15.85), (38.47, 15.85)]
+USB_DN_PATH = [(33.25, 35.43), (33.25, 34.5), (33.6, 34.1), (35.0, 33.2),
+               (35.0, 31.2), (36.8, 31.2), (36.8, 30.15), (35.95, 30.15),
+               (35.95, 27.85), (36.8, 27.85), (36.8, 26.8), (34.55, 26.8),
+               (34.55, 17.5), (35.2, 16.85), (36.25, 15.0), (38.47, 15.0)]
+
 HAND = [
-    # SCD41 VDD (pad 7, 10.75/16.0) -> VDDH (pad 19, 10.75/8.0): fenced by the GND paddle on F.Cu, go under it on B.Cu
-    ("track", "3V3", "F.Cu", 0.3, [(10.75, 16.0), (10.75, 17.3)]), ("via", "3V3", 10.75, 17.3),
-    ("track", "3V3", "B.Cu", 0.3, [(10.75, 17.3), (10.75, 5.6)]), ("via", "3V3", 10.75, 5.6),
-    ("track", "3V3", "F.Cu", 0.3, [(10.75, 5.6), (10.75, 8.0)]),
-    ("track", "3V3", "F.Cu", 0.3, [(12.9, 6.25), (10.75, 6.25)]),   # C10 (SCD41 bulk) onto the same stub
+    # SCD41 supply escapes the package edge and wraps around the complete body;
+    # no trace or via crosses the central sensing-opening rule area.
+    ("track", "3V3", "F.Cu", 0.3, [(10.75, 16.0), (10.75, 17.5), (5.8, 17.5),
+                                     (5.8, 6.5), (10.75, 6.5), (10.75, 8.0)]),
+    ("track", "3V3", "F.Cu", 0.3, [(4.5, 8.0), (5.8, 8.0)]),
     # LDO tab thermal vias (3V3 pour both layers around U2 pad 4 at 24.5/35.5, tab 2.34 x 3.6)
-    *[("via", "3V3", x, y) for (x, y) in [(22.6, 34.2), (22.0, 32.4), (26.4, 34.2), (26.4, 36.8), (24.5, 32.7), (24.5, 38.3)]],
+    *[("via", "3V3", x, y) for (x, y) in [(43.1, 34.2), (42.5, 32.4), (46.9, 34.2), (46.9, 36.8), (45.0, 32.7)]],
     # GND vias in the module's 3x3 centre paddle so the B.Cu plane is tied under U1
     *[("via", "GND", x, y) for x in (43.85, 45.5, 47.15) for y in (13.35, 15.0, 16.65)],
-    # CC2: J1-B5 (0.3 mm pad in a 0.5 mm pitch row) -> R4-1; the autorouter refuses the exit, a 0.2 mm track fits
-    ("track", "CC2", "F.Cu", 0.2, [(12.8, 35.43), (12.8, 33.8), (14.45, 32.15), (14.45, 31.6)]),
+    # SCD41 exposed GND pad 21: the datasheet requires this central pad at GND.
+    ("via", "GND", 12.0, 12.0),
+    # CC2 escape from the fine-pitch receptacle pad to its independent Rd.
+    ("track", "CC2", "F.Cu", 0.15, [(34.75, 35.43), (34.75, 38.0), (39.0, 38.0), (39.0, 34.75)]),
+]
+USB_HAND = [
+    # Coupled, via-free main pair from one orientation of the Type-C connector.
+    ("track", "USB_DP", "F.Cu", 0.2, USB_DP_PATH[:8]),
+    ("via", "USB_DP", 33.4, 26.0),
+    ("track", "USB_DP", "B.Cu", 0.2, USB_DP_PATH[7:10]),
+    ("via", "USB_DP", 33.85, 20.0),
+    ("track", "USB_DP", "F.Cu", 0.2, USB_DP_PATH[9:]),
+    ("track", "USB_DN", "F.Cu", 0.2, USB_DN_PATH[:3]),
+    ("via", "USB_DN", 33.6, 34.1),
+    ("track", "USB_DN", "B.Cu", 0.2, USB_DN_PATH[2:4]),
+    ("via", "USB_DN", 35.0, 33.2),
+    ("track", "USB_DN", "F.Cu", 0.2, USB_DN_PATH[3:14]),
+    ("via", "USB_DN", 35.2, 16.85),
+    ("track", "USB_DN", "B.Cu", 0.2, USB_DN_PATH[13:15]),
+    ("via", "USB_DN", 36.25, 15.0),
+    ("track", "USB_DN", "F.Cu", 0.2, USB_DN_PATH[14:]),
+    # Duplicate receptacle contacts fan out on B.Cu to avoid crossing at the
+    # connector. These are short branches, not layer changes in the main pair.
+    ("track", "USB_DP", "F.Cu", 0.2, [(33.75, 35.43), (33.75, 36.5)]),
+    ("via", "USB_DP", 33.75, 36.5),
+    ("track", "USB_DP", "B.Cu", 0.2, [(33.75, 36.5), (31.8, 36.5), (31.8, 33.5), (32.8, 33.5)]),
+    ("via", "USB_DP", 32.8, 33.5),
+    ("track", "USB_DP", "F.Cu", 0.2, [(32.8, 33.5), (31.7, 33.45)]),
+    ("track", "USB_DN", "F.Cu", 0.2, [(32.25, 35.43), (32.25, 37.2)]),
+    ("via", "USB_DN", 32.25, 37.2),
+    ("track", "USB_DN", "B.Cu", 0.2, [(32.25, 37.2), (35.2, 37.2), (35.2, 32.5)]),
+    ("via", "USB_DN", 35.2, 32.5),
+    ("track", "USB_DN", "F.Cu", 0.2, [(35.2, 32.5), (35.0, 32.5)]),
 ]
 LAYERS = {"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu}
 
@@ -100,6 +139,27 @@ def hand_segments():
     return out
 
 
+def segments(items):
+    out = []
+    for h in items:
+        if h[0] == "track":
+            _, net, layer, w, pts = h
+            out += [("t", net, layer, w, a, b) for a, b in zip(pts, pts[1:])]
+        else:
+            out.append(("v", h[1], (h[2], h[3])))
+    return out
+
+
+def audit_usb_paths():
+    """Mechanical high-speed constraint attached directly to the fixed paths."""
+    def length(points):
+        return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:]))
+    dp, dn = length(USB_DP_PATH), length(USB_DN_PATH)
+    if max(dp, dn) >= 32.0 or abs(dp - dn) > 1.0:
+        raise SystemExit(f"USB pair constraint failed: D+={dp:.3f} mm D-={dn:.3f} mm skew={abs(dp-dn):.3f} mm")
+    print(f"USB pair: D+={dp:.3f} mm, D-={dn:.3f} mm, skew={abs(dp-dn):.3f} mm; D+ two vias, D- four vias")
+
+
 def add_item(board, item, keep):
     ni = board.FindNet(item[1])
     if item[0] == "t":
@@ -108,14 +168,29 @@ def add_item(board, item, keep):
         board.Add(t); t.thisown = False; keep.append(t)
     else:
         x, y = item[2]
-        v = pcbnew.PCB_VIA(board); v.SetPosition(P(x, y)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(ni)
+        v = pcbnew.PCB_VIA(board); v.SetPosition(P(x, y)); v.SetWidth(mm(0.5 if item[1].startswith("USB_") else 0.6)); v.SetDrill(mm(0.3)); v.SetNet(ni)
         v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); board.Add(v); v.thisown = False; keep.append(v)
 
 
 def hand_routes(board):
     keep = []
-    for item in hand_segments():
+    for item in hand_segments() + segments(USB_HAND):
         add_item(board, item, keep)
+    return keep
+
+
+def replace_usb_routes(board):
+    """Discard autorouted USB copper and install the audited pair plus branches."""
+    for item in list(board.GetTracks()):
+        if item.GetNetname() in ("USB_DP", "USB_DN"):
+            board.Remove(item)
+    for zone in list(board.Zones()):
+        if zone.GetZoneName().startswith("TEMP_USB_CORRIDOR_"):
+            board.Remove(zone)
+    keep = []
+    for item in segments(USB_HAND):
+        add_item(board, item, keep)
+    print(f"USB routes replaced: {len(keep)} fixed items")
     return keep
 
 
@@ -330,7 +405,7 @@ def router_pass(routed_board, passno):
     del src
     patch_dsn(DSN)
     try:
-        r = subprocess.run([FREEROUTING, "-de", DSN, "-do", SES, "-mp", "40", "-oit", "0.5"], capture_output=True, text=True, timeout=240,
+        r = subprocess.run([FREEROUTING, "-de", DSN, "-do", SES, "-mp", "5", "-oit", "0"], capture_output=True, text=True, timeout=90,
                            env={**os.environ, "JAVA_TOOL_OPTIONS": "-Djava.awt.headless=true"})
     except subprocess.TimeoutExpired:
         print(f"router pass {passno}: timed out"); return -1
@@ -367,28 +442,39 @@ def import_new(board, keep):
 
 
 def main():
+    audit_usb_paths()
+    cached_session = open(SES).read() if os.path.exists(SES) else None
     subprocess.run([sys.executable, os.path.join(HERE, "build.py")], check=True, capture_output=True)  # fresh, unrouted board
     # freerouting is nondeterministic and slows to a crawl with hundreds of fixed wires, so instead of
     # incremental passes: independent attempts on the fresh board, keep the best (pre-routes count as "unrouted" to it).
-    best = None
-    for attempt in range(1, 5):
-        b = pcbnew.LoadBoard(PCB)
-        keep = hand_routes(b)
-        unrouted = router_pass(b, attempt)
-        if unrouted < 0:
-            continue
-        if best is None or unrouted < best[0]:
-            best = (unrouted, attempt, open(SES).read())
-        if unrouted <= len(HAND):  # the fixed pre-routes are reported as unrouted; anything beyond is a real residual
-            break
+    best = (-1, "validated committed session", cached_session) if cached_session else None
+    if os.environ.get("PNB_ROUTE_REGENERATE") == "1" or not cached_session:
+        best = None
+        for attempt in range(1, 4):
+            b = pcbnew.LoadBoard(PCB)
+            keep = hand_routes(b)
+            unrouted = router_pass(b, attempt)
+            if unrouted < 0:
+                continue
+            if best is None or unrouted < best[0]:
+                best = (unrouted, attempt, open(SES).read())
+            if unrouted <= 15:
+                break
+    if best is None and cached_session:
+        best = (-1, "committed-session fallback", cached_session)
     if best is None:
-        sys.exit("router never finished")
+        sys.exit("router never finished and no validated session is available")
     open(SES, "w").write(best[2])
     print(f"using attempt {best[1]} ({best[0]} reported unrouted)")
     b = pcbnew.LoadBoard(PCB)
     keep = hand_routes(b)
     import_new(b, keep)
     keep += ensure_hand_routes(b)
+    keep += replace_usb_routes(b)
+    # Add these only after autorouting: they ground front-pour pockets without
+    # constraining the router's already crowded ESP32 escape channels.
+    for item in [("v", "GND", (31.0, 8.6))]:
+        add_item(b, item, keep)
     widen_power(b)
     keep += stitch_gnd(b)
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())

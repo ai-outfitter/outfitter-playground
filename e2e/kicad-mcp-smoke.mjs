@@ -59,7 +59,8 @@ try {
   notify("notifications/initialized");
   const tools = await send("tools/list");
   const names = tools.tools.map(tool => tool.name);
-  for (const required of ["kicad_tool_inventory", "kicad_project_summary", "kicad_validate_board"]) {
+  const requiredTools = ["kicad_tool_inventory", "kicad_project_summary", "kicad_run_erc", "kicad_validate_board"];
+  for (const required of requiredTools) {
     if (!names.includes(required)) throw new Error(`KiCad MCP is missing ${required}`);
   }
   const inventory = await send("tools/call", {
@@ -69,6 +70,19 @@ try {
   const summary = await send("tools/call", {
     name: "kicad_project_summary",
     arguments: { project_path: projectPath },
+  });
+  const schematicSummary = await send("tools/call", {
+    name: "kicad_project_summary",
+    arguments: { project_path: `${projectPath}/sch` },
+  });
+  const erc = await send("tools/call", {
+    name: "kicad_run_erc",
+    arguments: {
+      schematic_path: `${projectPath}/sch/pnb-1.kicad_sch`,
+      output_path: `${projectPath}/review/mcp-erc.json`,
+      report_format: "json",
+      exit_code_violations: true,
+    },
   });
   const validation = await send("tools/call", {
     name: "kicad_validate_board",
@@ -80,12 +94,15 @@ try {
   });
   const inventoryData = JSON.parse(inventory.content[0].text);
   const summaryData = JSON.parse(summary.content[0].text);
+  const schematicSummaryData = JSON.parse(schematicSummary.content[0].text);
+  const ercData = JSON.parse(erc.content[0].text);
   const validationData = JSON.parse(validation.content[0].text);
+  if (ercData.returncode !== 0) throw new Error(`KiCad MCP ERC failed: ${JSON.stringify(ercData)}`);
   const report = {
     package: "kicad-mcp@0.1.6",
     protocolVersion: initialized.protocolVersion,
     toolCount: names.length,
-    requiredTools: ["kicad_tool_inventory", "kicad_project_summary", "kicad_validate_board"],
+    requiredTools,
     toolVersions: {
       kicad: command("kicad-cli", ["version"]),
       pythonStack: JSON.parse(command("hardware/.venv/bin/python", ["-c", [
@@ -110,6 +127,18 @@ try {
       outputs: summaryData.outputs,
       files: summaryData.files.map(file => file.slice(projectPath.length + 1)),
     },
+    schematicSummary: {
+      projectDir: "hardware/pnb-1/sch",
+      projectFiles: schematicSummaryData.project_files,
+      schematics: schematicSummaryData.schematics,
+      boards: schematicSummaryData.boards,
+      files: schematicSummaryData.files.map(file => file.slice(`${projectPath}/sch/`.length)),
+    },
+    schematicValidation: {
+      ok: ercData.returncode === 0,
+      returncode: ercData.returncode,
+      report: "hardware/pnb-1/review/mcp-erc.json",
+    },
     boardValidation: {
       ok: validationData.ok,
       parseOk: validationData.parse_ok,
@@ -124,7 +153,7 @@ try {
   };
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`);
-  console.log(`KiCad MCP: ${names.length} tools; inventory, project summary, and board validation passed`);
+  console.log(`KiCad MCP: ${names.length} tools; inventory, schematic ERC, project summaries, and board validation passed`);
 } finally {
   clearTimeout(timeout);
   child.stdin.end();
