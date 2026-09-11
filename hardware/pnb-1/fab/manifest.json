@@ -4,8 +4,8 @@
   "drcWarnings": 0,
   "files": {
     "back.png": {
-      "bytes": 52464,
-      "sha256": "2696f213e592a1737d1af2907b275c71bcefcf8bb748858b2d38305c996c5c55"
+      "bytes": 52341,
+      "sha256": "e2e46d2cb7a86f10580efebec4003b324f4b7e2b984184f5ad0b1cdff64f4cb6"
     },
     "bom.csv": {
       "bytes": 1122,
@@ -16,19 +16,19 @@
       "sha256": "9535f5fdc7e49048c60875158395164deec4608855ed2ff45bc2b044b7aa2593"
     },
     "front.png": {
-      "bytes": 72542,
-      "sha256": "9809993777969c57c830edb66c12f541e5d826b160c72a1f3bba46299b51cf6f"
+      "bytes": 72353,
+      "sha256": "61380c6f8ffb1f480df5eaab547ce7e0f3c74acf2515bbeddb49a5081cb971ea"
     },
     "pnb-1-drc.json": {
       "bytes": 1082,
-      "sha256": "00befe3c92b749d0b609b77bc5930f3e1fa47f3970dea076b0c58ab40a02579a"
+      "sha256": "88201ef6cee78f328906979772afb04503109c12f7fcd3dff64f6b0f12e21874"
     },
     "pnb-1-gerbers.zip": {
-      "bytes": 92595,
-      "sha256": "35febe43d4498923bee14de46daec6145081e94378daa1be757bb7f0e6ef565d"
+      "bytes": 92593,
+      "sha256": "48e6781973776f9b81409fddef562cf34eac5898030af69605b92f00ebec5cf3"
     }
   },
   "placements": 32,
   "schemaVersion": 1,
-  "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> route.py -> pnb-1.kibot.yaml"
+  "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> validated routed seed -> route.py -> pnb-1.kibot.yaml"
 }

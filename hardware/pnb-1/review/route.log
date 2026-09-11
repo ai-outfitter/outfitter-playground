@@ -1,12 +1,3 @@
 USB pair: D+=29.841 mm, D-=29.842 mm, skew=0.001 mm; D+ two main vias, D- four
-using attempt validated committed session (-1 reported unrouted)
-SES: 413 track segments, 26 vias
-imported 439 new items
-obsolete SCD41 pad-21 routes removed: 22
-hand routes re-added: 0
-USB routes replaced: 46 fixed items
-power track length by width (mm): {0.5: 106.6, 0.4: 6.8, 0.3: 7.8, 0.25: 128.7} (121 step-downs)
-stitching vias: 42
-orphan vias removed: 4
-island vias: 0
+route seed: copied 534 tracks/vias
 DRC: 0 errors, 0 unconnected

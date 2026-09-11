@@ -15,7 +15,7 @@
 > independently. `npm run pcb:build` proves the design toolchain, including a
 > live KiCad MCP inventory/project/schematic-ERC/board validation, typed ERC
 > with injected failures, numerical margins, pcbnew construction, a validated
-> route session (with explicit bounded regeneration), all-severity DRC, and
+> routed seed (with explicit bounded freerouting regeneration), all-severity DRC, and
 > Gerber/BOM/CPL generation. It prepares but never submits an order and cannot
 > establish physical acceptance. Replace the branch pin with the release
 > containing the stack before this work is eligible for `main`.

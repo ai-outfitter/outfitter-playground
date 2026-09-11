@@ -28,7 +28,7 @@ grep -Eq 'Pin conflict|SKiDL ERC not clean' review/fault-injection.log
 "$python" build.py | tee review/build.log
 "$python" route.py | tee review/route.log
 "$python" -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab
-sed -i 's/[[:space:]]*$//' pnb-1.net review/pnb-1.ses fab/bom.csv
+sed -i 's/[[:space:]]*$//' pnb-1.net fab/bom.csv
 kicad-cli pcb render --side top --width 1600 --height 1100 -o fab/front.png pnb-1.kicad_pcb
 kicad-cli pcb render --side bottom --width 1600 --height 1100 -o fab/back.png pnb-1.kicad_pcb
 

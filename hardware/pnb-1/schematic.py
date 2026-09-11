@@ -232,7 +232,7 @@ MARGIN_PARAMS = {
     # assumed theta-JA bound.
     "rail_sustained_ma": 200,
     "led": {"LED1": ("R8", 2.0, 1, 20), "LED2": ("R9", 2.0, 1, 20)},  # (series R, Vf, Imin mA, Imax mA)
-    "i2c": {"pullups": ("R5", "R6"), "min_ohm": 1000, "max_ohm": 10000},   # 400 kHz, ~100 pF bus
+    "i2c": {"pullups": ("R5", "R6"), "min_ohm": 1000, "max_ohm": 10000},   # 100 kHz, ~100 pF bus
     "esp_strap_pullup_max": 100e3,
 }
 

@@ -9,6 +9,7 @@ route.py (freerouting). Gates + fab outputs: kibot (pnb-1.kibot.yaml).
 Run from hardware/pnb-1:  ../.venv/bin/python build.py
 """
 import csv
+import math
 import os
 import subprocess
 import sys
@@ -77,11 +78,11 @@ def main():
     ds.m_NetSettings.GetNetclasses()["power"] = power
     for net in ("3V3", "VBUS"):
         ds.m_NetSettings.SetNetclassPatternAssignment(net, "power")
-    # Absolute manufacturing floor. Normal nets retain 0.2 mm and the USB-C
-    # receptacle retains 0.09 mm; 0.01 mm is used only between Sensirion's
-    # mandated 0.6 mm relief-hole keep-free diameter and lands 10/11.
-    ds.m_MinClearance = mm(0.01)
-    ds.m_HoleClearance = mm(0.01)
+    # Absolute manufacturing floors. Normal nets retain 0.2 mm; only the
+    # USB-C receptacle uses the 0.09 mm copper-clearance floor. The SCD41's
+    # exact 0.25 mm NPTH has about 0.188 mm copper-to-hole clearance.
+    ds.m_MinClearance = mm(0.09)
+    ds.m_HoleClearance = mm(0.15)
     ds.m_TrackMinWidth = mm(0.15)
     ds.m_ViasMinSize = mm(0.5)
     ds.m_MinThroughDrill = mm(0.25)  # Sensirion SCD4x thermal-relief-hole requirement
@@ -107,12 +108,6 @@ def main():
                 p.SetLocalClearance(mm(0.09))  # receptacle pad pitch is tighter than the board rule; JLC basic part
         if ref == "J3":
             fp.SetAttributes(fp.GetAttributes() | pcbnew.FP_EXCLUDE_FROM_BOM | pcbnew.FP_EXCLUDE_FROM_POS_FILES)
-        if ref == "U3":
-            for p in fp.Pads():
-                if p.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:
-                    # The vendor's 0.6 mm solder/flux keep-free opening sits
-                    # 0.0126 mm from lands 10/11 by design.
-                    p.SetLocalClearance(mm(0.01))
         for fname in ("LCSC Part #", "MPN", "Description"):
             if fields.get(ref, {}).get(fname):
                 fp.SetField(fname, fields[ref][fname])
@@ -169,6 +164,7 @@ def main():
     assert set(pad_names["U3"]) == {str(n) for n in range(1, 21)}, "SCD41 must have exactly 20 electrical lands"
     u3_npth = [pad for pad in fps["U3"].Pads() if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH]
     assert len(u3_npth) == 1 and u3_npth[0].GetDrillSize().x == mm(0.25), "SCD41 thermal-relief hole must be 0.25 mm NPTH"
+    assert u3_npth[0].GetSize().x == u3_npth[0].GetDrillSize().x, "SCD41 relief hole must have no copper annulus"
     verify.run(pad_names)
 
     def silk(text, x, y, size=0.8, rot=0):
@@ -213,6 +209,20 @@ def main():
     for (x, y) in [(9.6, 9.6), (14.4, 9.6), (14.4, 14.4), (9.6, 14.4)]:
         scd_ko.Outline().Append(mm(x), mm(y))
     add(scd_ko)
+    # The 0.25 mm drill is centred at U3-local (2.94, 2.94). Sensirion calls
+    # for a 0.6 mm solder/flux keep-free diameter here. Represent that as a
+    # copper rule area, not as a netless plated-looking copper pad.
+    relief_ko = pcbnew.ZONE(board); relief_ko.SetIsRuleArea(True)
+    relief_ko.SetDoNotAllowZoneFills(True); relief_ko.SetDoNotAllowTracks(True); relief_ko.SetDoNotAllowVias(True)
+    relief_ko.SetDoNotAllowPads(False)
+    relief_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); relief_ko.SetZoneName("SCD41_RELIEF_KEEPFREE_D0.6")
+    relief_ko.Outline().NewOutline()
+    cx, cy, radius = 14.94, 14.94, 0.30
+    for i in range(24):
+        angle = 2 * math.pi * i / 24
+        relief_ko.Outline().Append(mm(cx + radius * math.cos(angle)),
+                                  mm(cy + radius * math.sin(angle)))
+    add(relief_ko)
     board.Save(OUT)
     # zone fill segfaults on a fresh BOARD(); reload the saved file and fill there
     b2 = pcbnew.LoadBoard(OUT)

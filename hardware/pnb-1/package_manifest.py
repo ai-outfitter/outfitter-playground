@@ -56,6 +56,9 @@ def validate() -> dict[str, object]:
     assert (c9["LCSC Part #"], c9["MPN"]) == ("C11366", "TAJA226K010RNJ"), "C9 identity/polarity contract changed"
     npth = (FAB / "gerbers" / "pnb-1-NPTH.drl").read_text()
     assert "T1C0.250" in npth and "X14.94Y-14.94" in npth, "SCD41 0.25 mm NPTH relief hole missing"
+    for copper in ("pnb-1.gtl", "pnb-1.gbl"):
+        gerber = (FAB / "gerbers" / copper).read_text()
+        assert "X14940000Y-14940000D03*" not in gerber, f"{copper} contains copper flash at SCD41 relief hole"
 
     with ZipFile(FAB / "pnb-1-gerbers.zip") as archive:
         suffixes = {Path(name).suffix.lower() for name in archive.namelist()}
@@ -71,7 +74,7 @@ def validate() -> dict[str, object]:
     return {
         "schemaVersion": 1,
         "board": "PNB-1 rev A",
-        "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> route.py -> pnb-1.kibot.yaml",
+        "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> validated routed seed -> route.py -> pnb-1.kibot.yaml",
         "bomRows": len(bom),
         "placements": len(cpl),
         "drcWarnings": len(drc.get("violations", [])),

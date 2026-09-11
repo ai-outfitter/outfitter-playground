@@ -1,5 +1,10 @@
-"""Layout stage: freerouting round-trip + the few hand routes the autorouter cannot reach, then DRC.
-Run after build.py. Idempotent: always starts from the freshly built (unrouted) board."""
+"""Layout stage: replay a validated routed seed, or explicitly regenerate it with freerouting.
+
+Normal builds always start from build.py's fresh unrouted board and copy only
+tracks/vias from the corrected, DRC-clean seed. Set PNB_ROUTE_REGENERATE=1 to
+run freerouting plus deterministic hand-route corrections and replace the seed
+only after the resulting board passes DRC.
+"""
 import json, math, os, re, subprocess, sys
 import pcbnew
 from pcbnew import FromMM as mm
@@ -8,6 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PCB = os.path.join(HERE, "pnb-1.kicad_pcb")
 DSN = os.path.join(HERE, "review", "pnb-1.dsn")
 SES = os.path.join(HERE, "review", "pnb-1.ses")
+ROUTE_SEED = os.path.join(HERE, "review", "pnb-1-routed-seed.kicad_pcb")
 FREEROUTING = os.environ.get("FREEROUTING", "freerouting")
 
 def P(x, y): return pcbnew.VECTOR2I(mm(x), mm(y))
@@ -197,27 +203,6 @@ def replace_usb_routes(board):
         add_item(board, item, keep)
     print(f"USB routes replaced: {len(keep)} fixed items")
     return keep
-
-
-def remove_obsolete_scd_routes(board):
-    """Drop rev-A-session copper that terminated on the fictitious pad 21."""
-    removed = 0
-    for item in list(board.GetTracks()):
-        if isinstance(item, pcbnew.PCB_VIA):
-            x, y = item.GetPosition().x / 1e6, item.GetPosition().y / 1e6
-            obsolete = item.GetNetname() == "GND" and 3.0 <= x <= 15.5 and 3.0 <= y <= 20.5
-        else:
-            bb = item.GetBoundingBox()
-            legacy_gnd_region = (bb.GetLeft() / 1e6 < 15.5 and bb.GetRight() / 1e6 > 3.0 and
-                                 bb.GetTop() / 1e6 < 20.5 and bb.GetBottom() / 1e6 > 3.0)
-            obsolete = item.GetNetname() == "GND" and legacy_gnd_region
-            if item.GetNetname() == "SCL":
-                ends = {(round(item.GetStart().x / 1e6, 4), round(item.GetStart().y / 1e6, 4)),
-                        (round(item.GetEnd().x / 1e6, 4), round(item.GetEnd().y / 1e6, 4))}
-                obsolete |= ends == {(12.73, 17.6864), (26.069, 4.3474)}
-        if obsolete:
-            board.Remove(item); removed += 1
-    print(f"obsolete SCD41 pad-21 routes removed: {removed}")
 
 
 def ensure_hand_routes(board):
@@ -469,12 +454,11 @@ def import_new(board, keep):
 
 def main():
     audit_usb_paths()
-    cached_session = open(SES).read() if os.path.exists(SES) else None
     subprocess.run([sys.executable, os.path.join(HERE, "build.py")], check=True, capture_output=True)  # fresh, unrouted board
-    # freerouting is nondeterministic and slows to a crawl with hundreds of fixed wires, so instead of
-    # incremental passes: independent attempts on the fresh board, keep the best (pre-routes count as "unrouted" to it).
-    best = (-1, "validated committed session", cached_session) if cached_session else None
-    if os.environ.get("PNB_ROUTE_REGENERATE") == "1" or not cached_session:
+    regenerate = os.environ.get("PNB_ROUTE_REGENERATE") == "1"
+    if regenerate:
+        # Freerouting is nondeterministic, so make independent attempts on the
+        # fresh board and retain the best completed session.
         best = None
         for attempt in range(1, 4):
             b = pcbnew.LoadBoard(PCB)
@@ -486,32 +470,35 @@ def main():
                 best = (unrouted, attempt, open(SES).read())
             if unrouted <= 15:
                 break
-    if best is None and cached_session:
-        best = (-1, "committed-session fallback", cached_session)
-    if best is None:
-        sys.exit("router never finished and no validated session is available")
-    open(SES, "w").write(best[2])
-    print(f"using attempt {best[1]} ({best[0]} reported unrouted)")
-    b = pcbnew.LoadBoard(PCB)
-    keep = []
-    import_new(b, keep)
-    remove_obsolete_scd_routes(b)
-    keep += hand_routes(b)
-    keep += ensure_hand_routes(b)
-    keep += replace_usb_routes(b)
-    # Add these only after autorouting: they ground front-pour pockets without
-    # constraining the router's already crowded ESP32 escape channels.
-    for item in [("v", "GND", (31.0, 8.6)), ("v", "GND", (2.0, 10.0)),
-                 ("v", "GND", (6.6, 7.3))]:
-        add_item(b, item, keep)
-    widen_power(b)
-    keep += stitch_gnd(b)
-    pcbnew.ZONE_FILLER(b).Fill(b.Zones())
-    prune_orphan_vias(b)
-    pcbnew.ZONE_FILLER(b).Fill(b.Zones())
-    # Refill after pruning, then bridge every remaining filled GND island. Do
-    # not prune these topology-derived bridges against an older fill snapshot.
-    keep += via_islands(b)
+        if best is None:
+            sys.exit("freerouting never completed; validated route seed was not changed")
+        open(SES, "w").write(best[2])
+        print(f"using freerouting attempt {best[1]} ({best[0]} reported unrouted)")
+        b = pcbnew.LoadBoard(PCB)
+        keep = []
+        import_new(b, keep)
+        keep += hand_routes(b)
+        keep += ensure_hand_routes(b)
+        keep += replace_usb_routes(b)
+        # Add these only after autorouting: they ground front-pour pockets without
+        # constraining the router's already crowded ESP32 escape channels.
+        for item in [("v", "GND", (31.0, 8.6)), ("v", "GND", (2.0, 10.0)),
+                     ("v", "GND", (6.6, 7.3))]:
+            add_item(b, item, keep)
+        widen_power(b)
+        keep += stitch_gnd(b)
+        pcbnew.ZONE_FILLER(b).Fill(b.Zones())
+        prune_orphan_vias(b)
+        pcbnew.ZONE_FILLER(b).Fill(b.Zones())
+        keep += via_islands(b)
+    else:
+        if not os.path.exists(ROUTE_SEED):
+            sys.exit("validated route seed missing; regenerate explicitly with PNB_ROUTE_REGENERATE=1")
+        b = pcbnew.LoadBoard(PCB)
+        keep = []
+        seed = pcbnew.LoadBoard(ROUTE_SEED)
+        copy_tracks(seed, b, keep)
+        print(f"route seed: copied {len(list(seed.GetTracks()))} tracks/vias")
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())
     b.Save(PCB)
     rep = os.path.join(HERE, "review", "drc.json")
@@ -522,7 +509,11 @@ def main():
         print(" -", v["type"], v["description"][:60], "|", " ; ".join(i.get("description", "")[:45] for i in v["items"]))
     for u in d["unconnected_items"][:10]:
         print(" - unconnected:", " ; ".join(i.get("description", "")[:45] for i in u["items"]))
-    return 1 if d["violations"] or d["unconnected_items"] else 0
+    failed = bool(d["violations"] or d["unconnected_items"])
+    if regenerate and not failed:
+        b.Save(ROUTE_SEED)
+        print("validated route seed updated")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
