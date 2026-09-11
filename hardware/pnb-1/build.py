@@ -218,7 +218,7 @@ def main():
     relief_ko = pcbnew.ZONE(board); relief_ko.SetIsRuleArea(True)
     relief_ko.SetDoNotAllowZoneFills(True); relief_ko.SetDoNotAllowTracks(True); relief_ko.SetDoNotAllowVias(True)
     relief_ko.SetDoNotAllowPads(False)
-    relief_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); relief_ko.SetZoneName("SCD41_RELIEF_KEEPFREE_D0.6")
+    relief_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); relief_ko.SetZoneName("SCD41_RELIEF_KEEPFREE_D0.66")
     relief_ko.Outline().NewOutline()
     cx, cy, radius = 14.94, 14.94, 0.33
     for i in range(32):

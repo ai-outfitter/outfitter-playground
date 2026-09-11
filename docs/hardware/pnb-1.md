@@ -60,6 +60,7 @@ complete `hardware-engineer` path against a real fabrication-package candidate.
 - The SCD41 footprint follows the Sensirion SCD4x land pattern: 20 electrical
   lands, a 4.8 x 4.8 mm central all-copper keep-free area, and a 0.25 mm NPTH
   relief hole with 0.6 mm solder/flux keep-free diameter between lands 10/11.
+  The PCB uses a conservative 0.66 mm copper keepout around that hole.
   Lands 10/11 are shortened from the recommended 1.50 mm to 1.44 mm, within
   Sensirion's instruction to adapt the recommended land pattern to the
   soldering process, so the hole-to-copper clearance exceeds JLCPCB's 0.20 mm

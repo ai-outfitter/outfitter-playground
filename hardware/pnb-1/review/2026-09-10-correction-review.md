@@ -42,3 +42,29 @@ next correction was applied:
 This review covers digital source and generated artifacts only. It does not
 prove authenticated supplier acceptance, component stock, assembled thermal or
 RF behavior, firmware USB-current behavior, sensor accuracy, or physical yield.
+
+## Relief-hole fabrication correction
+
+A later detached Claude review (`5efdde3e-d318-4520-8ca0-31f885d90c56`)
+found that the nominal 0.6 mm relief opening was emitted as a netless copper
+flash, while 0.01 mm board-wide copper and hole clearances hid the resulting
+hazard. It also found that the normal route path replayed a session containing
+the removed pad-21 geometry and then deleted traces by bounding box.
+
+Commit `a0c49e86b8e7fc71f716a7349ba7fd1e3665817e` corrected those blockers: the
+0.25 mm NPTH has no copper annulus, the solder/flux opening is a copper rule
+area, the global constraints are restored, Gerber/package checks assert the
+absence of the old flash, and normal builds copy tracks from a DRC-clean routed
+seed instead of replaying or sanitizing the obsolete Specctra session. A second
+detached Claude session (`e7f9fe97-0e5c-46c9-9905-c558c7dafe44`) returned
+`READY` for authenticated upload/dry-run.
+
+That second review also compared the original 0.1876 mm calculated clearance
+with JLCPCB's published 0.20 mm NPTH-to-track minimum. Commit
+`352da90d5d67990e70ccc7b203bab3b8452b16a3` shortens only SCD41 lands 10/11 to
+1.44 mm, raises the board hole-clearance rule to 0.20 mm, expands the
+conservative copper keepout to 0.66 mm, and proves that every ZIP member is
+byte-identical to the checked loose Gerber/drill artifact. Claude rechecked the
+delta and returned `READY`: 0.2173 mm geometric land-to-hole clearance, 0.2034
+mm minimum in the generated Gerbers, and zero all-severity DRC violations or
+unconnected items.

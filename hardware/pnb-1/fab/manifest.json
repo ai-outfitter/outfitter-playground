@@ -21,11 +21,11 @@
     },
     "pnb-1-drc.json": {
       "bytes": 1082,
-      "sha256": "cdfccf759017970d5f4b174e1558f0f790c48d527c79c041c514cbf8b27e31a1"
+      "sha256": "18ea0943f529ecb307f159e4fe5e68437acbde48273e432dda9e599d9b232635"
     },
     "pnb-1-gerbers.zip": {
-      "bytes": 92798,
-      "sha256": "e785eeeec1474d95fcf906b162299e95c8a922eb6aad37814b167abdb7f02d71"
+      "bytes": 92758,
+      "sha256": "835bfcb54f02de5083777a429ddfc9c20414918492e32244c5eda67cbad9f60c"
     }
   },
   "placements": 32,
