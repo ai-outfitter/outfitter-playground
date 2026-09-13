@@ -12,5 +12,5 @@ workflows:
 sources:
   - github: ai-outfitter/community-profiles
     # Temporary review pin. Replace with the release containing PRs #88, #90,
-    # and #96 before this branch is considered for main.
-    ref: feat/pcb-toolchain-setup
+    # #96, and #102 before this branch is considered for main.
+    ref: feat/pcb-supplier-quote

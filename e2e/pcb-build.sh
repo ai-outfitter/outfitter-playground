@@ -13,7 +13,7 @@ test -x "$python" || {
 mkdir -p "$board/review" "$board/fab"
 cd "$board"
 
-"$python" -m compileall -q pnb1_skidl.py schematic.py verify.py build.py route.py verify_margins.py package_manifest.py
+"$python" -m compileall -q pnb1_skidl.py schematic.py verify.py build.py route.py verify_margins.py package_manifest.py quote_manifest.py
 "$python" verify.py --selftest | tee review/verify-selftest.log
 "$python" verify_margins.py | tee review/margins.log
 

@@ -32,7 +32,7 @@ agents_json=$(run_outfitter list agents --strict --json)
 workflows_json=$(run_outfitter list workflows --strict --json)
 node -e '
   const [agents, workflows] = process.argv.slice(1).map(value => JSON.parse(value).resources);
-  const expected = "github:ai-outfitter/community-profiles#feat/pcb-toolchain-setup";
+  const expected = "github:ai-outfitter/community-profiles#feat/pcb-supplier-quote";
   const agent = agents.find(value => value.slug === "hardware-engineer");
   const workflow = workflows.find(value => value.slug === "pcb-design");
   if (!agent) throw new Error("hardware-engineer is not resolvable");
@@ -51,4 +51,4 @@ node e2e/assert-pcb-workflow.mjs "$first"
 
 echo "PASS  hardware-engineer and pcb-design resolve from the review pin"
 echo "PASS  pcb-design exports are byte-identical"
-echo "PASS  setup skill, KiCad MCP, dependency, and typed output are present"
+echo "PASS  setup and supplier-quote skills, MCPs, dependencies, and typed outputs are present"

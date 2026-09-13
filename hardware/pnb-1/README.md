@@ -26,13 +26,15 @@ devenv provides KiCad, pcbnew, freerouting, EasyEDA import, and ngspice;
 | reroute | `PNB_ROUTE_REGENERATE=1 $V route.py` | bounded freerouting regeneration for layout iteration |
 | release | `$V -m kibot -b pnb-1.kicad_pcb -c pnb-1.kibot.yaml -d fab` | Gerbers, drill files, CPL, ZIP, and DRC reports |
 | package | `npm run pcb:verify-package` | BOM/CPL agreement and checksummed manifest |
+| quote | authenticated supplier dry run; `npm run pcb:verify-quote` | all fitted parts plus reconciled fabrication, assembly, shipping, tariff/duty, tax, and other fees; no purchase |
 
 `schematic.py` is the independent connectivity and numeric model; `verify.py`
 cross-checks it against the vendor-derived library and generates
 `sch/pnb-1.kicad_sch`. The committed DRC-clean routed seed makes normal builds
 reproducible; an explicit regeneration reruns freerouting and replaces the seed
 only after the corrected result passes DRC.
-The fabrication package is ready to upload for an authenticated supplier dry
-run; it does not prove quote acceptance, authorize an order, or claim physical
-acceptance. J3 is deliberately DNP in the assembly package and remains as a
-hand-installable daughter-header footprint.
+The fabrication package feeds an authenticated supplier dry run. A complete
+quote proves only point-in-time supplier matching, availability, and landed
+cost; it does not authorize an order or claim physical acceptance. J3 is
+deliberately DNP in the assembly package and remains as a hand-installable
+daughter-header footprint.

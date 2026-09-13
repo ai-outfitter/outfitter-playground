@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "verdict": "quote-complete",
+  "supplier": "JLCPCB",
+  "quoteId": "W2026091407169995",
+  "quotedAt": "2026-09-13T18:18:39-05:00",
+  "currency": "USD",
+  "quantities": {
+    "pcb": 5,
+    "assembly": 5
+  },
+  "destination": {
+    "country": "United States of America",
+    "postalRegion": "Texas"
+  },
+  "shippingMethod": "DHL Express (DDP), 2-4 business days",
+  "incoterm": "DDP",
+  "package": {
+    "manifestSha256": "96e2653192435e8e04391dad909dbdcddd1f69c8e7c123ad94c4b81ee7aa6971",
+    "files": {
+      "pnb-1-gerbers.zip": "835bfcb54f02de5083777a429ddfc9c20414918492e32244c5eda67cbad9f60c",
+      "bom.csv": "351a8e64a39615ca43b9ab837d78a551601bfc51999c2465c595d235fdbdf2d7",
+      "cpl.csv": "9535f5fdc7e49048c60875158395164deec4608855ed2ff45bc2b044b7aa2593"
+    }
+  },
+  "matching": {
+    "matchedDesignators": [
+      "C1",
+      "C10",
+      "C11",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "D1",
+      "J1",
+      "J4",
+      "LED1",
+      "LED2",
+      "R1",
+      "R10",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6",
+      "R7",
+      "R8",
+      "R9",
+      "SW1",
+      "SW2",
+      "U1",
+      "U2",
+      "U3",
+      "U4"
+    ],
+    "missingDesignators": [],
+    "unavailableDesignators": [],
+    "substitutions": []
+  },
+  "costs": {
+    "pcbFabrication": {
+      "status": "quoted",
+      "amount": "4.00",
+      "evidence": "jlcpcb-assembly-quote.png: PCB Price"
+    },
+    "components": {
+      "status": "quoted",
+      "amount": "133.31",
+      "evidence": "jlcpcb-assembly-quote.png: Components (18 items)"
+    },
+    "assembly": {
+      "status": "quoted",
+      "amount": "5.74",
+      "evidence": "jlcpcb-assembly-quote.png: SMT, hand-soldering, and manual assembly"
+    },
+    "setupTooling": {
+      "status": "quoted",
+      "amount": "59.78",
+      "evidence": "jlcpcb-assembly-quote.png: setup, stencil, and feeder loading"
+    },
+    "shipping": {
+      "status": "quoted",
+      "amount": "33.55",
+      "evidence": "jlcpcb-landed-cost.png: Shipping Estimate"
+    },
+    "tariffDuty": {
+      "status": "quoted",
+      "amount": "84.37",
+      "evidence": "jlcpcb-landed-cost.png: Customs duties & taxes"
+    },
+    "tax": {
+      "status": "quoted",
+      "amount": "20.91",
+      "evidence": "jlcpcb-landed-cost.png: Sales Tax"
+    },
+    "discounts": {
+      "status": "quoted",
+      "amount": "0.00",
+      "evidence": "jlcpcb-landed-cost.png: total reconciles with no discount"
+    },
+    "otherFees": {
+      "status": "quoted",
+      "amount": "16.89",
+      "evidence": "jlcpcb-assembly-quote.png: X-ray inspection and packaging"
+    }
+  },
+  "landedTotal": "358.55",
+  "evidence": {
+    "boardPreview": "jlcpcb-board-preview.png",
+    "partsMatch": "jlcpcb-parts-match.png",
+    "placementPreview": "jlcpcb-placement-preview.png",
+    "assemblyQuote": "jlcpcb-assembly-quote.png",
+    "shippingMethod": "jlcpcb-shipping-method.png",
+    "landedCost": "jlcpcb-landed-cost.png"
+  },
+  "evidenceSha256": {
+    "jlcpcb-assembly-quote.png": "0c7616421469251c36dcb0b859497122c8bee6260236fc9ceb532108aff3aa52",
+    "jlcpcb-board-preview.png": "01e008a926a3b4ab2cad68ad19f9ff85a3f9db730e2f42efa260033b6b47e2cb",
+    "jlcpcb-landed-cost.png": "202220f0a94c94d4f45d09b0e435d6a9eb331acaf75bb33f9b02917cf5cf2ad3",
+    "jlcpcb-parts-match.png": "7f82546f3f28da8b750af1d944dbf3f5f6f968a7cec059a45d2202e9786df6aa",
+    "jlcpcb-placement-preview.png": "e7a2307051bf730b800d6d3ece738170884cc9900ec97da73245d0215d266a95",
+    "jlcpcb-shipping-method.png": "eb220fddaed095dc65b9ec4bd815977b19f06888ed45b9db82d4915d3f482b6f"
+  },
+  "notes": [
+    "Standard PCBA enlarged the production panel to 70 x 70 mm and added edge rails; the source board remains 42 x 58 mm.",
+    "Credit/debit card was selected for the quote and added no payment fee.",
+    "No payment was submitted and no order was placed."
+  ]
+}

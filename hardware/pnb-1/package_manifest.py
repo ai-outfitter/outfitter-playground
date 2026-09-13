@@ -46,6 +46,7 @@ def validate() -> dict[str, object]:
 
     bom = rows(FAB / "bom.csv", BOM_COLUMNS)
     cpl = rows(FAB / "cpl.csv", CPL_COLUMNS)
+    assert len({row["LCSC Part #"] for row in bom}) == len(bom), "duplicate supplier parts must share one BOM row"
     bom_refs = {ref for row in bom for ref in row["Designator"].replace('"', "").split(",")}
     cpl_refs = {row["Designator"].replace('"', "") for row in cpl}
     assert cpl_refs <= bom_refs, f"CPL references absent from BOM: {sorted(cpl_refs - bom_refs)}"
@@ -54,6 +55,16 @@ def validate() -> dict[str, object]:
     assert all(re.fullmatch(r"C\d+", row["LCSC Part #"]) for row in bom), "every populated BOM row needs an LCSC id"
     c9 = next(row for row in bom if row["Designator"] == "C9")
     assert (c9["LCSC Part #"], c9["MPN"]) == ("C11366", "TAJA226K010RNJ"), "C9 identity/polarity contract changed"
+    required_ics = {
+        "U1": ("C2913206", "ESP32-S3-MINI-1-N8"),
+        "U3": ("C3659294", "SCD41-D-R2"),
+        "U4": ("C78960", "BH1750FVI-TR"),
+    }
+    by_ref = {row["Designator"]: row for row in bom if "," not in row["Designator"]}
+    for ref, identity in required_ics.items():
+        row = by_ref.get(ref)
+        assert row, f"required fitted component {ref} is absent from BOM"
+        assert (row["LCSC Part #"], row["MPN"]) == identity, f"{ref} supplier identity changed"
     npth = (FAB / "gerbers" / "pnb-1-NPTH.drl").read_text()
     assert "T1C0.250" in npth and "X14.94Y-14.94" in npth, "SCD41 0.25 mm NPTH relief hole missing"
     for copper in ("pnb-1.gtl", "pnb-1.gbl"):

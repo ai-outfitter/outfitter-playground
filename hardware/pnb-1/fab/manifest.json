@@ -1,6 +1,6 @@
 {
   "board": "PNB-1 rev A",
-  "bomRows": 20,
+  "bomRows": 18,
   "drcWarnings": 0,
   "files": {
     "back.png": {
@@ -8,8 +8,8 @@
       "sha256": "2559dd9dcddae2bed751c045e2f91e0ab17a74e4730f3b1d2219fd5b150d85ae"
     },
     "bom.csv": {
-      "bytes": 1122,
-      "sha256": "d02484cd119ff3db9fca620689d86ce43fa6a4b0ecf7ff16a9add489c59cd8f5"
+      "bytes": 1046,
+      "sha256": "351a8e64a39615ca43b9ab837d78a551601bfc51999c2465c595d235fdbdf2d7"
     },
     "cpl.csv": {
       "bytes": 1114,

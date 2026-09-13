@@ -5,7 +5,8 @@
 > stacked community-profiles work in PRs
 > [#88](https://github.com/ai-outfitter/community-profiles/pull/88),
 > [#90](https://github.com/ai-outfitter/community-profiles/pull/90), and
-> [#96](https://github.com/ai-outfitter/community-profiles/pull/96), selects
+> [#96](https://github.com/ai-outfitter/community-profiles/pull/96), and
+> [#102](https://github.com/ai-outfitter/community-profiles/pull/102), selects
 > `hardware-engineer`, and enables `pcb-design`. The profile is exercised
 > against `hardware/pnb-1`: an ESP32-S3 board whose shared I2C bus carries an
 > SCD41 CO2 sensor and BH1750 light sensor. Run `npm run pcb:build` to rebuild
@@ -16,7 +17,9 @@
 > live KiCad MCP inventory/project/schematic-ERC/board validation, typed ERC
 > with injected failures, numerical margins, pcbnew construction, a validated
 > routed seed (with explicit bounded freerouting regeneration), all-severity DRC, and
-> Gerber/BOM/CPL generation. It prepares but never submits an order and cannot
+> Gerber/BOM/CPL generation. Its supplier gate must match every fitted part and
+> record PCB, component, assembly, shipping, tariff/duty, tax, and other fees
+> as one reconciled landed-cost quote. It never submits an order and cannot
 > establish physical acceptance. Replace the branch pin with the release
 > containing the stack before this work is eligible for `main`.
 

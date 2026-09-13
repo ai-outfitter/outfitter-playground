@@ -25,6 +25,8 @@ jobs:
           name: devenv
       - name: Install devenv
         run: nix profile add nixpkgs#devenv
+      - name: Verify the committed supplier landed-cost quote
+        run: npm run pcb:verify-quote
       - name: Generate and gate the PCB release candidate
         run: npm run pcb:build
       - name: Verify the fabrication manifest

@@ -28,8 +28,11 @@ complete `hardware-engineer` path against a real fabrication-package candidate.
   `pod-node-contract.md`; J3 itself is DNP for assembly and hand-installed only.
 - R7 MUST be a two-layer board no larger than 60 x 45 mm with four M2.5 holes.
 - R8 MUST attach an MPN and LCSC identifier to every populated BOM line.
-- R9 MUST generate a JLCPCB-compatible Gerber archive, BOM, CPL, and board
-  renders, but MUST NOT place or pay for an order.
+- R9 MUST generate a JLCPCB-compatible Gerber archive, complete populated BOM,
+  CPL, and board renders. An authenticated dry run MUST match every fitted
+  designator, including U3 SCD41 and U4 BH1750, and record a final landed-cost
+  quote with PCB, components, assembly, setup/tooling, shipping, tariff/duty,
+  tax, discounts, and other fees. It MUST NOT confirm checkout, pay, or order.
 
 ## Pin map
 
@@ -81,8 +84,9 @@ price are rechecked during an authenticated supplier dry run.
 ## Evidence boundary
 
 The generated Gerbers, drill files, BOM, CPL, renders, manifest, all-severity
-ERC/DRC, and KiCad MCP checks establish a digitally uploadable package. They do
-not establish supplier stock, quote acceptance, USB firmware current behavior,
+ERC/DRC, and KiCad MCP checks establish a digitally uploadable package. A
+complete supplier quote additionally establishes point-in-time part matching,
+availability, and landed cost; it does not establish USB firmware current behavior,
 thermal performance, RF performance, sensor accuracy, assembly yield, or
-physical acceptance. Those gates require an authenticated supplier dry run and
-assembled prototypes; this workflow does not place or pay for an order.
+physical acceptance. Those remaining gates require assembled prototypes; this
+workflow does not confirm checkout, place an order, or pay.

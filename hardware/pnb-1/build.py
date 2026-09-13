@@ -235,19 +235,24 @@ def main():
 
     # JLCPCB BOM, grouped from the netlist's own fields (KiBot's bom output
     # needs a schematic, which this flow does not have)
-    groups = defaultdict(list)
+    groups = defaultdict(lambda: {"refs": [], "values": set()})
     for part in netlist.parts:
         if part.ref == "J3":
             continue
         f = fields.get(part.ref, {})
-        groups[(part.value, part.footprint.split(":")[1], f.get("LCSC Part #", ""), f.get("MPN", ""))].append(part.ref)
+        key = (part.footprint.split(":")[1], f.get("LCSC Part #", ""), f.get("MPN", ""))
+        groups[key]["refs"].append(part.ref)
+        groups[key]["values"].add(part.value)
     os.makedirs(os.path.join(HERE, "fab"), exist_ok=True)
     with open(os.path.join(HERE, "fab", "bom.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #", "MPN"])
-        for (val, fpname, lcsc, mpn), refs in sorted(groups.items(), key=lambda kv: kv[1][0]):
+        for (fpname, lcsc, mpn), group in sorted(groups.items(), key=lambda kv: kv[1]["refs"][0]):
+            refs = group["refs"]
             refs.sort(key=lambda r: (r.rstrip("0123456789"), int(r.lstrip("ABCDEFGHIJKLMNOPQRSTUVWXYZ") or 0)))
-            w.writerow([val, ",".join(refs), fpname, lcsc, mpn])
+            values = sorted(group["values"])
+            comment = values[0] if len(values) == 1 else mpn
+            w.writerow([comment, ",".join(refs), fpname, lcsc, mpn])
     print("wrote fab/bom.csv")
 
 
