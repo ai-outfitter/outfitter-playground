@@ -8,10 +8,19 @@
     "split": "bin/split.js"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:pcb-workflow": "bash e2e/pcb-workflow.sh",
+    "pcb:setup": "devenv shell -- bash e2e/pcb-setup.sh",
+    "pcb:build": "devenv shell -- bash -c 'bash e2e/pcb-setup.sh && bash e2e/pcb-build.sh'",
+    "pcb:verify-package": "devenv shell -- hardware/.venv/bin/python hardware/pnb-1/package_manifest.py --check",
+    "pcb:verify-quote": "devenv shell -- python3 hardware/pnb-1/quote_manifest.py"
+  },
+  "devDependencies": {
+    "@ai-outfitter/outfitter": "1.16.2",
+    "yaml": "2.9.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19"
   },
   "license": "MIT"
 }

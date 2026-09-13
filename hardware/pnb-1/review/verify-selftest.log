@@ -1,0 +1,11 @@
+[FAIL] erc() vs footprint pads: 180 pads, 23 nets
+   - SCL: U3 has no pad '9'
+   - ('U2', '2') in several nets: ['3V3', 'SCL']
+[FAIL] pad map vs EasyEDA pin names (independent): 75 IC/connector pads checked
+   - SCL: no EXPECT entry for U2 (typed part) — add one, don't skip
+[FAIL] KiCad ERC, all severities: 2 violations in sch/pnb-1.kicad_sch
+   - warning multiple_net_names: Global Label '3V3'; Global Label 'SCL'
+   - warning pin_to_pin: Symbol U1 Pin 10 [IO6, Bidirectional, Line]; Symbol U2 Pin 2 [VOUT, Power output, Line]
+[FAIL] numeric margins: vbus=5.0, vbus_min=4.75, v3v3=3.3, ldo_dropout=1.1, ldo_theta_ja=136.0 (waiver: 136 C/W pre-prototype engineering bound; retire with thermocouple measurement at 5 V, 200 mA, and 50 C ambient), t_ambient_max=50.0, t_junction_max=125.0, ldo_i_max_ma=1000, rail_sustained_ma=200 (waiver: firmware-enforced 200 mA sustained limit; verify on the assembled prototype before functional release), esp_strap_pullup_max=100000.0; thermal cases: sustained=200 mA/0.34 W/96.2 C; coincident_peak=617 mA/1.05 W/192.7 C
+   - LED1: 130.0 mA through R8 outside 1–20 mA
+selftest: injected faults were caught (footprint pad: U3.9; KiCad ERC: multiple_net_names, pin_to_pin ; margins: LED1)

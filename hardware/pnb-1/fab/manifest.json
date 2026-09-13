@@ -1,0 +1,34 @@
+{
+  "board": "PNB-1 rev A",
+  "bomRows": 18,
+  "drcWarnings": 0,
+  "files": {
+    "back.png": {
+      "bytes": 52347,
+      "sha256": "2559dd9dcddae2bed751c045e2f91e0ab17a74e4730f3b1d2219fd5b150d85ae"
+    },
+    "bom.csv": {
+      "bytes": 1046,
+      "sha256": "351a8e64a39615ca43b9ab837d78a551601bfc51999c2465c595d235fdbdf2d7"
+    },
+    "cpl.csv": {
+      "bytes": 1114,
+      "sha256": "9535f5fdc7e49048c60875158395164deec4608855ed2ff45bc2b044b7aa2593"
+    },
+    "front.png": {
+      "bytes": 72383,
+      "sha256": "b7c26889d7d572da53a90bb6bbb76acfa8fad933fa4131a3844a95079d28dc1c"
+    },
+    "pnb-1-drc.json": {
+      "bytes": 1082,
+      "sha256": "18ea0943f529ecb307f159e4fe5e68437acbde48273e432dda9e599d9b232635"
+    },
+    "pnb-1-gerbers.zip": {
+      "bytes": 92758,
+      "sha256": "835bfcb54f02de5083777a429ddfc9c20414918492e32244c5eda67cbad9f60c"
+    }
+  },
+  "placements": 32,
+  "schemaVersion": 1,
+  "source": "pnb1_skidl.py -> pnb-1.net -> build.py -> validated routed seed -> route.py -> pnb-1.kibot.yaml"
+}

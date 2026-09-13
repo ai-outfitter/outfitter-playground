@@ -1,0 +1,17 @@
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+ERC WARNING: Merging two named nets (3V3 and SDA) into 3V3.
+ERC WARNING: Pin conflict on net 3V3, POWER-OUT pin 2/VOUT of AMS1117-3.3/U2 <==> BIDIRECTIONAL pin 9/IO5 of ESP32-S3-MINI-1-N8/U1 (POWER-OUT connected to BIDIRECTIONAL)
+ERC WARNING: Pin conflict on net 3V3, POWER-OUT pin 2/VOUT of AMS1117-3.3/U2 <==> BIDIRECTIONAL pin 4/SDA of BH1750FVI-TR/U4 (POWER-OUT connected to BIDIRECTIONAL)
+ERC WARNING: Pin conflict on net 3V3, POWER-OUT pin 2/VOUT of AMS1117-3.3/U2 <==> BIDIRECTIONAL pin 10/SDA of SCD41-D-R2/U3 (POWER-OUT connected to BIDIRECTIONAL)
+ERC INFO: 4 warnings found while running ERC.
+ERC INFO: 0 errors found while running ERC.
+
+WARNING: Missing tag on  instantiated at <repo>/hardware/pnb-1/<frozen importlib._bootstrap>:491.
+INFO: 5 warnings found while generating netlist.
+INFO: 0 errors found while generating netlist.
+
+skidl typed ERC and netlist generation: PASS
+SKiDL ERC not clean: 0 errors, 4 warnings

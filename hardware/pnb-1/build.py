@@ -1,0 +1,260 @@
+"""Build pnb-1.kicad_pcb from the standard KiCad netlist (pnb-1.net).
+
+Standardized flow: pnb1_skidl.py (SKiDL, named pins, typed ERC) exports the
+netlist and runs typed ERC; this script instantiates the
+board through KiCad's official pcbnew API (kinet2pcb's parser reads the
+netlist), applies the PLACE table, outline, holes, zones and silk. Routing:
+route.py (freerouting). Gates + fab outputs: kibot (pnb-1.kibot.yaml).
+
+Run from hardware/pnb-1:  ../.venv/bin/python build.py
+"""
+import csv
+import math
+import os
+import subprocess
+import sys
+from collections import defaultdict
+
+import pcbnew
+from pcbnew import FromMM as mm
+from kinet2pcb import parse_netlist
+from simp_sexp import Sexp
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LIBDIR = os.path.join(HERE, "lib", "artera.pretty")
+NET = os.path.join(HERE, "pnb-1.net")
+OUT = os.path.join(HERE, "pnb-1.kicad_pcb")
+BOARD, REV = "PNB-1", "A"
+W, H = 58.0, 42.0  # mm
+
+def P(x, y):
+    return pcbnew.VECTOR2I(mm(x), mm(y))
+
+# ref: (x, y, rotation deg)  — origin top-left, y down. Data, not a format:
+# consumed only by the official SetPosition/SetOrientationDegrees calls below.
+PLACE = {
+    "J1": (33.0, 37.9, 0), "D1": (35.0, 29.0, 0), "R3": (27.0, 34.0, 90), "R4": (39.0, 34.0, 90),
+    "C8": (55.0, 31.0, 0), "C2": (53.0, 33.2, 0), "U2": (48.0, 35.5, 0), "C3": (53.0, 35.5, 0), "C9": (41.5, 39.5, 0),
+    "U1": (45.5, 15.0, 270), "C1": (49.75, 5.9, 90), "C11": (45.0, 4.5, 90), "R1": (31.0, 18.5, 90), "C6": (31.0, 21.0, 90), "R2": (31.0, 12.0, 90), "R10": (29.0, 26.0, 90),
+    "U3": (12.0, 12.0, 0), "C4": (10.75, 18.2, 270), "C10": (4.5, 7.0, 90),
+    "U4": (27.0, 5.5, 0), "C5": (23.8, 5.0, 180), "R7": (30.5, 5.0, 90), "C7": (30.5, 9.0, 90),
+    "R5": (25.0, 13.0, 90), "R6": (28.0, 13.0, 90),
+    "J4": (3.0, 24.0, 90), "SW1": (23.0, 23.5, 0), "SW2": (30.0, 23.5, 0),
+    "J3": (14.0, 37.5, 0), "R8": (20.0, 29.0, 0), "LED1": (24.0, 29.0, 0), "R9": (20.0, 32.0, 0), "LED2": (24.0, 32.0, 0),
+}
+HOLES = [(3, 3), (49, 3), (3, H - 3), (W - 3, H - 3)]
+
+
+def comp_fields(net_path):
+    """{ref: {field name: value}} from the netlist's (fields ...) blocks."""
+    out = {}
+    for comp in Sexp(open(net_path).read()).search("export/components/comp"):
+        ref = comp.search("ref").value
+        out[ref] = {f[1][1]: (f[2] if len(f) > 2 else "")
+                    for f in comp.search("fields/field")}
+    return out
+
+
+def main():
+    # Gate 1: regenerate the netlist from the canonical SKiDL source; typed ERC
+    # must pass before the independent schematic.py/verify.py model is checked.
+    r = subprocess.run([sys.executable, os.path.join(HERE, "pnb1_skidl.py")], cwd=HERE)
+    if r.returncode:
+        sys.exit("pnb1_skidl.py failed typed ERC — not building")
+
+    netlist = parse_netlist(NET)
+    fields = comp_fields(NET)
+
+    board = pcbnew.BOARD()
+    keep = []  # python refs to objects the board now owns (else SWIG frees them -> segfault)
+
+    def add(item):
+        board.Add(item); item.thisown = False; keep.append(item); return item
+    ds = board.GetDesignSettings()
+    ds.SetCopperLayerCount(2)
+    nc = ds.m_NetSettings.GetDefaultNetclass()
+    nc.SetClearance(mm(0.2)); nc.SetTrackWidth(mm(0.25)); nc.SetViaDiameter(mm(0.6)); nc.SetViaDrill(mm(0.3))
+    power = pcbnew.NETCLASS("power"); power.SetClearance(mm(0.2)); power.SetTrackWidth(mm(0.5)); power.SetViaDiameter(mm(0.8)); power.SetViaDrill(mm(0.4))
+    ds.m_NetSettings.GetNetclasses()["power"] = power
+    for net in ("3V3", "VBUS"):
+        ds.m_NetSettings.SetNetclassPatternAssignment(net, "power")
+    # Absolute manufacturing floors. Normal nets retain 0.2 mm; only the
+    # USB-C receptacle uses the 0.09 mm copper-clearance floor. The SCD41's
+    # exact 0.25 mm NPTH has at least 0.2 mm copper-to-hole clearance.
+    ds.m_MinClearance = mm(0.09)
+    ds.m_HoleClearance = mm(0.20)
+    ds.m_TrackMinWidth = mm(0.15)
+    ds.m_ViasMinSize = mm(0.5)
+    ds.m_MinThroughDrill = mm(0.25)  # Sensirion SCD4x thermal-relief-hole requirement
+
+    # footprints from the netlist
+    fps = {}
+    for part in netlist.parts:
+        ref = part.ref
+        libname, fpname = part.footprint.split(":")
+        fp = pcbnew.FootprintLoad(LIBDIR, fpname)
+        if fp is None:
+            sys.exit(f"footprint {fpname} not found for {ref}")
+        fp.SetReference(ref); fp.SetValue(part.value)
+        fp.Value().SetVisible(False)
+        fp.Reference().SetLayer(pcbnew.F_Fab); fp.Reference().SetTextSize(pcbnew.VECTOR2I(mm(0.7), mm(0.7)))
+        for field in fp.GetFields():
+            if field.GetLayer() in (pcbnew.F_SilkS, pcbnew.B_SilkS) and field is not fp.Reference():
+                field.SetVisible(False)
+        if ref == "J1":
+            for p in fp.Pads():
+                if p.GetNumber() == "":
+                    p.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); p.SetNumber("PEG")
+                p.SetLocalClearance(mm(0.09))  # receptacle pad pitch is tighter than the board rule; JLC basic part
+        if ref == "J3":
+            fp.SetAttributes(fp.GetAttributes() | pcbnew.FP_EXCLUDE_FROM_BOM | pcbnew.FP_EXCLUDE_FROM_POS_FILES)
+        for fname in ("LCSC Part #", "MPN", "Description"):
+            if fields.get(ref, {}).get(fname):
+                fp.SetField(fname, fields[ref][fname])
+        for f in fp.GetFields():  # new fields default to visible on silk
+            if f.GetName() in ("LCSC Part #", "MPN", "Description"):
+                f.SetVisible(False); f.SetLayer(pcbnew.F_Fab)
+        for item in list(fp.GraphicalItems()):
+            if item.GetLayer() in (pcbnew.F_SilkS, pcbnew.B_SilkS):
+                item.SetLayer(pcbnew.F_Fab)  # use unclipped board-level labels instead
+        add(fp); fps[ref] = fp
+
+    # nets from the netlist
+    for net in netlist.nets:
+        ni = add(pcbnew.NETINFO_ITEM(board, net.name))
+        for pin in net.pins:
+            for p in fps[pin.ref].Pads():
+                if p.GetNumber() == pin.num:
+                    p.SetNet(ni)
+
+    # outline
+    corners = [(0, 0), (W, 0), (W, H), (0, H)]
+    for i in range(4):
+        s = pcbnew.PCB_SHAPE(board); s.SetShape(pcbnew.SHAPE_T_SEGMENT)
+        s.SetStart(P(*corners[i])); s.SetEnd(P(*corners[(i + 1) % 4])); s.SetLayer(pcbnew.Edge_Cuts); s.SetWidth(mm(0.1)); add(s)
+
+    # mounting holes (NPTH 2.7 mm for M2.5)
+    for i, (x, y) in enumerate(HOLES):
+        fp = pcbnew.FOOTPRINT(board); fp.SetReference(f"H{i+1}"); fp.SetValue("M2.5")
+        fp.SetAttributes(pcbnew.FP_EXCLUDE_FROM_BOM | pcbnew.FP_EXCLUDE_FROM_POS_FILES)
+        pad = pcbnew.PAD(fp); pad.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); pad.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
+        pad.SetSize(pcbnew.VECTOR2I(mm(2.7), mm(2.7))); pad.SetDrillSize(pcbnew.VECTOR2I(mm(2.7), mm(2.7)))
+        ls = pcbnew.LSET()
+        for L in (pcbnew.F_Cu, pcbnew.B_Cu, pcbnew.F_Mask, pcbnew.B_Mask):
+            ls.addLayer(L)
+        pad.SetLayerSet(ls)
+        fp.Add(pad); pad.thisown = False; add(fp); fp.SetPosition(P(x, y))
+        fp.Reference().SetVisible(False)
+
+    # placement
+    for ref, (x, y, rot) in PLACE.items():
+        fps[ref].SetPosition(P(x, y)); fps[ref].SetOrientationDegrees(rot)
+    missing = set(fps) - set(PLACE)
+    if missing:
+        sys.exit(f"unplaced: {missing}")
+
+    # The second, independent schematic representation checks every real pad,
+    # vendor pin name, a generated KiCad schematic at all ERC severities, and
+    # the numeric margins. Its self-test is run by the acceptance harness.
+    import verify
+    pad_names = {
+        ref: [pad.GetName() for pad in fp.Pads() if pad.GetAttribute() != pcbnew.PAD_ATTRIB_NPTH]
+        for ref, fp in fps.items()
+    }
+    assert set(pad_names["U3"]) == {str(n) for n in range(1, 21)}, "SCD41 must have exactly 20 electrical lands"
+    u3_npth = [pad for pad in fps["U3"].Pads() if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH]
+    assert len(u3_npth) == 1 and u3_npth[0].GetDrillSize().x == mm(0.25), "SCD41 thermal-relief hole must be 0.25 mm NPTH"
+    assert u3_npth[0].GetSize().x == u3_npth[0].GetDrillSize().x, "SCD41 relief hole must have no copper annulus"
+    for pad_number in ("10", "11"):
+        pad = next(p for p in fps["U3"].Pads() if p.GetNumber() == pad_number)
+        assert sorted((pad.GetSize().x, pad.GetSize().y)) == [mm(0.8), mm(1.44)], "SCD41 lands 10/11 preserve JLCPCB NPTH clearance"
+    verify.run(pad_names)
+
+    def silk(text, x, y, size=0.8, rot=0):
+        t = pcbnew.PCB_TEXT(board); t.SetText(text); t.SetPosition(P(x, y)); t.SetLayer(pcbnew.F_SilkS)
+        t.SetTextSize(pcbnew.VECTOR2I(mm(size), mm(size))); t.SetTextThickness(mm(0.15)); t.SetTextAngleDegrees(rot); add(t)
+    silk("BOOT", 23.0, 20.6); silk("RESET", 34.0, 25.5)
+    silk("UART", 3.0, 17.5, 0.8, 90); silk("J3 DNP", 14.0, 32.8, 0.8)
+    silk("USB-C", 33.0, 33.9, 0.8); silk("SCD41", 12.0, 20.0, 0.8); silk("BH1750", 27.0, 2.2, 0.8)
+    silk("+", 38.6, 39.5, 0.8)
+    # silkscreen title
+    t = pcbnew.PCB_TEXT(board); t.SetText(f"{BOARD} rev {REV} 2026-09-10"); t.SetPosition(P(15, 27.0))
+    t.SetLayer(pcbnew.F_SilkS); t.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); t.SetTextThickness(mm(0.15)); add(t)
+
+    # GND pours both layers, with an antenna keep-out on the module's antenna end (x > W-4.5)
+    gnd = board.FindNet("GND")
+    z = pcbnew.ZONE(board); z.SetLayerSet(pcbnew.LSET.AllCuMask()); z.SetNet(gnd)
+    z.Outline().NewOutline()
+    for (x, y) in [(0.5, 0.5), (W - 5.2, 0.5), (W - 5.2, H - 0.5), (0.5, H - 0.5)]:
+        z.Outline().Append(mm(x), mm(y))
+    z.SetLocalClearance(mm(0.15)); z.SetMinThickness(mm(0.15)); z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+    z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+    z.SetIsFilled(True); add(z)
+    # LDO thermal: 3V3 copper on both layers around U2's tab (pad 4 at 45.0/35.5), tied with vias in route.py
+    v3 = board.FindNet("3V3")
+    for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
+        z = pcbnew.ZONE(board); z.SetLayer(layer); z.SetNet(v3); z.Outline().NewOutline()
+        for (x, y) in [(38.5, 30.0), (49.5, 30.0), (49.5, 41.2), (38.5, 41.2)]:
+            z.Outline().Append(mm(x), mm(y))
+        z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25)); z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+        z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS); z.SetAssignedPriority(1); z.SetIsFilled(True); add(z)
+    ko = pcbnew.ZONE(board); ko.SetIsRuleArea(True); ko.SetDoNotAllowZoneFills(True); ko.SetDoNotAllowTracks(True); ko.SetDoNotAllowVias(True)
+    ko.SetLayerSet(pcbnew.LSET.AllCuMask()); ko.Outline().NewOutline()
+    for (x, y) in [(W - 4.6, 5), (W + 3, 5), (W + 3, 25), (W - 4.6, 25)]:
+        ko.Outline().Append(mm(x), mm(y))
+    add(ko)
+    # Sensirion SCD4x land pattern: the central 4.8 x 4.8 mm area is keep-free,
+    # not an exposed pad. The only opening is the 0.25 mm NPTH relief hole in
+    # the footprint between lands 10 and 11.
+    scd_ko = pcbnew.ZONE(board); scd_ko.SetIsRuleArea(True); scd_ko.SetDoNotAllowZoneFills(True)
+    scd_ko.SetDoNotAllowTracks(True); scd_ko.SetDoNotAllowVias(True)
+    scd_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); scd_ko.Outline().NewOutline()
+    for (x, y) in [(9.6, 9.6), (14.4, 9.6), (14.4, 14.4), (9.6, 14.4)]:
+        scd_ko.Outline().Append(mm(x), mm(y))
+    add(scd_ko)
+    # The 0.25 mm drill is centred at U3-local (2.94, 2.94). Sensirion calls
+    # for a 0.6 mm solder/flux keep-free diameter here. Represent that as a
+    # copper rule area, not as a netless plated-looking copper pad.
+    relief_ko = pcbnew.ZONE(board); relief_ko.SetIsRuleArea(True)
+    relief_ko.SetDoNotAllowZoneFills(True); relief_ko.SetDoNotAllowTracks(True); relief_ko.SetDoNotAllowVias(True)
+    relief_ko.SetDoNotAllowPads(False)
+    relief_ko.SetLayerSet(pcbnew.LSET.AllCuMask()); relief_ko.SetZoneName("SCD41_RELIEF_KEEPFREE_D0.66")
+    relief_ko.Outline().NewOutline()
+    cx, cy, radius = 14.94, 14.94, 0.33
+    for i in range(32):
+        angle = 2 * math.pi * i / 32
+        relief_ko.Outline().Append(mm(cx + radius * math.cos(angle)),
+                                  mm(cy + radius * math.sin(angle)))
+    add(relief_ko)
+    board.Save(OUT)
+    # zone fill segfaults on a fresh BOARD(); reload the saved file and fill there
+    b2 = pcbnew.LoadBoard(OUT)
+    pcbnew.ZONE_FILLER(b2).Fill(b2.Zones())
+    b2.Save(OUT)
+    print("saved", os.path.basename(OUT))
+
+    # JLCPCB BOM, grouped from the netlist's own fields (KiBot's bom output
+    # needs a schematic, which this flow does not have)
+    groups = defaultdict(lambda: {"refs": [], "values": set()})
+    for part in netlist.parts:
+        if part.ref == "J3":
+            continue
+        f = fields.get(part.ref, {})
+        key = (part.footprint.split(":")[1], f.get("LCSC Part #", ""), f.get("MPN", ""))
+        groups[key]["refs"].append(part.ref)
+        groups[key]["values"].add(part.value)
+    os.makedirs(os.path.join(HERE, "fab"), exist_ok=True)
+    with open(os.path.join(HERE, "fab", "bom.csv"), "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #", "MPN"])
+        for (fpname, lcsc, mpn), group in sorted(groups.items(), key=lambda kv: kv[1]["refs"][0]):
+            refs = group["refs"]
+            refs.sort(key=lambda r: (r.rstrip("0123456789"), int(r.lstrip("ABCDEFGHIJKLMNOPQRSTUVWXYZ") or 0)))
+            values = sorted(group["values"])
+            comment = values[0] if len(values) == 1 else mpn
+            w.writerow([comment, ",".join(refs), fpname, lcsc, mpn])
+    print("wrote fab/bom.csv")
+
+
+if __name__ == "__main__":
+    main()

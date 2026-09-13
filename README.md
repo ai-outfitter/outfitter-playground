@@ -1,5 +1,28 @@
 # Playground
 
+> [!IMPORTANT]
+> This review branch is the PCB-workflow playground. It temporarily pins the
+> stacked community-profiles work in PRs
+> [#88](https://github.com/ai-outfitter/community-profiles/pull/88),
+> [#90](https://github.com/ai-outfitter/community-profiles/pull/90), and
+> [#96](https://github.com/ai-outfitter/community-profiles/pull/96), and
+> [#102](https://github.com/ai-outfitter/community-profiles/pull/102), selects
+> `hardware-engineer`, and enables `pcb-design`. The profile is exercised
+> against `hardware/pnb-1`: an ESP32-S3 board whose shared I2C bus carries an
+> SCD41 CO2 sensor and BH1750 light sensor. Run `npm run pcb:build` to rebuild
+> the routed board and its JLCPCB-compatible fabrication package.
+>
+> `npm run test:pcb-workflow` still checks the workflow's consumer resolution
+> independently. `npm run pcb:build` proves the design toolchain, including a
+> live KiCad MCP inventory/project/schematic-ERC/board validation, typed ERC
+> with injected failures, numerical margins, pcbnew construction, a validated
+> routed seed (with explicit bounded freerouting regeneration), all-severity DRC, and
+> Gerber/BOM/CPL generation. Its supplier gate must match every fitted part and
+> record PCB, component, assembly, shipping, tariff/duty, tax, and other fees
+> as one reconciled landed-cost quote. It never submits an order and cannot
+> establish physical acceptance. Replace the branch pin with the release
+> containing the stack before this work is eligible for `main`.
+
 One pass through this repository teaches you how to use
 [Outfitter](https://github.com/ai-outfitter/outfitter): you end with your
 own copy of this repo whose committed [`.agents/`](.agents/settings.yml)
@@ -42,7 +65,7 @@ prompt, or division of labor.
    npm install -g @ai-outfitter/outfitter
    outfitter sync
    export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"   # the agents' github MCP reads this
-   outfitter run   # starts the engineer: .agents/settings.yml sets default_agent
+   outfitter run engineer   # the review branch defaults to hardware-engineer
    ```
 
 4. **Paste this bug report** — nothing more; the process comes from the
@@ -73,7 +96,7 @@ prompt, or division of labor.
    again:
 
    ```sh
-   outfitter run
+   outfitter run engineer
    ```
 
    ```text

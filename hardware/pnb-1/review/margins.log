@@ -1,0 +1,1 @@
+margins: peak=617 mA, sustained=200 mA, LDO sustained=0.34 W/96.2 C, coincident peak=1.05 W/192.7 C, I2C=4700 ohm; waivers: theta-JA=136 C/W pre-prototype engineering bound; retire with thermocouple measurement at 5 V, 200 mA, and 50 C ambient; sustained-current=firmware-enforced 200 mA sustained limit; verify on the assembled prototype before functional release

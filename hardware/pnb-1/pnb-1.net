@@ -1,0 +1,1679 @@
+(export
+  (version "D")
+  (design
+    (source "pnb1_skidl.py")
+    (date "09/10/2026 09:17 PM")
+    (tool "SKiDL (2.3.0)")
+    (sheet
+      (number 1)
+      (name "/")
+      (tstamps "/")
+      (title_block
+        (title)
+        (company)
+        (rev)
+        (date)
+        (source "pnb1_skidl.py")
+        (comment
+          (number "1")
+          (value ""))
+        (comment
+          (number "2")
+          (value ""))
+        (comment
+          (number "3")
+          (value ""))
+        (comment
+          (number "4")
+          (value ""))
+        (comment
+          (number "5")
+          (value ""))
+        (comment
+          (number "6")
+          (value ""))
+        (comment
+          (number "7")
+          (value ""))
+        (comment
+          (number "8")
+          (value ""))
+        (comment
+          (number "9")
+          (value "")))))
+  (components
+    (comp
+      (ref "C1")
+      (value "100nF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C14663")
+        (field
+          (name "MPN") "CC0603KRX7R9BB104")
+        (field
+          (name "Description") "U1 3V3 decoupling")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html")
+        (field
+          (name "SKiDL Tag") "C1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CC0603KRX7R9BB104"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "b514d237-c153-5f6d-afe2-53badf97a864"))
+    (comp
+      (ref "C10")
+      (value "10uF")
+      (description "")
+      (footprint "artera:C0805")
+      (fields
+        (field
+          (name "LCSC Part #") "C15850")
+        (field
+          (name "MPN") "CL21A106KAYNNNE")
+        (field
+          (name "Description") "U3 VDD bulk (205 mA maximum)")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0805")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A106KAYNNNE_10uF-106-10-25V_C15850.html")
+        (field
+          (name "SKiDL Tag") "C10")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CL21A106KAYNNNE"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "9ac3af44-dacb-5cab-9570-74696fc5614f"))
+    (comp
+      (ref "C11")
+      (value "10uF")
+      (description "")
+      (footprint "artera:C0805")
+      (fields
+        (field
+          (name "LCSC Part #") "C15850")
+        (field
+          (name "MPN") "CL21A106KAYNNNE")
+        (field
+          (name "Description") "U1 3V3 bulk at the module")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0805")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A106KAYNNNE_10uF-106-10-25V_C15850.html")
+        (field
+          (name "SKiDL Tag") "C11")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CL21A106KAYNNNE"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "d4017ae0-ca40-581e-bf8a-e168323602ea"))
+    (comp
+      (ref "C2")
+      (value "100nF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C14663")
+        (field
+          (name "MPN") "CC0603KRX7R9BB104")
+        (field
+          (name "Description") "U2 VIN decoupling")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html")
+        (field
+          (name "SKiDL Tag") "C2")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CC0603KRX7R9BB104"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "507fddd0-e494-5270-a7e4-2511aa140519"))
+    (comp
+      (ref "C3")
+      (value "100nF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C14663")
+        (field
+          (name "MPN") "CC0603KRX7R9BB104")
+        (field
+          (name "Description") "U2 VOUT decoupling")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html")
+        (field
+          (name "SKiDL Tag") "C3")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CC0603KRX7R9BB104"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "299afff0-b6cf-50c0-a677-db76bcc001ee"))
+    (comp
+      (ref "C4")
+      (value "100nF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C14663")
+        (field
+          (name "MPN") "CC0603KRX7R9BB104")
+        (field
+          (name "Description") "U3 VDD decoupling")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html")
+        (field
+          (name "SKiDL Tag") "C4")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CC0603KRX7R9BB104"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "6f9a1813-19d4-5d20-adea-8868e7232e30"))
+    (comp
+      (ref "C5")
+      (value "100nF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C14663")
+        (field
+          (name "MPN") "CC0603KRX7R9BB104")
+        (field
+          (name "Description") "U4 VCC decoupling")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html")
+        (field
+          (name "SKiDL Tag") "C5")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CC0603KRX7R9BB104"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "1d55401a-d19b-530c-b57c-5c75b8c48e01"))
+    (comp
+      (ref "C6")
+      (value "1uF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C15849")
+        (field
+          (name "MPN") "CL10A105KB8NNNC")
+        (field
+          (name "Description") "EN RC")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL10A105KB8NNNC_1uF-105-10-50V_C15849.html")
+        (field
+          (name "SKiDL Tag") "C6")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CL10A105KB8NNNC"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "a6fd326a-61cc-55ba-9b64-3e8df39c0c42"))
+    (comp
+      (ref "C7")
+      (value "1uF")
+      (description "")
+      (footprint "artera:C0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C15849")
+        (field
+          (name "MPN") "CL10A105KB8NNNC")
+        (field
+          (name "Description") "BH1750 DVI")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL10A105KB8NNNC_1uF-105-10-50V_C15849.html")
+        (field
+          (name "SKiDL Tag") "C7")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CL10A105KB8NNNC"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "16338a68-8eed-55bf-a491-963475c6f7f3"))
+    (comp
+      (ref "C8")
+      (value "10uF")
+      (description "")
+      (footprint "artera:C0805")
+      (fields
+        (field
+          (name "LCSC Part #") "C15850")
+        (field
+          (name "MPN") "CL21A106KAYNNNE")
+        (field
+          (name "Description") "VBUS bulk")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:C0805")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_SAMSUNG_CL21A106KAYNNNE_10uF-106-10-25V_C15850.html")
+        (field
+          (name "SKiDL Tag") "C8")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "CL21A106KAYNNNE"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "5745235a-c3ad-560a-9498-c294be8e78c3"))
+    (comp
+      (ref "C9")
+      (value "22uF tantalum")
+      (description "")
+      (footprint "artera:CASE-A_3216")
+      (fields
+        (field
+          (name "LCSC Part #") "C11366")
+        (field
+          (name "MPN") "TAJA226K010RNJ")
+        (field
+          (name "Description") "U2 VOUT stability capacitor, 10 V, 3 ohm ESR")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:CASE-A_3216")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Tantalum-Capacitors_AVX_TAJA226K010RNJ_22uF-226-10-10V_C11366.html")
+        (field
+          (name "SKiDL Tag") "C9")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "TAJA226K010RNJ"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "9ccc330f-2a4c-575c-9353-ad8096a286cf"))
+    (comp
+      (ref "D1")
+      (value "USBLC6-2SC6")
+      (description "")
+      (footprint "artera:SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL")
+      (fields
+        (field
+          (name "LCSC Part #") "C2687116")
+        (field
+          (name "MPN") "USBLC6-2SC6")
+        (field
+          (name "Description") "USB ESD array")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL")
+        (field
+          (name "Datasheet") "https://www.lcsc.com/datasheet/C2687116.pdf")
+        (field
+          (name "SKiDL Tag") "D1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "USBLC6-2SC6_C2687116"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "730dc923-5f42-5190-a58b-2dbed3a5d5b0"))
+    (comp
+      (ref "J1")
+      (value "USB-C 16P")
+      (description "")
+      (footprint "artera:USB-C_SMD-TYPE-C-31-M-12_1")
+      (fields
+        (field
+          (name "LCSC Part #") "C165948")
+        (field
+          (name "MPN") "TYPE-C-31-M-12")
+        (field
+          (name "Description") "USB-C receptacle USB 2.0")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:USB-C_SMD-TYPE-C-31-M-12_1")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/USB-Type-C_Korean-Hroparts-Elec-TYPE-C-31-M-12_C165948.html")
+        (field
+          (name "SKiDL Tag") "J1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "TYPE-C-31-M-12"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "d7608689-a7d2-514c-aa16-0f8bde5cf213"))
+    (comp
+      (ref "J3")
+      (value "DTR 2x6 DNP")
+      (description "")
+      (footprint "artera:HDR-TH_12P-P2.54-V-M-R2-C6-S2.54")
+      (fields
+        (field
+          (name "LCSC Part #") "DNP")
+        (field
+          (name "MPN") "DNP")
+        (field
+          (name "Description") "optional hand-installed daughter header (contract J3)")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:HDR-TH_12P-P2.54-V-M-R2-C6-S2.54")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Male-Header_Double-Rows2-6-pitch2-54mm_C66689.html")
+        (field
+          (name "SKiDL Tag") "J3")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "Header-Male-2.54_2x6"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "feeefe1a-2e42-5bb8-adfa-cd7486f50a6d"))
+    (comp
+      (ref "J4")
+      (value "UART 1x4")
+      (description "")
+      (footprint "artera:HDR-TH_4P-P2.54-V-M")
+      (fields
+        (field
+          (name "LCSC Part #") "C124378")
+        (field
+          (name "MPN") "B-2100S04P-A110")
+        (field
+          (name "Description") "UART0 header 3V3/TX/RX/GND")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:HDR-TH_4P-P2.54-V-M")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Male-Header_Headers-Pins-1-4P-2-54mm-Straight-line_C124378.html")
+        (field
+          (name "SKiDL Tag") "J4")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "Header-Male-2.54_1x4"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "c449faf0-e5d1-5f09-ba34-b969c94251c8"))
+    (comp
+      (ref "LED1")
+      (value "PWR")
+      (description "")
+      (footprint "artera:LED-SMD_L1.6-W0.8-R-RD")
+      (fields
+        (field
+          (name "LCSC Part #") "C2286")
+        (field
+          (name "MPN") "KT-0603R")
+        (field
+          (name "Description") "red 0603, 3V3 present")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:LED-SMD_L1.6-W0.8-R-RD")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Light-Emitting-Diodes-LED_Red-LED-0603_C2286.html")
+        (field
+          (name "SKiDL Tag") "LED1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "KT-0603R"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "302d481d-51b9-5faa-b153-941e60e3149b"))
+    (comp
+      (ref "LED2")
+      (value "USER")
+      (description "")
+      (footprint "artera:LED-SMD_L1.6-W0.8-R-RD")
+      (fields
+        (field
+          (name "LCSC Part #") "C2286")
+        (field
+          (name "MPN") "KT-0603R")
+        (field
+          (name "Description") "red 0603, GPIO21")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:LED-SMD_L1.6-W0.8-R-RD")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Light-Emitting-Diodes-LED_Red-LED-0603_C2286.html")
+        (field
+          (name "SKiDL Tag") "LED2")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "KT-0603R"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "6fd40d06-d9e6-5922-be12-9cd5e2374675"))
+    (comp
+      (ref "R1")
+      (value "10k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C25804")
+        (field
+          (name "MPN") "0603WAF1002T5E")
+        (field
+          (name "Description") "EN pull-up")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_10KR-1002-1_C25804.html")
+        (field
+          (name "SKiDL Tag") "R1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF1002T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "91628e47-8f83-5ba1-abed-4cb134d83eea"))
+    (comp
+      (ref "R10")
+      (value "10k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C25804")
+        (field
+          (name "MPN") "0603WAF1002T5E")
+        (field
+          (name "Description") "DTR_INT pull-up (contract: open-drain)")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_10KR-1002-1_C25804.html")
+        (field
+          (name "SKiDL Tag") "R10")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF1002T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "99b6d9e4-efbb-57f3-bc7c-dc7822d36beb"))
+    (comp
+      (ref "R2")
+      (value "10k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C25804")
+        (field
+          (name "MPN") "0603WAF1002T5E")
+        (field
+          (name "Description") "IO0 pull-up")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_10KR-1002-1_C25804.html")
+        (field
+          (name "SKiDL Tag") "R2")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF1002T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "91c587b0-c855-58aa-84a9-2ba4ce88549e"))
+    (comp
+      (ref "R3")
+      (value "5.1k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23186")
+        (field
+          (name "MPN") "0603WAF5101T5E")
+        (field
+          (name "Description") "CC1 Rd")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_5-1KR-5101-1_C23186.html")
+        (field
+          (name "SKiDL Tag") "R3")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF5101T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "9000ab58-0faa-55db-ba96-c3a9c048b920"))
+    (comp
+      (ref "R4")
+      (value "5.1k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23186")
+        (field
+          (name "MPN") "0603WAF5101T5E")
+        (field
+          (name "Description") "CC2 Rd")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_5-1KR-5101-1_C23186.html")
+        (field
+          (name "SKiDL Tag") "R4")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF5101T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "a3a00a8b-c8d1-582e-9de2-300987de8d24"))
+    (comp
+      (ref "R5")
+      (value "4.7k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23162")
+        (field
+          (name "MPN") "0603WAF4701T5E")
+        (field
+          (name "Description") "SDA pull-up")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_4-7KR-4701-1_C23162.html")
+        (field
+          (name "SKiDL Tag") "R5")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF4701T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "29f79588-e279-5ce8-b215-982a9074cc1e"))
+    (comp
+      (ref "R6")
+      (value "4.7k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23162")
+        (field
+          (name "MPN") "0603WAF4701T5E")
+        (field
+          (name "Description") "SCL pull-up")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_4-7KR-4701-1_C23162.html")
+        (field
+          (name "SKiDL Tag") "R6")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF4701T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "380e2b43-9216-5117-9f41-94795d9c3e8a"))
+    (comp
+      (ref "R7")
+      (value "1k")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C21190")
+        (field
+          (name "MPN") "0603WAF1001T5E")
+        (field
+          (name "Description") "BH1750 DVI")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_1KR-1001-1_C21190.html")
+        (field
+          (name "SKiDL Tag") "R7")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF1001T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "45fbc468-780f-56f4-b6ba-53310b6a0e74"))
+    (comp
+      (ref "R8")
+      (value "330R")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23138")
+        (field
+          (name "MPN") "0603WAF3300T5E")
+        (field
+          (name "Description") "power LED (red, Vf 2 V, ~4 mA)")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_330R-3300-1_C23138.html")
+        (field
+          (name "SKiDL Tag") "R8")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF3300T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "d4602b99-fd19-5b52-9a62-e3fbb9d2ed0c"))
+    (comp
+      (ref "R9")
+      (value "330R")
+      (description "")
+      (footprint "artera:R0603")
+      (fields
+        (field
+          (name "LCSC Part #") "C23138")
+        (field
+          (name "MPN") "0603WAF3300T5E")
+        (field
+          (name "Description") "user LED")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:R0603")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Chip-Resistor-Surface-Mount-UniOhm_330R-3300-1_C23138.html")
+        (field
+          (name "SKiDL Tag") "R9")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "0603WAF3300T5E"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "abe8364b-5ed9-593a-a990-c9655e96dd67"))
+    (comp
+      (ref "SW1")
+      (value "BOOT")
+      (description "")
+      (footprint "artera:SW-SMD_L3.9-W3.0-P4.45")
+      (fields
+        (field
+          (name "LCSC Part #") "C720477")
+        (field
+          (name "MPN") "TS-1088-AR02016")
+        (field
+          (name "Description") "tactile")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:SW-SMD_L3.9-W3.0-P4.45")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Tactile-Switches_XUNPU-TS-1088-AR02016_C720477.html")
+        (field
+          (name "SKiDL Tag") "SW1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "TS-1088-AR02016"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "ccd6b1b1-065e-52d8-bb15-76892f2b4e17"))
+    (comp
+      (ref "SW2")
+      (value "RESET")
+      (description "")
+      (footprint "artera:SW-SMD_L3.9-W3.0-P4.45")
+      (fields
+        (field
+          (name "LCSC Part #") "C720477")
+        (field
+          (name "MPN") "TS-1088-AR02016")
+        (field
+          (name "Description") "tactile")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:SW-SMD_L3.9-W3.0-P4.45")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Tactile-Switches_XUNPU-TS-1088-AR02016_C720477.html")
+        (field
+          (name "SKiDL Tag") "SW2")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "TS-1088-AR02016"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "7c5f82e1-e6ee-534e-8457-a60c4c3a8cf6"))
+    (comp
+      (ref "U1")
+      (value "ESP32-S3-MINI-1-N8")
+      (description "")
+      (footprint "artera:BULETM-SMD_ESP32-S3-MINI-1-N8")
+      (fields
+        (field
+          (name "LCSC Part #") "C2913206")
+        (field
+          (name "MPN") "ESP32-S3-MINI-1-N8")
+        (field
+          (name "Description") "Wi-Fi/BLE module, 8 MB flash, PCB antenna")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:BULETM-SMD_ESP32-S3-MINI-1-N8")
+        (field
+          (name "Datasheet") "https://www.lcsc.com/datasheet/C2913206.pdf")
+        (field
+          (name "SKiDL Tag") "U1")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "ESP32-S3-MINI-1-N8"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "f8fce87b-acde-5341-b554-4e93a034d648"))
+    (comp
+      (ref "U2")
+      (value "AMS1117-3.3")
+      (description "")
+      (footprint "artera:SOT-223-3_L6.5-W3.4-P2.30-LS7.0-BR")
+      (fields
+        (field
+          (name "LCSC Part #") "C6186")
+        (field
+          (name "MPN") "AMS1117-3.3")
+        (field
+          (name "Description") "3.3 V 1 A LDO")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:SOT-223-3_L6.5-W3.4-P2.30-LS7.0-BR")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Low-Dropout-Regulators-LDO_AMS_AMS1117-3-3_AMS1117-3-3_C6186.html")
+        (field
+          (name "SKiDL Tag") "U2")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "AMS1117-3.3"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "7a03e947-39e7-5554-99eb-b5f6bb184fae"))
+    (comp
+      (ref "U3")
+      (value "SCD41-D-R2")
+      (description "")
+      (footprint "artera:LGA-20_L10.1-W10.1-P1.25-TL_SCD41-D-R2")
+      (fields
+        (field
+          (name "LCSC Part #") "C3659294")
+        (field
+          (name "MPN") "SCD41-D-R2")
+        (field
+          (name "Description") "CO2/T/RH sensor, I2C 0x62")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:LGA-20_L10.1-W10.1-P1.25-TL_SCD41-D-R2")
+        (field
+          (name "Datasheet") "https://www.lcsc.com/datasheet/C3659294.pdf")
+        (field
+          (name "SKiDL Tag") "U3")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "SCD41-D-R2"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "d29b9cd6-156c-5987-b6f9-a6a085b1d5a7"))
+    (comp
+      (ref "U4")
+      (value "BH1750FVI-TR")
+      (description "")
+      (footprint "artera:WSOF-6_L2.6-W1.6-P0.50-TL-EP")
+      (fields
+        (field
+          (name "LCSC Part #") "C78960")
+        (field
+          (name "MPN") "BH1750FVI-TR")
+        (field
+          (name "Description") "ambient light sensor, I2C 0x23")
+        (field
+          (name "Description"))
+        (field
+          (name "Footprint") "artera:WSOF-6_L2.6-W1.6-P0.50-TL-EP")
+        (field
+          (name "Datasheet") "https://lcsc.com/product-detail/Sensors_ROHM_BH1750FVI-TR_BH1750FVI-TR_C78960.html")
+        (field
+          (name "SKiDL Tag") "U4")
+        (field
+          (name "SKiDL Line") "pnb1_skidl.py:61"))
+      (libsource
+        (lib "artera")
+        (part "BH1750FVI-TR"))
+      (sheetpath
+        (names "/")
+        (tstamps "/"))
+      (component_classes)
+      (tstamps "b2699459-f172-5b2a-8b70-5ef993fb2f77")))
+  (nets
+    (net
+      (code 1)
+      (name "3V3")
+      (class "Default")
+      (node
+        (ref "C1")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C10")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C11")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C3")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C4")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C5")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C9")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "J3")
+        (pin "3")
+        (pintype "INPUT"))
+      (node
+        (ref "J4")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R1")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R10")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R2")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R5")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R6")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R7")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "R8")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "3")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U2")
+        (pin "2")
+        (pintype "POWER-OUT"))
+      (node
+        (ref "U2")
+        (pin "4")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U3")
+        (pin "19")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U3")
+        (pin "7")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U4")
+        (pin "1")
+        (pintype "POWER-IN")))
+    (net
+      (code 2)
+      (name "CC1")
+      (class "Default")
+      (node
+        (ref "J1")
+        (pin "A5")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R3")
+        (pin "1")
+        (pintype "PULLDN")))
+    (net
+      (code 3)
+      (name "CC2")
+      (class "Default")
+      (node
+        (ref "J1")
+        (pin "B5")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R4")
+        (pin "1")
+        (pintype "PULLDN")))
+    (net
+      (code 4)
+      (name "DTR_ADCA")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "9")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "8")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 5)
+      (name "DTR_ADCB")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "10")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "13")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 6)
+      (name "DTR_GPIOA")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "7")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "11")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 7)
+      (name "DTR_GPIOB")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "8")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "12")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 8)
+      (name "DTR_GPIOC")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "11")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "14")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 9)
+      (name "DTR_INT")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "12")
+        (pintype "INPUT"))
+      (node
+        (ref "R10")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "U1")
+        (pin "5")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 10)
+      (name "DVI")
+      (class "Default")
+      (node
+        (ref "C7")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R7")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "U4")
+        (pin "5")
+        (pintype "INPUT")))
+    (net
+      (code 11)
+      (name "EN")
+      (class "Default")
+      (node
+        (ref "C6")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R1")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "SW2")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U1")
+        (pin "45")
+        (pintype "INPUT")))
+    (net
+      (code 12)
+      (name "GND")
+      (class "Default")
+      (node
+        (ref "C1")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C10")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C11")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C2")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C3")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C4")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C5")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C6")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C7")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C8")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C9")
+        (pin "2")
+        (pintype "INPUT"))
+      (node
+        (ref "D1")
+        (pin "2")
+        (pintype "POWER-IN"))
+      (node
+        (ref "J1")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "3")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "4")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "A1B12")
+        (pintype "POWER-OUT"))
+      (node
+        (ref "J1")
+        (pin "B1A12")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J3")
+        (pin "2")
+        (pintype "INPUT"))
+      (node
+        (ref "J3")
+        (pin "4")
+        (pintype "INPUT"))
+      (node
+        (ref "J4")
+        (pin "4")
+        (pintype "PASSIVE"))
+      (node
+        (ref "LED1")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "LED2")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R3")
+        (pin "2")
+        (pintype "INPUT"))
+      (node
+        (ref "R4")
+        (pin "2")
+        (pintype "INPUT"))
+      (node
+        (ref "SW1")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "SW2")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U1")
+        (pin "1")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "2")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "42")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "43")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "46")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "47")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "48")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "49")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "50")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "51")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "52")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "53")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "54")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "55")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "56")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "57")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "58")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "59")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "60")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U1")
+        (pin "GND")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U2")
+        (pin "1")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U3")
+        (pin "20")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U3")
+        (pin "6")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U4")
+        (pin "2")
+        (pintype "INPUT"))
+      (node
+        (ref "U4")
+        (pin "3")
+        (pintype "POWER-IN"))
+      (node
+        (ref "U4")
+        (pin "7")
+        (pintype "POWER-IN")))
+    (net
+      (code 13)
+      (name "IO0")
+      (class "Default")
+      (node
+        (ref "R2")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "SW1")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U1")
+        (pin "4")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 14)
+      (name "IO21")
+      (class "Default")
+      (node
+        (ref "R9")
+        (pin "1")
+        (pintype "INPUT"))
+      (node
+        (ref "U1")
+        (pin "25")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 15)
+      (name "LED_PWR")
+      (class "Default")
+      (node
+        (ref "LED1")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R8")
+        (pin "2")
+        (pintype "PULLUP")))
+    (net
+      (code 16)
+      (name "LED_USER")
+      (class "Default")
+      (node
+        (ref "LED2")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "R9")
+        (pin "2")
+        (pintype "INPUT")))
+    (net
+      (code 17)
+      (name "RXD0")
+      (class "Default")
+      (node
+        (ref "J4")
+        (pin "3")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U1")
+        (pin "40")
+        (pintype "INPUT")))
+    (net
+      (code 18)
+      (name "SCL")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "6")
+        (pintype "INPUT"))
+      (node
+        (ref "R6")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "U1")
+        (pin "10")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "U3")
+        (pin "9")
+        (pintype "INPUT"))
+      (node
+        (ref "U4")
+        (pin "6")
+        (pintype "INPUT")))
+    (net
+      (code 19)
+      (name "SDA")
+      (class "Default")
+      (node
+        (ref "J3")
+        (pin "5")
+        (pintype "INPUT"))
+      (node
+        (ref "R5")
+        (pin "2")
+        (pintype "PULLUP"))
+      (node
+        (ref "U1")
+        (pin "9")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "U3")
+        (pin "10")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "U4")
+        (pin "4")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 20)
+      (name "TXD0")
+      (class "Default")
+      (node
+        (ref "J4")
+        (pin "2")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U1")
+        (pin "39")
+        (pintype "OUTPUT")))
+    (net
+      (code 21)
+      (name "USB_DN")
+      (class "Default")
+      (node
+        (ref "D1")
+        (pin "3")
+        (pintype "PASSIVE"))
+      (node
+        (ref "D1")
+        (pin "4")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "A7")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "J1")
+        (pin "B7")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "U1")
+        (pin "23")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 22)
+      (name "USB_DP")
+      (class "Default")
+      (node
+        (ref "D1")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "D1")
+        (pin "6")
+        (pintype "PASSIVE"))
+      (node
+        (ref "J1")
+        (pin "A6")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "J1")
+        (pin "B6")
+        (pintype "BIDIRECTIONAL"))
+      (node
+        (ref "U1")
+        (pin "24")
+        (pintype "BIDIRECTIONAL")))
+    (net
+      (code 23)
+      (name "VBUS")
+      (class "Default")
+      (node
+        (ref "C2")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "C8")
+        (pin "1")
+        (pintype "PASSIVE"))
+      (node
+        (ref "D1")
+        (pin "5")
+        (pintype "POWER-IN"))
+      (node
+        (ref "J1")
+        (pin "A4B9")
+        (pintype "POWER-OUT"))
+      (node
+        (ref "J1")
+        (pin "B4A9")
+        (pintype "PASSIVE"))
+      (node
+        (ref "U2")
+        (pin "3")
+        (pintype "POWER-IN")))))
